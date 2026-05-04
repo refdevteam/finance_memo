@@ -66,14 +66,14 @@ export function OnboardingForm({ initialData }: { initialData?: Partial<Onboardi
           ))}
         </div>
         <CardTitle className="text-2xl font-bold">
-          {step === 1 && 'Tentang Anda'}
+          {step === 1 && 'Tentang Kamu'}
           {step === 2 && 'Preferensi Keuangan'}
           {step === 3 && 'Siap Memulai?'}
         </CardTitle>
         <CardDescription>
-          {step === 1 && 'Beritahu kami nama Anda untuk mempersonalisasi pengalaman Anda.'}
-          {step === 2 && 'Atur mata uang dan zona waktu default Anda.'}
-          {step === 3 && 'Konfirmasi data Anda dan mari mulai mengelola keuangan.'}
+          {step === 1 && 'Beritahu kami nama kamu untuk mempersonalisasi pengalaman kamu.'}
+          {step === 2 && 'Atur mata uang dan zona waktu default kamu.'}
+          {step === 3 && 'Konfirmasi data kamu dan mari mulai mengelola keuangan.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 min-h-[200px]">
@@ -82,7 +82,7 @@ export function OnboardingForm({ initialData }: { initialData?: Partial<Onboardi
             <Label htmlFor="full_name">Nama Lengkap</Label>
             <Input
               id="full_name"
-              placeholder="Masukkan nama lengkap Anda"
+              placeholder="Masukkan nama lengkap kamu"
               {...register('full_name')}
               className={errors.full_name ? 'border-destructive' : ''}
             />

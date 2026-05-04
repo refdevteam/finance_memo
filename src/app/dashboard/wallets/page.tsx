@@ -12,7 +12,7 @@ export default async function WalletsPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Manajemen Dompet</h1>
           <p className="text-slate-500 dark:text-slate-400">
-            Kelola semua sumber dana Anda di sini.
+            Kelola semua sumber dana kamu di sini.
           </p>
         </div>
         <WalletForm />
@@ -26,7 +26,7 @@ export default async function WalletsPage() {
           <div className="text-center">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Belum Ada Dompet</h3>
             <p className="text-slate-500 max-w-xs mx-auto">
-              Tambahkan dompet pertama Anda (seperti Tunai atau Bank) untuk mulai mencatat transaksi.
+              Tambahkan dompet pertama kamu (seperti Tunai atau Bank) untuk mulai mencatat transaksi.
             </p>
           </div>
           <WalletForm />

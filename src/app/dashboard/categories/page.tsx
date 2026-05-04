@@ -15,7 +15,7 @@ export default async function CategoriesPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Kategori Transaksi</h1>
           <p className="text-slate-500 dark:text-slate-400">
-            Daftar kategori untuk mengelompokkan keuangan Anda.
+            Daftar kategori untuk mengelompokkan keuangan kamu.
           </p>
         </div>
         <CategoryForm />

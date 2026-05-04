@@ -40,9 +40,9 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Ringkasan Keuangan</h1>
+          <h1 className="text-2xl font-bold tracking-tight dark:text-white">Ringkasan Keuangan</h1>
           <p className="text-slate-500 dark:text-slate-400">
-            Halo {profile?.full_name?.split(' ')[0] || 'User'}, inilah kondisi keuangan Anda bulan ini.
+            Halo {profile?.full_name?.split(' ')[0] || user.user_metadata?.full_name?.split(' ')[0] || 'User'}, inilah kondisi keuangan kamu bulan ini.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -56,12 +56,12 @@ export default async function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => (
-          <Card key={stat.label} className="border-none shadow-sm dark:bg-slate-900">
-            <CardContent className="p-6">
+          <Card key={stat.label}>
+            <CardContent>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{stat.label}</p>
-                  <h3 className="text-2xl font-bold mt-1">{stat.value}</h3>
+                  <h3 className="text-2xl font-bold mt-1 dark:text-white">{stat.value}</h3>
                 </div>
                 <div className={`${stat.bg} p-3 rounded-xl`}>
                   <stat.icon className={`h-6 w-6 ${stat.color}`} />
@@ -74,24 +74,24 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Chart Section (Placeholder) */}
-        <Card className="lg:col-span-2 border-none shadow-sm dark:bg-slate-900">
+        <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">Tren Pengeluaran</CardTitle>
+            <CardTitle className="text-lg font-semibold dark:text-white">Tren Pengeluaran</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px] flex items-center justify-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">
               <div className="text-center">
                 <PieChart className="h-12 w-12 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-500 text-sm">Grafik akan muncul setelah Anda memiliki transaksi.</p>
+                <p className="text-slate-500 text-sm">Grafik akan muncul setelah kamu memiliki transaksi.</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Recent Transactions Section */}
-        <Card className="border-none shadow-sm dark:bg-slate-900">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg font-semibold">Transaksi Terakhir</CardTitle>
+            <CardTitle className="text-lg font-semibold dark:text-white">Transaksi Terakhir</CardTitle>
             <History className="h-4 w-4 text-slate-400" />
           </CardHeader>
           <CardContent>
