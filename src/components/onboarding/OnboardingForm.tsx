@@ -23,7 +23,7 @@ type OnboardingData = z.infer<typeof schema>
 
 export function OnboardingForm({ initialData }: { initialData?: Partial<OnboardingData> }) {
   const [step, setStep] = useState(1)
-  const { register, handleSubmit, control, watch, formState: { errors, isSubmitting } } = useForm<OnboardingData>({
+  const { register, handleSubmit, control, watch, getValues, trigger, formState: { errors, isSubmitting } } = useForm<OnboardingData>({
     resolver: zodResolver(schema),
     defaultValues: {
       full_name: initialData?.full_name || '',
@@ -34,8 +34,18 @@ export function OnboardingForm({ initialData }: { initialData?: Partial<Onboardi
 
   // Watch values for summary screen
   const formData = watch()
+  const fullName = watch('full_name')
 
-  const nextStep = () => setStep((s) => s + 1)
+  const nextStep = async () => {
+    if (step === 1) {
+      const isValid = await trigger('full_name')
+      if (!isValid) {
+        toast.error('Tunggu, nama lengkap belum diisi dengan benar!')
+        return
+      }
+    }
+    setStep((s) => s + 1)
+  }
   const prevStep = () => setStep((s) => s - 1)
 
   const onSubmit = async (data: OnboardingData) => {
@@ -162,7 +172,7 @@ export function OnboardingForm({ initialData }: { initialData?: Partial<Onboardi
           <ChevronLeft className="mr-2 h-4 w-4" /> Kembali
         </Button>
         {step < 3 ? (
-          <Button onClick={nextStep} disabled={step === 1 && !formData.full_name}>
+          <Button type="button" onClick={nextStep}>
             Lanjut <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         ) : (

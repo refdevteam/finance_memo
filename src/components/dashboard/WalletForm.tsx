@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 export function WalletForm() {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [type, setType] = useState('cash')
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -33,7 +34,7 @@ export function WalletForm() {
     const formData = new FormData(e.currentTarget)
     const data = {
       name: formData.get('name') as string,
-      type: formData.get('type') as string,
+      type: type,
       balance: Number(formData.get('balance')),
       color: formData.get('color') as string,
     }
@@ -71,14 +72,17 @@ export function WalletForm() {
           
           <div className="space-y-2">
             <Label htmlFor="type">Tipe</Label>
-            <Select name="type" defaultValue="cash">
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih tipe" />
+            <input type="hidden" name="type" value={type} required />
+            <Select value={type} onValueChange={(val) => setType(val || 'cash')}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Pilih tipe">
+                  {type === 'cash' ? 'Tunai (Cash)' : type === 'bank' ? 'Bank' : 'E-Wallet'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="cash">Tunai (Cash)</SelectItem>
                 <SelectItem value="bank">Bank</SelectItem>
-                <SelectItem value="e-wallet">E-Wallet</SelectItem>
+                <SelectItem value="ewallet">E-Wallet</SelectItem>
               </SelectContent>
             </Select>
           </div>

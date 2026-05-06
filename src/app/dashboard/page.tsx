@@ -10,6 +10,8 @@ import {
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { TransactionForm } from '@/components/transactions/TransactionForm'
+import { RecentTransactions } from '@/components/dashboard/RecentTransactions'
 
 export default async function DashboardPage() {
   const supabase = createClient()
@@ -46,10 +48,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button className="bg-emerald-600 hover:bg-emerald-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Transaksi Baru
-          </Button>
+          <TransactionForm />
         </div>
       </div>
 
@@ -96,9 +95,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              <div className="flex items-center justify-center py-12">
-                <p className="text-slate-500 text-sm italic">Belum ada transaksi.</p>
-              </div>
+              <RecentTransactions />
             </div>
             <Button variant="ghost" className="w-full text-slate-500 mt-4 text-sm">
               Lihat Semua

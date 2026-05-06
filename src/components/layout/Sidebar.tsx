@@ -27,6 +27,7 @@ import {
   SheetTitle
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
+import { TransactionForm } from '@/components/transactions/TransactionForm'
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
@@ -85,10 +86,7 @@ function SidebarContent({ pathname }: { pathname: string }) {
       </div>
 
       <div className="px-4 mb-4">
-        <button className="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none font-medium text-sm">
-          <PlusCircle className="h-4 w-4" />
-          <span>Tambah Transaksi</span>
-        </button>
+        <TransactionForm />
       </div>
 
       <nav className="flex-1 px-4 space-y-1">
