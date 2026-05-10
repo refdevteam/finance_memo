@@ -12,13 +12,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { InlineSelect } from '@/components/ui/inline-select'
 import { addTransaction } from '@/actions/transactions'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
@@ -161,43 +155,29 @@ export function TransactionForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="wallet_id">Dompet</Label>
-            <Select value={walletId} onValueChange={(val) => setWalletId(val || '')} required>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Pilih sumber dana">
-                  {walletId ? wallets.find(w => w.id === walletId)?.name : null}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {wallets.length === 0 ? (
-                  <SelectItem value="empty" disabled>Belum ada dompet</SelectItem>
-                ) : (
-                  wallets.map(w => (
-                    <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+            <Label>Dompet</Label>
+            <InlineSelect
+              options={wallets.length === 0 
+                ? [{ value: '', label: 'Belum ada dompet', disabled: true }]
+                : wallets.map(w => ({ value: w.id, label: w.name }))
+              }
+              value={walletId}
+              onChange={setWalletId}
+              placeholder="Pilih sumber dana"
+            />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category_id">Kategori</Label>
-            <Select value={categoryId} onValueChange={(val) => setCategoryId(val || '')} required>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Pilih kategori">
-                  {categoryId ? categories.find(c => c.id === categoryId)?.name : null}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {filteredCategories.length === 0 ? (
-                  <SelectItem value="empty" disabled>Belum ada kategori</SelectItem>
-                ) : (
-                  filteredCategories.map(c => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+            <Label>Kategori</Label>
+            <InlineSelect
+              options={filteredCategories.length === 0
+                ? [{ value: '', label: 'Belum ada kategori', disabled: true }]
+                : filteredCategories.map(c => ({ value: c.id, label: c.name }))
+              }
+              value={categoryId}
+              onChange={setCategoryId}
+              placeholder="Pilih kategori"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

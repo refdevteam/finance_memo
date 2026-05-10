@@ -12,19 +12,19 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { InlineSelect } from '@/components/ui/inline-select'
 import { createCategory } from '@/actions/categories'
 import { toast } from 'sonner'
+
+const categoryTypeOptions = [
+  { value: 'income', label: 'Pemasukan (Income)' },
+  { value: 'expense', label: 'Pengeluaran (Expense)' },
+]
 
 export function CategoryForm() {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [type, setType] = useState('expense')
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -33,7 +33,7 @@ export function CategoryForm() {
     const formData = new FormData(e.currentTarget)
     const data = {
       name: formData.get('name') as string,
-      type: formData.get('type') as 'income' | 'expense',
+      type: type as 'income' | 'expense',
       color: formData.get('color') as string,
       icon: 'Tag', // Default for now
     }
@@ -70,16 +70,13 @@ export function CategoryForm() {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="type">Tipe</Label>
-            <Select name="type" defaultValue="expense">
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih tipe" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="income">Pemasukan (Income)</SelectItem>
-                <SelectItem value="expense">Pengeluaran (Expense)</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label>Tipe</Label>
+            <InlineSelect
+              options={categoryTypeOptions}
+              value={type}
+              onChange={setType}
+              placeholder="Pilih tipe"
+            />
           </div>
 
           <div className="space-y-2">

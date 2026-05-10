@@ -2,9 +2,12 @@
 
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
+import { useForm, Controller, SubmitHandler } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { 
   Dialog, 
-  DialogContent, 
+  DialogContent,
   DialogHeader, 
   DialogTitle, 
   DialogTrigger 
@@ -12,36 +15,46 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { InlineSelect } from '@/components/ui/inline-select'
 import { createWallet } from '@/actions/wallets'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
+
+const schema = z.object({
+  name: z.string().min(1, 'Nama dompet wajib diisi'),
+  type: z.string().min(1, 'Tipe dompet wajib dipilih'),
+  balance: z.number().min(0, 'Saldo minimal 0'),
+  color: z.string().min(1),
+})
+
+type WalletData = z.infer<typeof schema>
+
+const walletTypeOptions = [
+  { value: 'cash', label: 'Tunai (Cash)' },
+  { value: 'bank', label: 'Bank' },
+  { value: 'ewallet', label: 'E-Wallet' },
+]
 
 export function WalletForm() {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [type, setType] = useState('cash')
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
-
-    const formData = new FormData(e.currentTarget)
-    const data = {
-      name: formData.get('name') as string,
-      type: type,
-      balance: Number(formData.get('balance')),
-      color: formData.get('color') as string,
+  
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<WalletData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: '',
+      type: 'cash',
+      balance: 0,
+      color: '#10b981',
     }
+  })
 
+  const onSubmit: SubmitHandler<WalletData> = async (data) => {
+    setLoading(true)
     try {
       await createWallet(data)
       setOpen(false)
+      reset()
       toast.success('Dompet baru telah ditambahkan.')
     } catch (error) {
       toast.error('Terjadi kesalahan saat menambah dompet.')
@@ -51,10 +64,16 @@ export function WalletForm() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog 
+      open={open} 
+      onOpenChange={(v) => {
+        setOpen(v)
+        if (!v) reset()
+      }}
+    >
       <DialogTrigger
         render={
-          <Button className="bg-emerald-600 hover:bg-emerald-700">
+          <Button type="button" className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20">
             <Plus className="h-4 w-4 mr-2" />
             Tambah Dompet
           </Button>
@@ -64,27 +83,34 @@ export function WalletForm() {
         <DialogHeader>
           <DialogTitle>Tambah Dompet Baru</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-4">
           <div className="space-y-2">
             <Label htmlFor="name">Nama Dompet</Label>
-            <Input id="name" name="name" placeholder="Contoh: Tabungan Utama" required />
+            <Input 
+              id="name" 
+              placeholder="Contoh: Tabungan Utama" 
+              {...register('name')}
+              className={errors.name ? 'border-destructive' : ''}
+            />
+            {errors.name && <p className="text-xs text-destructive mt-1">{errors.name.message}</p>}
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="type">Tipe</Label>
-            <input type="hidden" name="type" value={type} required />
-            <Select value={type} onValueChange={(val) => setType(val || 'cash')}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Pilih tipe">
-                  {type === 'cash' ? 'Tunai (Cash)' : type === 'bank' ? 'Bank' : 'E-Wallet'}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cash">Tunai (Cash)</SelectItem>
-                <SelectItem value="bank">Bank</SelectItem>
-                <SelectItem value="ewallet">E-Wallet</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label>Tipe Dompet</Label>
+            <Controller
+              name="type"
+              control={control}
+              render={({ field }) => (
+                <InlineSelect
+                  options={walletTypeOptions}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Pilih tipe dompet"
+                  error={!!errors.type}
+                />
+              )}
+            />
+            {errors.type && <p className="text-xs text-destructive mt-1">{errors.type.message}</p>}
           </div>
 
           <div className="space-y-2">
@@ -93,21 +119,21 @@ export function WalletForm() {
               <span className="absolute left-3 top-2.5 text-slate-500 text-sm">Rp</span>
               <Input 
                 id="balance" 
-                name="balance" 
                 type="number" 
-                className="pl-10" 
                 placeholder="0" 
-                required 
+                {...register('balance', { valueAsNumber: true })}
+                className={cn("pl-10", errors.balance ? "border-destructive" : "")}
               />
             </div>
+            {errors.balance && <p className="text-xs text-destructive mt-1">{errors.balance.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="color">Warna Label</Label>
-            <Input id="color" name="color" type="color" defaultValue="#10b981" className="h-10 p-1" />
+            <Input id="color" type="color" className="h-10 p-1" {...register('color')} />
           </div>
 
-          <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={loading}>
+          <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" disabled={loading}>
             {loading ? 'Menyimpan...' : 'Simpan Dompet'}
           </Button>
         </form>
