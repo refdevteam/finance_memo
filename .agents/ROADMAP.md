@@ -37,11 +37,11 @@ Tujuan: User bisa login, tambah transaksi manual, dan lihat dashboard sederhana.
 ---
 
 ### Week 3 — Transaksi Manual 🛠️ (Next)
-- [ ] Form tambah transaksi (income/expense)
-- [ ] Form transfer antar wallet
-- [ ] List transaksi dengan filter dasar (tipe, wallet)
-- [ ] Edit & hapus transaksi
-- [ ] Konfirmasi hapus modal
+- [x] Form tambah transaksi (income/expense)
+- [x] Form transfer antar wallet
+- [x] List transaksi dengan filter dasar (tipe, wallet)
+- [x] Edit & hapus transaksi
+- [x] Konfirmasi hapus modal
 
 **Deliverable:** User bisa mencatat transaksi manual lengkap.
 

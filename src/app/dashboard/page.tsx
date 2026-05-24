@@ -10,6 +10,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { TransactionForm } from '@/components/transactions/TransactionForm'
+import { TransferForm } from '@/components/transactions/TransferForm'
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions'
 import { SpendingTrendChart, CategoryPieChart } from '@/components/dashboard/DashboardCharts'
 
@@ -160,6 +161,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <TransferForm />
           <TransactionForm />
         </div>
       </div>

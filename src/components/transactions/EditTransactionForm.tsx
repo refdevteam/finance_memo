@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus } from 'lucide-react'
+import { Pencil } from 'lucide-react'
 import { 
   Dialog, 
   DialogContent, 
@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { InlineSelect } from '@/components/ui/inline-select'
-import { addTransaction } from '@/actions/transactions'
+import { updateTransaction } from '@/actions/transactions'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 
@@ -28,31 +28,29 @@ interface Category {
   type: string
 }
 
-export function TransactionForm() {
+interface EditTransactionFormProps {
+  transaction: {
+    id: string
+    wallet_id: string
+    category_id: string | null
+    amount: number
+    type: string
+    description: string | null
+    transaction_date: string
+  }
+}
+
+export function EditTransactionForm({ transaction }: EditTransactionFormProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [type, setType] = useState('expense')
+  const [type, setType] = useState(transaction.type)
   const [wallets, setWallets] = useState<Wallet[]>([])
   const [categories, setCategories] = useState<Category[]>([])
-  const [walletId, setWalletId] = useState<string>('')
-  const [categoryId, setCategoryId] = useState<string>('')
+  
+  const [walletId, setWalletId] = useState<string>(transaction.wallet_id)
+  const [categoryId, setCategoryId] = useState<string>(transaction.category_id || '')
   
   const filteredCategories = categories.filter(c => c.type === type)
-
-  // Initialize default selections when data loads or type changes
-  useEffect(() => {
-    if (wallets.length > 0 && !walletId) {
-      setWalletId(wallets[0].id)
-    }
-  }, [wallets, walletId])
-
-  useEffect(() => {
-    if (filteredCategories.length > 0) {
-      setCategoryId(filteredCategories[0].id)
-    } else {
-      setCategoryId('')
-    }
-  }, [type, categories])
 
   const supabase = createClient()
 
@@ -72,32 +70,46 @@ export function TransactionForm() {
         if (categoriesRes.data) setCategories(categoriesRes.data)
       }
       fetchData()
+      
+      // Reset state to initial data when opened
+      setType(transaction.type)
+      setWalletId(transaction.wallet_id)
+      setCategoryId(transaction.category_id || '')
     }
-  }, [open, supabase])
+  }, [open, supabase, transaction])
+
+  // Handle category fallback if switching types and category isn't valid
+  useEffect(() => {
+    if (open && categories.length > 0) {
+      const validCategoryForType = categories.find(c => c.id === categoryId && c.type === type)
+      if (!validCategoryForType) {
+        const firstCategoryOfType = categories.find(c => c.type === type)
+        setCategoryId(firstCategoryOfType?.id || '')
+      }
+    }
+  }, [type, categories, categoryId, open])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
-    
-    // Remove "Rp" and any non-numeric formatting if exist, just in case
     const rawAmount = (formData.get('amount') as string).replace(/[^0-9]/g, '')
 
     const data = {
       wallet_id: walletId,
       category_id: categoryId,
       amount: Number(rawAmount),
-      type: type as 'income' | 'expense' | 'transfer',
+      type: type as 'income' | 'expense',
       description: formData.get('description') as string,
       transaction_date: formData.get('transaction_date') as string,
     }
 
-    const result = await addTransaction(data)
+    const result = await updateTransaction(transaction.id, data)
     
     if (result.success) {
       setOpen(false)
-      toast.success('Transaksi berhasil dicatat!')
+      toast.success('Transaksi berhasil diperbarui!')
     } else {
       toast.error(result.error || 'Terjadi kesalahan.')
     }
@@ -105,17 +117,25 @@ export function TransactionForm() {
     setLoading(false)
   }
 
+  // Jika transaksi adalah transfer, kita disable edit karena belum didukung
+  if (transaction.type === 'transfer') {
+    return (
+      <Button variant="ghost" size="icon" disabled title="Edit transfer tidak didukung">
+        <Pencil className="h-4 w-4 text-slate-300" />
+      </Button>
+    )
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 rounded-xl">
-          <Plus className="h-4 w-4 mr-2" />
-          Transaksi Baru
+        <Button variant="ghost" size="icon" className="hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-500">
+          <Pencil className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Catat Transaksi</DialogTitle>
+          <DialogTitle>Edit Transaksi</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6 pt-4">
           
@@ -145,6 +165,7 @@ export function TransactionForm() {
                 id="amount" 
                 name="amount" 
                 type="number" 
+                defaultValue={transaction.amount}
                 className="pl-10 text-lg font-bold" 
                 placeholder="0" 
                 required 
@@ -156,7 +177,7 @@ export function TransactionForm() {
             <Label>Dompet</Label>
             <InlineSelect
               options={wallets.length === 0 
-                ? [{ value: '', label: 'Belum ada dompet', disabled: true }]
+                ? [{ value: '', label: 'Memuat dompet...', disabled: true }]
                 : wallets.map(w => ({ value: w.id, label: w.name }))
               }
               value={walletId}
@@ -169,7 +190,7 @@ export function TransactionForm() {
             <Label>Kategori</Label>
             <InlineSelect
               options={filteredCategories.length === 0
-                ? [{ value: '', label: 'Belum ada kategori', disabled: true }]
+                ? [{ value: '', label: 'Memuat kategori...', disabled: true }]
                 : filteredCategories.map(c => ({ value: c.id, label: c.name }))
               }
               value={categoryId}
@@ -185,7 +206,7 @@ export function TransactionForm() {
                 id="transaction_date" 
                 name="transaction_date" 
                 type="date" 
-                defaultValue={new Date().toISOString().split('T')[0]} 
+                defaultValue={transaction.transaction_date} 
                 required 
               />
             </div>
@@ -194,13 +215,14 @@ export function TransactionForm() {
               <Input 
                 id="description" 
                 name="description" 
+                defaultValue={transaction.description || ''}
                 placeholder="Makan siang..." 
               />
             </div>
           </div>
 
           <Button type="submit" className={`w-full text-white rounded-xl ${type === 'expense' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-emerald-600 hover:bg-emerald-700'}`} disabled={loading}>
-            {loading ? 'Menyimpan...' : 'Simpan Transaksi'}
+            {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
           </Button>
         </form>
       </DialogContent>

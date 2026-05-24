@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { TransactionForm } from '@/components/transactions/TransactionForm'
+import { TransferForm } from '@/components/transactions/TransferForm'
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
@@ -85,8 +86,9 @@ function SidebarContent({ pathname }: { pathname: string }) {
         </div>
       </div>
 
-      <div className="px-4 mb-4">
+      <div className="px-4 mb-4 flex flex-col gap-2">
         <TransactionForm />
+        <TransferForm />
       </div>
 
       <nav className="flex-1 px-4 space-y-1">
