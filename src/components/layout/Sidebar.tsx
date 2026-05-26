@@ -10,7 +10,6 @@ import {
   PieChart, 
   Settings, 
   LogOut,
-  PlusCircle,
   TrendingUp,
   Menu,
   Sun,

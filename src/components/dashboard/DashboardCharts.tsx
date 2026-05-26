@@ -50,11 +50,13 @@ function formatRupiah(amount: number): string {
 }
 
 // Custom tooltip for area chart
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-xl border border-slate-200/50 dark:border-slate-700/50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg shadow-lg p-3 text-xs">
       <p className="font-medium text-slate-600 dark:text-slate-300 mb-1.5">{label}</p>
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {payload.map((entry: any, idx: number) => (
         <div key={idx} className="flex items-center gap-2">
           <span
@@ -72,10 +74,12 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 // Custom legend renderer for pie chart
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomLegend({ payload }: any) {
   if (!payload?.length) return null
   return (
     <div className="flex flex-wrap gap-x-4 gap-y-1.5 justify-center mt-2">
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {payload.map((entry: any, idx: number) => (
         <div key={idx} className="flex items-center gap-1.5 text-xs">
           <span
@@ -92,6 +96,7 @@ function CustomLegend({ payload }: any) {
 }
 
 // Custom tooltip for pie chart
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function PieTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null
   const data = payload[0]

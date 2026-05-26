@@ -57,7 +57,7 @@ export function WalletForm() {
       reset()
       toast.success('Dompet baru telah ditambahkan.')
     } catch (error) {
-      toast.error('Terjadi kesalahan saat menambah dompet.')
+      toast.error(error instanceof Error ? error.message : 'Terjadi kesalahan saat menambah dompet.')
     } finally {
       setLoading(false)
     }

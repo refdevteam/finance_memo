@@ -54,6 +54,7 @@ export async function RecentTransactions() {
 
   return (
     <div className="space-y-2">
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {transactions.map((t: any) => {
         // Fallback untuk transaksi tanpa kategori
         const categoryColor = t.categories?.color || '#94a3b8' // slate-400
