@@ -10,19 +10,10 @@ export function GoogleLoginButton() {
   const [isLoading, setIsLoading] = useState(false)
   const supabase = createClient()
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     setIsLoading(true)
-    
-    let url = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    url = url.endsWith('/') ? url.slice(0, -1) : url
-
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${url}/auth/callback`,
-      },
-    })
-    // No need to set isLoading to false because it will redirect away
+    // Gunakan native browser navigation ke Route Handler khusus OAuth
+    window.location.href = '/auth/login/google'
   }
 
   return (
