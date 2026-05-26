@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { signInWithGoogle } from '@/actions/auth'
+import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton'
 import { Button } from '@/components/ui/button'
 import { GoogleIcon } from '@/components/auth/GoogleIcon'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -35,16 +35,7 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pt-4">
-          <form action={signInWithGoogle}>
-            <Button
-              variant="outline"
-              type="submit"
-              className="w-full h-12 text-base font-medium bg-slate-900 hover:bg-slate-800 text-white border-none transition-all duration-200"
-            >
-              <GoogleIcon className="mr-2 h-5 w-5" />
-              Lanjut dengan Google
-            </Button>
-          </form>
+          <GoogleLoginButton />
           
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
