@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton'
-import { Button } from '@/components/ui/button'
-import { GoogleIcon } from '@/components/auth/GoogleIcon'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export const metadata: Metadata = {
