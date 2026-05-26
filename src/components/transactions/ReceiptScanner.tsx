@@ -18,7 +18,7 @@ import { z } from 'zod'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { InlineSelect } from '@/components/ui/inline-select'
-import { createTransaction } from '@/actions/transactions'
+import { addTransaction } from '@/actions/transactions'
 import { markReceiptProcessed } from '@/actions/receipts'
 
 const schema = z.object({
@@ -114,8 +114,8 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
       }
       
       toast.success('Struk berhasil dibaca!')
-    } catch (error: any) {
-      toast.error(error.message)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Terjadi kesalahan')
     } finally {
       setIsScanning(false)
     }
@@ -125,15 +125,16 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
     setIsSaving(true)
     try {
       // 1. Simpan Transaksi
-      await createTransaction({
+      const res = await addTransaction({
         wallet_id: data.wallet_id,
-        category_id: data.category_id || undefined,
+        category_id: data.category_id || '',
         amount: data.amount,
         type: data.type,
         description: data.description,
         transaction_date: data.transaction_date,
-        receipt_id: data.receipt_id,
       })
+
+      if (!res?.success) throw new Error(res?.error || 'Gagal menyimpan transaksi')
 
       // 2. Update status receipt menjadi is_processed = true
       if (data.receipt_id) {
@@ -142,8 +143,8 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
 
       toast.success('Transaksi berhasil disimpan')
       handleClose()
-    } catch (error: any) {
-      toast.error('Gagal menyimpan transaksi')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Gagal menyimpan transaksi')
     } finally {
       setIsSaving(false)
     }
@@ -200,6 +201,7 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
               
               {previewUrl ? (
                 <div className="relative w-full max-w-[200px] mx-auto h-auto rounded-lg overflow-hidden shadow-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={previewUrl} alt="Preview" className="w-full h-auto object-cover" />
                   {!isScanning && (
                     <button 

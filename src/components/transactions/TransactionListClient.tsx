@@ -23,6 +23,7 @@ import { EditTransactionForm } from './EditTransactionForm'
 import { InlineSelect } from '@/components/ui/inline-select'
 
 interface TransactionListProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transactions: any[]
   wallets: { id: string, name: string }[]
 }

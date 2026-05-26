@@ -52,7 +52,7 @@ export function TransactionForm() {
     } else {
       setCategoryId('')
     }
-  }, [type, categories])
+  }, [type, categories, filteredCategories])
 
   const supabase = createClient()
 
