@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Array to capture cookies set by exchangeCodeForSession
-    const responseCookies: Array<{ name: string; value: string; options: any }> = []
+    const responseCookies: Array<{ name: string; value: string; options?: CookieOptions }> = []
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

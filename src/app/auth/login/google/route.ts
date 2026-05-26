@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export const dynamic = 'force-dynamic'
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   siteUrl = siteUrl.endsWith('/') ? siteUrl.slice(0, -1) : siteUrl
 
   // Array to capture cookies that need to be set during OAuth initialization
-  const responseCookies: Array<{ name: string; value: string; options: any }> = []
+  const responseCookies: Array<{ name: string; value: string; options?: CookieOptions }> = []
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
