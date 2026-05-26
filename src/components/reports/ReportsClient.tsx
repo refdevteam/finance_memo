@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Download, Filter, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
+import { Download, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -9,7 +9,7 @@ import { InlineSelect } from '@/components/ui/inline-select'
 import { toast } from 'sonner'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
-import { SpendingTrendChart, CategoryPieChart, SixMonthTrendChart } from '@/components/dashboard/DashboardCharts'
+import { CategoryPieChart, SixMonthTrendChart } from '@/components/dashboard/DashboardCharts'
 // Note: We are reusing the dashboard charts, but transforming the data differently for Reports
 
 function formatRupiah(amount: number): string {
@@ -38,8 +38,11 @@ export function ReportsClient({
   selectedYear,
   selectedWallet
 }: { 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   wallets: any[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   monthTransactions: any[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sixMonthTransactions: any[]
   selectedMonth: number
   selectedYear: number
@@ -63,6 +66,7 @@ export function ReportsClient({
 
   // -- DATA PREP FOR CATEGORY PIE CHART --
   const categoryMap = new Map<string, { name: string; value: number; color: string }>()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   monthTransactions.filter(t => t.type === 'expense').forEach((t: any) => {
     const catName = t.categories?.name || 'Lainnya'
     const catColor = t.categories?.color || '#94a3b8'

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Camera, UploadCloud, X, Loader2, Sparkles, CheckCircle } from 'lucide-react'
+import { Camera, X, Loader2, Sparkles, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { 
   Dialog,
@@ -33,12 +33,14 @@ const schema = z.object({
 
 type ReceiptData = z.infer<typeof schema>
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ReceiptScanner({ wallets, categories }: { wallets: any[], categories: any[] }) {
   const [open, setOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isScanning, setIsScanning] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [scanResult, setScanResult] = useState<any | null>(null)
   
   const fileInputRef = useRef<HTMLInputElement>(null)

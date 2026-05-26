@@ -23,7 +23,7 @@ type OnboardingData = z.infer<typeof schema>
 
 export function OnboardingForm({ initialData }: { initialData?: Partial<OnboardingData> }) {
   const [step, setStep] = useState(1)
-  const { register, handleSubmit, control, watch, getValues, trigger, formState: { errors, isSubmitting } } = useForm<OnboardingData>({
+  const { register, handleSubmit, control, watch, trigger, formState: { errors, isSubmitting } } = useForm<OnboardingData>({
     resolver: zodResolver(schema),
     defaultValues: {
       full_name: initialData?.full_name || '',
@@ -34,7 +34,6 @@ export function OnboardingForm({ initialData }: { initialData?: Partial<Onboardi
 
   // Watch values for summary screen
   const formData = watch()
-  const fullName = watch('full_name')
 
   const nextStep = async () => {
     if (step === 1) {
