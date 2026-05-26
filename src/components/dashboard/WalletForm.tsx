@@ -71,14 +71,12 @@ export function WalletForm() {
         if (!v) reset()
       }}
     >
-      <DialogTrigger
-        render={
-          <Button type="button" className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20">
-            <Plus className="h-4 w-4 mr-2" />
-            Tambah Dompet
-          </Button>
-        }
-      />
+      <DialogTrigger asChild>
+        <Button type="button" className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20">
+          <Plus className="h-4 w-4 mr-2" />
+          Tambah Dompet
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Tambah Dompet Baru</DialogTitle>

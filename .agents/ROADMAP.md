@@ -48,12 +48,12 @@ Tujuan: User bisa login, tambah transaksi manual, dan lihat dashboard sederhana.
 ---
 
 ### Week 4 — Dashboard & Polish
-- [ ] Dashboard summary cards (income, expense, balance, saving)
-- [ ] Grafik pengeluaran per kategori (pie chart — Recharts)
-- [ ] List 5 transaksi terakhir
-- [ ] Responsif mobile (sidebar collapse, bottom nav mobile)
-- [ ] Loading states & skeleton UI
-- [ ] Error boundaries
+- [x] Dashboard summary cards (income, expense, balance, saving)
+- [x] Grafik pengeluaran per kategori (pie chart — Recharts)
+- [x] List 5 transaksi terakhir
+- [x] Responsif mobile (sidebar collapse, bottom nav mobile)
+- [x] Loading states & skeleton UI
+- [x] Error boundaries
 
 **Deliverable:** MVP siap dipakai. Deploy ke Firebase App Hosting.
 
@@ -64,27 +64,27 @@ Tujuan: User bisa login, tambah transaksi manual, dan lihat dashboard sederhana.
 Tujuan: Fitur unggulan — scan struk AI dan laporan visual.
 
 ### Week 5 — AI Scan Struk
-- [ ] Setup Anthropic SDK
-- [ ] API route `/api/ai/scan-receipt`
-- [ ] Komponen ReceiptScanner (upload + preview)
-- [ ] Integrasi prompt ekstraksi struk
-- [ ] Auto-fill form transaksi dari hasil AI
-- [ ] Simpan ke tabel receipts
-- [ ] Konfirmasi user sebelum simpan
-- [ ] Error handling jika AI gagal / confidence rendah
-- [ ] Rate limiting (10 scan/user/jam)
+- [x] Setup Google Gemini SDK
+- [x] API route `/api/ai/scan-receipt`
+- [x] Komponen ReceiptScanner (upload + preview)
+- [x] Integrasi prompt ekstraksi struk
+- [x] Auto-fill form transaksi dari hasil AI
+- [x] Simpan ke tabel receipts
+- [x] Konfirmasi user sebelum simpan
+- [x] Error handling jika AI gagal / confidence rendah
+- [x] Rate limiting (10 scan/user/jam)
 
 **Deliverable:** User bisa scan struk dan data otomatis masuk ke form.
 
 ---
 
 ### Week 6 — Laporan & Export
-- [ ] Halaman laporan dengan filter bulan/tahun
-- [ ] Grafik tren 6 bulan (bar chart income vs expense)
-- [ ] Grafik breakdown per kategori
-- [ ] Filter by wallet di laporan
-- [ ] Export PDF via react-pdf atau jsPDF
-- [ ] Monthly trend di dashboard (chart 6 bulan)
+- [x] Halaman laporan dengan filter bulan/tahun
+- [x] Grafik tren 6 bulan (bar chart income vs expense)
+- [x] Grafik breakdown per kategori
+- [x] Filter by wallet di laporan
+- [x] Export PDF via react-pdf atau jsPDF
+- [x] Monthly trend di dashboard (chart 6 bulan)
 
 **Deliverable:** User bisa lihat laporan lengkap dan export PDF.
 

@@ -101,12 +101,14 @@ export function TransferForm() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
-          <ArrowRightLeft className="h-4 w-4 mr-2 text-slate-500 dark:text-slate-400" />
-          Transfer
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button variant="outline" className="rounded-xl shadow-sm border-slate-200 dark:border-slate-800">
+            <ArrowRightLeft className="h-4 w-4 mr-2" />
+            Transfer
+          </Button>
+        }
+      />
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Transfer Saldo</DialogTitle>

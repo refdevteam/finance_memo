@@ -107,12 +107,14 @@ export function TransactionForm() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 rounded-xl">
-          <Plus className="h-4 w-4 mr-2" />
-          Transaksi Baru
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 rounded-xl">
+            <Plus className="h-4 w-4 mr-2" />
+            Transaksi Baru
+          </Button>
+        }
+      />
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Catat Transaksi</DialogTitle>

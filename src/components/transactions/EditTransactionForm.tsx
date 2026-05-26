@@ -128,11 +128,13 @@ export function EditTransactionForm({ transaction }: EditTransactionFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-500">
-          <Pencil className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+            <Pencil className="h-4 w-4" />
+          </Button>
+        }
+      />
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Transaksi</DialogTitle>

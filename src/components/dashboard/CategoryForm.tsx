@@ -51,14 +51,12 @@ export function CategoryForm() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={
-          <Button variant="outline">
-            <Plus className="h-4 w-4 mr-2" />
-            Kategori Kustom
-          </Button>
-        }
-      />
+      <DialogTrigger asChild>
+        <Button variant="outline">
+          <Plus className="h-4 w-4 mr-2" />
+          Kategori Kustom
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Tambah Kategori Kustom</DialogTitle>

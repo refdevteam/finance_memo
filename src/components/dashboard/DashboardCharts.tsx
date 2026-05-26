@@ -3,6 +3,8 @@
 import {
   AreaChart,
   Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -204,6 +206,42 @@ export function CategoryPieChart({ data }: { data: CategoryData[] }) {
         <Tooltip content={<PieTooltip />} />
         <Legend content={<CustomLegend />} />
       </RechartsPie>
+    </ResponsiveContainer>
+  )
+}
+
+export function SixMonthTrendChart({ data }: { data: DailyData[] }) {
+  if (!data.length) {
+    return (
+      <div className="h-[300px] flex items-center justify-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">
+        <div className="text-center">
+          <p className="text-slate-400 text-sm">Belum ada data transaksi.</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={data} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.4} vertical={false} />
+        <XAxis 
+          dataKey="date" 
+          tick={{ fontSize: 11, fill: '#94a3b8' }} 
+          axisLine={false}
+          tickLine={false}
+        />
+        <YAxis 
+          tick={{ fontSize: 11, fill: '#94a3b8' }} 
+          tickFormatter={formatCompact}
+          axisLine={false}
+          tickLine={false}
+        />
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+        <Legend wrapperStyle={{ fontSize: '12px' }} />
+        <Bar dataKey="income" name="Pemasukan" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={20} />
+        <Bar dataKey="expense" name="Pengeluaran" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={20} />
+      </BarChart>
     </ResponsiveContainer>
   )
 }

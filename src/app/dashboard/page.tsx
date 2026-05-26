@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { TransactionForm } from '@/components/transactions/TransactionForm'
 import { TransferForm } from '@/components/transactions/TransferForm'
+import { ReceiptScanner } from '@/components/transactions/ReceiptScanner'
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions'
 import { SpendingTrendChart, CategoryPieChart } from '@/components/dashboard/DashboardCharts'
 
@@ -50,11 +51,11 @@ export default async function DashboardPage() {
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
 
   // Fetch all data in parallel
-  const [walletsRes, incomeRes, expenseRes, dailyTransactionsRes, categoryExpensesRes] = await Promise.all([
+  const [walletsRes, incomeRes, expenseRes, dailyTransactionsRes, categoryExpensesRes, categoriesRes] = await Promise.all([
     // Total balance from all active wallets
     supabase
       .from('wallets')
-      .select('balance')
+      .select('id, name, balance')
       .eq('user_id', user.id)
       .eq('is_active', true),
     
@@ -93,6 +94,12 @@ export default async function DashboardPage() {
       .eq('type', 'expense')
       .gte('transaction_date', startOfMonth)
       .lte('transaction_date', endOfMonth),
+      
+    // Fetch all categories for Receipt Scanner
+    supabase
+      .from('categories')
+      .select('id, name, type')
+      .or(`user_id.eq.${user.id},user_id.is.null`),
   ])
 
   // Stats calculations
@@ -160,7 +167,8 @@ export default async function DashboardPage() {
             Halo {profile?.full_name?.split(' ')[0] || user.user_metadata?.full_name?.split(' ')[0] || 'User'}, inilah kondisi keuangan kamu bulan ini.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <ReceiptScanner wallets={walletsRes.data || []} categories={categoriesRes.data || []} />
           <TransferForm />
           <TransactionForm />
         </div>
