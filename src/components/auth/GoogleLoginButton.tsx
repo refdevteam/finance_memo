@@ -3,12 +3,10 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { GoogleIcon } from '@/components/auth/GoogleIcon'
-import { createClient } from '@/lib/supabase/client'
 import { Loader2 } from 'lucide-react'
 
 export function GoogleLoginButton() {
   const [isLoading, setIsLoading] = useState(false)
-  const supabase = createClient()
 
   const handleLogin = () => {
     setIsLoading(true)
