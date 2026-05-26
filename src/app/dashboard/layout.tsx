@@ -12,11 +12,7 @@ export default async function DashboardLayout({
 
   if (!user) redirect('/auth/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+
 
   // Onboarding check in layout to ensure all dashboard subpages are protected
   // Except onboarding itself to avoid loop

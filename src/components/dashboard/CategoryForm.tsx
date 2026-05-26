@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Tag } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { 
   Dialog, 
   DialogContent, 
@@ -43,7 +43,7 @@ export function CategoryForm() {
       setOpen(false)
       toast.success('Kategori kustom telah ditambahkan.')
     } catch (error) {
-      toast.error('Terjadi kesalahan saat menambah kategori.')
+      toast.error(error instanceof Error ? error.message : 'Terjadi kesalahan saat menambah kategori.')
     } finally {
       setLoading(false)
     }

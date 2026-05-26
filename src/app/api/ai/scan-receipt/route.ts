@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
       const cleanedText = textOutput.replace(/```json/g, '').replace(/```/g, '').trim()
       parsedData = JSON.parse(cleanedText)
     } catch (parseErr) {
-      console.error('Failed to parse Gemini output:', textOutput)
+      console.error('Failed to parse Gemini output:', textOutput, parseErr)
       return NextResponse.json({ error: 'AI gagal membaca struk dengan baik' }, { status: 500 })
     }
 
@@ -128,8 +128,8 @@ export async function POST(req: NextRequest) {
       receipt_id: receiptRow?.id 
     })
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Scan receipt error:', error)
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 })
   }
 }

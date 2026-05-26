@@ -121,6 +121,7 @@ export default async function DashboardPage() {
   }
   
   // Fill with actual data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dailyTransactionsRes.data?.forEach((t: any) => {
     const existing = dailyMap.get(t.transaction_date) || { income: 0, expense: 0 }
     const amount = Number(t.amount || 0)
@@ -137,6 +138,7 @@ export default async function DashboardPage() {
 
   // Build category pie data
   const categoryMap = new Map<string, { name: string; value: number; color: string }>()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   categoryExpensesRes.data?.forEach((t: any) => {
     const catName = t.categories?.name || 'Lainnya'
     const catColor = t.categories?.color || '#94a3b8'
@@ -239,7 +241,7 @@ export default async function DashboardPage() {
           <div className="relative z-10">
             <h3 className="text-xl font-bold mb-2">Tips Hemat Hari Ini</h3>
             <p className="text-emerald-100 text-sm leading-relaxed">
-              "Jangan menabung apa yang tersisa setelah dibelanjakan, tetapi belanjakanlah apa yang tersisa setelah menabung." 
+              &quot;Jangan menabung apa yang tersisa setelah dibelanjakan, tetapi belanjakanlah apa yang tersisa setelah menabung.&quot; 
               — Warren Buffett
             </p>
           </div>

@@ -10,6 +10,7 @@ interface CategoryBadgeProps {
 
 export function CategoryBadge({ name, iconName, color, className }: CategoryBadgeProps) {
   // Dynamic icon loading from Lucide
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Icon = (LucideIcons as any)[iconName || 'Tag'] || LucideIcons.Tag
 
   return (

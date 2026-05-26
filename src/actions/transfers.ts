@@ -66,7 +66,7 @@ export async function addTransfer(data: TransferInput) {
     revalidatePath('/dashboard/transactions')
     
     return { success: true }
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Terjadi kesalahan sistem.' }
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
   }
 }

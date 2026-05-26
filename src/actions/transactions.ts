@@ -58,8 +58,8 @@ export async function addTransaction(data: TransactionInput) {
     revalidatePath('/dashboard/wallets')
     
     return { success: true }
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Terjadi kesalahan sistem.' }
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
   }
 }
 
@@ -118,8 +118,8 @@ export async function updateTransaction(id: string, data: TransactionInput) {
     revalidatePath('/dashboard/transactions')
     
     return { success: true }
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Terjadi kesalahan sistem.' }
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
   }
 }
 
@@ -163,7 +163,7 @@ export async function deleteTransaction(id: string) {
     revalidatePath('/dashboard/transactions')
     
     return { success: true }
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Terjadi kesalahan sistem.' }
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
   }
 }
