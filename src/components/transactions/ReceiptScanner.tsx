@@ -227,7 +227,10 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
                   <div className="grid grid-cols-2 gap-4 w-full">
                     {/* Kamera Card */}
                     <div 
-                      onClick={(e) => { e.stopPropagation(); !isScanning && cameraInputRef.current?.click() }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!isScanning) cameraInputRef.current?.click();
+                      }}
                       className="flex flex-col items-center justify-center p-6 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/20 dark:hover:bg-indigo-900/30 border border-indigo-150 dark:border-indigo-900 rounded-2xl cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] duration-200"
                     >
                       <div className="h-12 w-12 bg-indigo-600 text-white rounded-full flex items-center justify-center mb-3 shadow-md shadow-indigo-600/20">
@@ -239,7 +242,10 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
 
                     {/* Galeri Card */}
                     <div 
-                      onClick={(e) => { e.stopPropagation(); !isScanning && fileInputRef.current?.click() }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!isScanning) fileInputRef.current?.click();
+                      }}
                       className="flex flex-col items-center justify-center p-6 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/40 dark:hover:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-2xl cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] duration-200"
                     >
                       <div className="h-12 w-12 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full flex items-center justify-center mb-3">
