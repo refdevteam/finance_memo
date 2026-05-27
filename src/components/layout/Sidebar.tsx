@@ -13,7 +13,8 @@ import {
   TrendingUp,
   Menu,
   Sun,
-  Moon
+  Moon,
+  Plus
 } from 'lucide-react'
 import { signOut } from '@/actions/auth'
 import { useTheme } from 'next-themes'
@@ -23,7 +24,8 @@ import {
   SheetContent, 
   SheetTrigger,
   SheetHeader,
-  SheetTitle
+  SheetTitle,
+  SheetDescription
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { TransactionForm } from '@/components/transactions/TransactionForm'
@@ -139,31 +141,154 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile Sidebar (Hamburger) */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-16 border-b border-slate-200/50 dark:border-slate-800/50 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl z-40 flex items-center px-4 justify-between">
+      {/* Mobile Top Header - iOS Style Glass */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-slate-200/20 dark:border-slate-800/20 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl z-40 flex items-center px-4 justify-between">
         <Link href="/dashboard" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xs">F</span>
+          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center shadow-md shadow-emerald-600/10">
+            <span className="text-white font-bold text-sm">F</span>
           </div>
-          <span className="font-bold tracking-tight dark:text-white">fimo</span>
+          <span className="font-bold tracking-tight text-slate-900 dark:text-white text-base">fimo</span>
         </Link>
         
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <Sheet>
+        <ThemeToggle />
+      </div>
+
+      {/* Mobile Floating Bottom Bar - iOS Glassmorphism */}
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[400px] h-16 rounded-full border border-white/20 dark:border-slate-800/40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-40 flex items-center justify-around px-2">
+        {/* Beranda */}
+        <Link
+          href="/dashboard"
+          className={cn(
+            "flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 relative",
+            pathname === "/dashboard"
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+          )}
+        >
+          <LayoutDashboard className="h-5 w-5" />
+          <span className="text-[10px] font-semibold mt-0.5">Beranda</span>
+          {pathname === "/dashboard" && (
+            <span className="absolute bottom-1 w-1 h-1 bg-emerald-600 dark:bg-emerald-400 rounded-full" />
+          )}
+        </Link>
+
+        {/* Dompet */}
+        <Link
+          href="/dashboard/wallets"
+          className={cn(
+            "flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 relative",
+            pathname === "/dashboard/wallets"
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+          )}
+        >
+          <Wallet className="h-5 w-5" />
+          <span className="text-[10px] font-semibold mt-0.5">Dompet</span>
+          {pathname === "/dashboard/wallets" && (
+            <span className="absolute bottom-1 w-1 h-1 bg-emerald-600 dark:bg-emerald-400 rounded-full" />
+          )}
+        </Link>
+
+        {/* Floating Add (+) Action Sheet */}
+        <Sheet>
           <SheetTrigger render={
-            <Button variant="ghost" size="icon">
-              <Menu className="h-6 w-6" />
-            </Button>
+            <button className="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 hover:bg-emerald-500 hover:shadow-emerald-500/40 transition-all duration-200 active:scale-95 -translate-y-4 border-4 border-slate-50 dark:border-slate-950">
+              <Plus className="h-6 w-6 font-bold" />
+            </button>
           } />
-          <SheetContent side="left" className="p-0 w-64 border-r-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-2xl">
-            <SheetHeader className="sr-only">
-              <SheetTitle>Navigasi Fimo</SheetTitle>
+          <SheetContent side="bottom" className="rounded-t-3xl p-6 bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border-t border-slate-200/50 dark:border-slate-800/50 max-h-[85vh] overflow-y-auto">
+            <SheetHeader className="text-center pb-4">
+              <SheetTitle className="text-lg font-bold">Catat Keuangan Baru</SheetTitle>
+              <SheetDescription className="text-xs text-slate-500 dark:text-slate-400">
+                Pilih transaksi baru atau transfer antar dompet Anda.
+              </SheetDescription>
             </SheetHeader>
-            <SidebarContent pathname={pathname} />
+            <div className="flex flex-col gap-3 py-4">
+              <TransactionForm />
+              <TransferForm />
+            </div>
           </SheetContent>
         </Sheet>
-        </div>
+
+        {/* Transaksi */}
+        <Link
+          href="/dashboard/transactions"
+          className={cn(
+            "flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 relative",
+            pathname === "/dashboard/transactions"
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+          )}
+        >
+          <ArrowLeftRight className="h-5 w-5" />
+          <span className="text-[10px] font-semibold mt-0.5">Transaksi</span>
+          {pathname === "/dashboard/transactions" && (
+            <span className="absolute bottom-1 w-1 h-1 bg-emerald-600 dark:bg-emerald-400 rounded-full" />
+          )}
+        </Link>
+
+        {/* More Menu Sheet */}
+        <Sheet>
+          <SheetTrigger render={
+            <button className="flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
+              <Menu className="h-5 w-5" />
+              <span className="text-[10px] font-semibold mt-0.5">Menu</span>
+            </button>
+          } />
+          <SheetContent side="bottom" className="rounded-t-3xl p-6 bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border-t border-slate-200/50 dark:border-slate-800/50">
+            <SheetHeader className="text-left pb-4">
+              <SheetTitle className="text-lg font-bold">Fimo Menu</SheetTitle>
+            </SheetHeader>
+            <div className="space-y-1 py-2">
+              <Link
+                href="/dashboard/categories"
+                className={cn(
+                  "flex items-center space-x-3 px-3 py-3 rounded-xl text-sm font-medium transition-all",
+                  pathname === "/dashboard/categories"
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
+                    : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900"
+                )}
+              >
+                <PieChart className="h-5 w-5" />
+                <span>Kategori</span>
+              </Link>
+              <Link
+                href="/dashboard/reports"
+                className={cn(
+                  "flex items-center space-x-3 px-3 py-3 rounded-xl text-sm font-medium transition-all",
+                  pathname === "/dashboard/reports"
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
+                    : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900"
+                )}
+              >
+                <TrendingUp className="h-5 w-5" />
+                <span>Laporan</span>
+              </Link>
+              <Link
+                href="/dashboard/settings"
+                className={cn(
+                  "flex items-center space-x-3 px-3 py-3 rounded-xl text-sm font-medium transition-all",
+                  pathname === "/dashboard/settings"
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
+                    : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900"
+                )}
+              >
+                <Settings className="h-5 w-5" />
+                <span>Pengaturan</span>
+              </Link>
+              
+              <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
+              
+              <button
+                onClick={() => signOut()}
+                className="w-full flex items-center space-x-3 px-3 py-3 rounded-xl text-sm font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-900/20 transition-all"
+              >
+                <LogOut className="h-5 w-5" />
+                <span>Keluar</span>
+              </button>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
 
       {/* Desktop Sidebar */}
