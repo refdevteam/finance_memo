@@ -250,7 +250,7 @@ export function ReportsClient({
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Sisa / Tabungan</p>
+                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Arus Kas Bersih</p>
                   <h3 className="text-2xl font-bold mt-1 text-blue-700 dark:text-blue-300">
                     {formatRupiah(netSavings)}
                   </h3>
