@@ -204,7 +204,7 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Hapus Kategori?</AlertDialogTitle>
                         <AlertDialogDescription className="text-slate-500 dark:text-slate-400 text-sm">
-                          Apakah Anda yakin ingin menghapus kategori kustom <strong>"{cat.name}"</strong>? Transaksi yang sudah menggunakan kategori ini mungkin akan dipindahkan ke kategori default.
+                          Apakah Anda yakin ingin menghapus kategori kustom <strong>&quot;{cat.name}&quot;</strong>? Transaksi yang sudah menggunakan kategori ini mungkin akan dipindahkan ke kategori default.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter className="mt-4 gap-2">
@@ -254,7 +254,7 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Hapus Kategori?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Apakah Anda yakin ingin menghapus kategori kustom <strong>"{cat.name}"</strong>? Tindakan ini tidak dapat dibatalkan.
+                          Apakah Anda yakin ingin menghapus kategori kustom <strong>&quot;{cat.name}&quot;</strong>? Tindakan ini tidak dapat dibatalkan.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter className="gap-2">
