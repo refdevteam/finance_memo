@@ -46,13 +46,16 @@ export function TransactionForm() {
     }
   }, [wallets, walletId])
 
+  // Handle category fallback if switching types or category isn't valid
   useEffect(() => {
-    if (filteredCategories.length > 0) {
-      setCategoryId(filteredCategories[0].id)
-    } else {
-      setCategoryId('')
+    if (categories.length > 0) {
+      const validCategoryForType = categories.find(c => c.id === categoryId && c.type === type)
+      if (!validCategoryForType) {
+        const firstCategoryOfType = categories.find(c => c.type === type)
+        setCategoryId(firstCategoryOfType?.id || '')
+      }
     }
-  }, [type, categories, filteredCategories])
+  }, [type, categories, categoryId])
 
   const supabase = createClient()
 
