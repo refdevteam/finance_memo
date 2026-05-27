@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Camera, X, Loader2, Sparkles, CheckCircle } from 'lucide-react'
+import { Camera, X, Loader2, Sparkles, CheckCircle, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { 
   Dialog,
@@ -44,6 +44,7 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
   const [scanResult, setScanResult] = useState<any | null>(null)
   
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
 
   const { register, handleSubmit, control, reset, setValue, formState: { errors } } = useForm<ReceiptData>({
     resolver: zodResolver(schema),
@@ -186,10 +187,9 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
           <div className="space-y-4 pt-4">
             {/* Upload Area */}
             <div 
-              onClick={() => !isScanning && fileInputRef.current?.click()}
               className={`
-                border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors relative
-                ${previewUrl ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/10' : 'border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-500'}
+                border-2 border-dashed rounded-2xl p-6 text-center transition-colors relative
+                ${previewUrl ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/10' : 'border-slate-200 dark:border-slate-800'}
                 ${isScanning ? 'opacity-50 cursor-not-allowed' : ''}
               `}
             >
@@ -198,6 +198,14 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
                 ref={fileInputRef} 
                 onChange={handleFileSelect} 
                 accept="image/*" 
+                className="hidden" 
+              />
+              <input 
+                type="file" 
+                ref={cameraInputRef} 
+                onChange={handleFileSelect} 
+                accept="image/*" 
+                capture="environment" 
                 className="hidden" 
               />
               
@@ -215,14 +223,33 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
                   )}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center space-y-3">
-                  <div className="h-16 w-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600">
-                    <Camera className="h-8 w-8" />
+                <div className="flex flex-col items-center justify-center space-y-4">
+                  <div className="grid grid-cols-2 gap-4 w-full">
+                    {/* Kamera Card */}
+                    <div 
+                      onClick={(e) => { e.stopPropagation(); !isScanning && cameraInputRef.current?.click() }}
+                      className="flex flex-col items-center justify-center p-6 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/20 dark:hover:bg-indigo-900/30 border border-indigo-150 dark:border-indigo-900 rounded-2xl cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] duration-200"
+                    >
+                      <div className="h-12 w-12 bg-indigo-600 text-white rounded-full flex items-center justify-center mb-3 shadow-md shadow-indigo-600/20">
+                        <Camera className="h-6 w-6" />
+                      </div>
+                      <span className="font-semibold text-slate-800 dark:text-slate-200 text-sm">Ambil Foto</span>
+                      <span className="text-[10px] text-slate-500 mt-1">Gunakan Kamera HP</span>
+                    </div>
+
+                    {/* Galeri Card */}
+                    <div 
+                      onClick={(e) => { e.stopPropagation(); !isScanning && fileInputRef.current?.click() }}
+                      className="flex flex-col items-center justify-center p-6 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/40 dark:hover:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-2xl cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] duration-200"
+                    >
+                      <div className="h-12 w-12 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full flex items-center justify-center mb-3">
+                        <Upload className="h-6 w-6" />
+                      </div>
+                      <span className="font-semibold text-slate-800 dark:text-slate-200 text-sm">Pilih Galeri</span>
+                      <span className="text-[10px] text-slate-500 mt-1">JPG, PNG maks 5MB</span>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="font-medium text-slate-700 dark:text-slate-300">Klik atau drop gambar di sini</p>
-                    <p className="text-xs text-slate-500">Mendukung format JPG, PNG maks 5MB</p>
-                  </div>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">Mendukung unggahan langsung via kamera atau file gambar</p>
                 </div>
               )}
             </div>
