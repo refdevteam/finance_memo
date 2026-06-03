@@ -91,12 +91,12 @@ Tujuan: Fitur unggulan — scan struk AI dan laporan visual.
 ---
 
 ### Week 7 — Recurring Transaction
-- [ ] Form template recurring
-- [ ] List & manajemen template
-- [ ] Supabase Edge Function `process-recurring`
-- [ ] Setup cron job (setiap hari jam 00:05 WIB)
-- [ ] Notifikasi in-app saat recurring diproses
-- [ ] Pause/resume template
+- [x] Form template recurring
+- [x] List & manajemen template
+- [x] Supabase Edge Function `process-recurring`
+- [x] Setup cron job (setiap hari jam 00:05 WIB)
+- [x] Notifikasi in-app saat recurring diproses
+- [x] Pause/resume template
 
 **Deliverable:** Transaksi berulang berjalan otomatis.
 

@@ -90,6 +90,66 @@ export interface Database {
           updated_at: string
         }
       }
+      recurring_templates: {
+        Row: {
+          id: string
+          user_id: string
+          wallet_id: string
+          category_id: string | null
+          name: string
+          amount: number
+          type: 'income' | 'expense' | 'transfer'
+          frequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
+          next_due_date: string
+          end_date: string | null
+          is_active: boolean
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          wallet_id: string
+          category_id?: string | null
+          name: string
+          amount: number
+          type: 'income' | 'expense' | 'transfer'
+          frequency?: 'daily' | 'weekly' | 'monthly' | 'yearly'
+          next_due_date: string
+          end_date?: string | null
+          is_active?: boolean
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          wallet_id?: string
+          category_id?: string | null
+          name?: string
+          amount?: number
+          type?: 'income' | 'expense' | 'transfer'
+          frequency?: 'daily' | 'weekly' | 'monthly' | 'yearly'
+          next_due_date?: string
+          end_date?: string | null
+          is_active?: boolean
+          notes?: string | null
+          created_at?: string
+        }
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          body: string
+          type: 'reminder' | 'budget_alert' | 'recurring' | 'system' | 'ai_insight'
+          is_read: boolean
+          action_url: string | null
+          metadata: Json | null
+          created_at: string
+        }
+      }
     }
   }
 }

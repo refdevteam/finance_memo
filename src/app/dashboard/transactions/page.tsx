@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { TransactionListClient } from '@/components/transactions/TransactionListClient'
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
@@ -67,12 +68,28 @@ export default async function TransactionsPage({
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-8">
+    <div className="p-4 md:p-8 space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight dark:text-white">Daftar Transaksi</h1>
         <p className="text-slate-500 dark:text-slate-400">
           Kelola seluruh riwayat transaksi pemasukan, pengeluaran, dan transfer Anda.
         </p>
+      </div>
+
+      {/* Tabs Switcher */}
+      <div className="flex border-b border-border">
+        <Link 
+          href="/dashboard/transactions" 
+          className="px-4 py-2.5 border-b-2 font-semibold text-sm transition-all border-primary text-foreground"
+        >
+          Riwayat
+        </Link>
+        <Link 
+          href="/dashboard/transactions/recurring" 
+          className="px-4 py-2.5 border-b-2 font-medium text-sm transition-all border-transparent text-muted-foreground hover:text-foreground"
+        >
+          Rencana Berulang
+        </Link>
       </div>
 
       <TransactionListClient 
