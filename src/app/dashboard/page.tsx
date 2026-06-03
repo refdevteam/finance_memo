@@ -152,10 +152,10 @@ export default async function DashboardPage() {
     .sort((a, b) => b.value - a.value)
 
   const stats = [
-    { label: 'Total Saldo', value: formatRupiah(totalBalance), icon: Wallet, bgClass: 'bg-[#dceeb1] dark:bg-card text-black dark:text-white' },
-    { label: 'Pemasukan', value: formatRupiah(totalIncome), icon: ArrowUpRight, bgClass: 'bg-[#c8e6cd] dark:bg-card text-black dark:text-white' },
-    { label: 'Pengeluaran', value: formatRupiah(totalExpense), icon: ArrowDownLeft, bgClass: 'bg-[#efd4d4] dark:bg-card text-black dark:text-white' },
-    { label: 'Rasio Tabungan', value: `${savingsRate}%`, icon: TrendingUp, bgClass: 'bg-[#f4ecd6] dark:bg-card text-black dark:text-white' },
+    { label: 'Total Saldo', value: formatRupiah(totalBalance), icon: Wallet, bgClass: 'bg-[#dceeb1] text-black' },
+    { label: 'Pemasukan', value: formatRupiah(totalIncome), icon: ArrowUpRight, bgClass: 'bg-[#c8e6cd] text-black' },
+    { label: 'Pengeluaran', value: formatRupiah(totalExpense), icon: ArrowDownLeft, bgClass: 'bg-[#efd4d4] text-black' },
+    { label: 'Rasio Tabungan', value: `${savingsRate}%`, icon: TrendingUp, bgClass: 'bg-[#f4ecd6] text-black' },
   ]
 
   // Month name for header
@@ -184,7 +184,7 @@ export default async function DashboardPage() {
           <div 
             key={stat.label} 
             className={cn(
-              "p-3.5 sm:p-6 rounded-lg border border-transparent dark:border-border flex flex-col justify-between min-h-[85px] sm:min-h-[110px] transition-all hover:scale-[1.01] shadow-none",
+              "p-3.5 sm:p-6 rounded-lg border border-transparent flex flex-col justify-between min-h-[85px] sm:min-h-[110px] transition-all hover:scale-[1.01] shadow-none",
               stat.bgClass
             )}
           >
@@ -193,7 +193,7 @@ export default async function DashboardPage() {
                 <p className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-widest opacity-60 truncate">{stat.label}</p>
                 <h3 className="text-base sm:text-2xl font-extrabold sm:font-bold mt-1 sm:mt-2 tracking-tight truncate">{stat.value}</h3>
               </div>
-              <div className="bg-black text-white dark:bg-white dark:text-black p-1.5 sm:p-3 rounded-full flex items-center justify-center shrink-0 shadow-sm">
+              <div className="bg-black text-white p-1.5 sm:p-3 rounded-full flex items-center justify-center shrink-0 shadow-sm">
                 <stat.icon className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
             </div>
