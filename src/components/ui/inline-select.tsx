@@ -98,7 +98,7 @@ const InlineSelect = React.forwardRef<HTMLInputElement, InlineSelectProps>(
           disabled={disabled}
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
-            "flex w-full items-center justify-between rounded-xl border border-input bg-transparent py-2.5 pl-3 pr-3 text-sm transition-colors outline-none",
+            "flex w-full items-center justify-between rounded-md border border-input bg-transparent py-2.5 pl-3 pr-3 text-sm transition-colors outline-none",
             "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
             "cursor-pointer h-10 text-left",
             "dark:bg-input/30 dark:hover:bg-input/50",
@@ -124,9 +124,9 @@ const InlineSelect = React.forwardRef<HTMLInputElement, InlineSelectProps>(
           <div
             className={cn(
               "absolute left-0 right-0 z-50 mt-1.5",
-              "rounded-xl border border-slate-200 dark:border-slate-700/50",
-              "bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl",
-              "shadow-lg shadow-black/5 dark:shadow-black/20",
+              "rounded-md border border-slate-200 dark:border-slate-800",
+              "bg-white dark:bg-slate-900",
+              "shadow-md shadow-black/5 dark:shadow-black/20",
               "overflow-hidden",
               "animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-150"
             )}
@@ -143,13 +143,13 @@ const InlineSelect = React.forwardRef<HTMLInputElement, InlineSelectProps>(
                     "hover:bg-slate-100 dark:hover:bg-slate-800/60",
                     "disabled:opacity-40 disabled:pointer-events-none",
                     currentValue === opt.value
-                      ? "text-emerald-600 dark:text-emerald-400 font-medium"
+                      ? "text-foreground font-semibold bg-slate-50 dark:bg-slate-800"
                       : "text-slate-700 dark:text-slate-300"
                   )}
                 >
                   <span className="flex-1 text-left truncate">{opt.label}</span>
                   {currentValue === opt.value && (
-                    <Check className="size-4 shrink-0 text-emerald-500" />
+                    <Check className="size-4 shrink-0 text-foreground" />
                   )}
                 </button>
               ))}

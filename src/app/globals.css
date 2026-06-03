@@ -4,48 +4,48 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 210 20% 5%;
+    --background: 0 0% 100%; /* Pure White Canvas */
+    --foreground: 0 0% 0%; /* Pure Black Ink */
     --card: 0 0% 100%;
-    --card-foreground: 210 20% 5%;
+    --card-foreground: 0 0% 0%;
     --popover: 0 0% 100%;
-    --popover-foreground: 210 20% 5%;
-    --primary: 210 100% 50%; /* iOS Blue */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 20% 90%;
-    --secondary-foreground: 210 20% 10%;
-    --muted: 210 20% 96%;
-    --muted-foreground: 210 10% 40%;
-    --accent: 210 100% 50%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 100% 50%; /* iOS Red */
+    --popover-foreground: 0 0% 0%;
+    --primary: 0 0% 0%; /* Pure Black Brand */
+    --primary-foreground: 0 0% 100%; /* Pure White */
+    --secondary: 0 0% 96.9%; /* Surface Soft #f7f7f5 */
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 96.9%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 0 0% 96.9%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 343 100% 62%; /* Accent Magenta #ff3d8b */
     --destructive-foreground: 0 0% 100%;
-    --border: 210 20% 90%;
-    --input: 210 20% 90%;
-    --ring: 210 100% 50%;
-    --radius: 1.25rem;
+    --border: 0 0% 90.2%; /* Hairline border #e6e6e6 */
+    --input: 0 0% 90.2%;
+    --ring: 0 0% 0%;
+    --radius: 0.5rem; /* 8px (rounded.md) */
   }
 
   .dark {
-    --background: 0 0% 0%; /* Pure Black Background */
-    --foreground: 210 20% 98%;
-    --card: 240 5% 10%; /* Elevated Dark Gray */
-    --card-foreground: 210 20% 98%;
-    --popover: 240 5% 15%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 210 100% 55%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 5% 15%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 240 5% 15%;
-    --muted-foreground: 240 5% 60%;
-    --accent: 210 100% 55%;
+    --background: 0 0% 0%; /* Pure Black Canvas */
+    --foreground: 0 0% 100%; /* Pure White Ink */
+    --card: 0 0% 10%; /* Very dark card bg */
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%; /* Pure White Brand */
+    --primary-foreground: 0 0% 0%; /* Pure Black */
+    --secondary: 240 5.9% 10%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 240 5.9% 10%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 240 5.9% 15%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 100% 60%;
+    --destructive: 343 100% 62%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 5% 15%;
-    --input: 240 5% 15%;
-    --ring: 210 100% 55%;
+    --border: 240 5.9% 15%;
+    --input: 240 5.9% 15%;
+    --ring: 0 0% 100%;
   }
 }
 

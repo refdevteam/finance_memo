@@ -40,11 +40,11 @@ export function WalletCard({ id, name, type, balance, color }: WalletCardProps) 
   const Icon = getIcon()
 
   return (
-    <Card className="overflow-hidden border-none shadow-sm dark:bg-slate-900 group relative">
+    <Card className="overflow-hidden group relative">
       <CardContent className="p-0">
         <div 
           className="h-1.5 w-full" 
-          style={{ backgroundColor: color || '#10b981' }}
+          style={{ backgroundColor: color || '#000000' }}
         />
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">

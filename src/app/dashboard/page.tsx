@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
@@ -150,17 +151,17 @@ export default async function DashboardPage() {
     .sort((a, b) => b.value - a.value)
 
   const stats = [
-    { label: 'Total Saldo', value: formatRupiah(totalBalance), icon: Wallet, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
-    { label: 'Pemasukan', value: formatRupiah(totalIncome), icon: ArrowUpRight, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-    { label: 'Pengeluaran', value: formatRupiah(totalExpense), icon: ArrowDownLeft, color: 'text-rose-600', bg: 'bg-rose-50 dark:bg-rose-900/20' },
-    { label: 'Rasio Tabungan', value: `${savingsRate}%`, icon: TrendingUp, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' },
+    { label: 'Total Saldo', value: formatRupiah(totalBalance), icon: Wallet, bgClass: 'bg-[#dceeb1] dark:bg-slate-900 text-black dark:text-white' },
+    { label: 'Pemasukan', value: formatRupiah(totalIncome), icon: ArrowUpRight, bgClass: 'bg-[#c8e6cd] dark:bg-slate-900 text-black dark:text-white' },
+    { label: 'Pengeluaran', value: formatRupiah(totalExpense), icon: ArrowDownLeft, bgClass: 'bg-[#efd4d4] dark:bg-slate-900 text-black dark:text-white' },
+    { label: 'Rasio Tabungan', value: `${savingsRate}%`, icon: TrendingUp, bgClass: 'bg-[#f4ecd6] dark:bg-slate-900 text-black dark:text-white' },
   ]
 
   // Month name for header
   const monthName = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
 
   return (
-    <div className="p-4 md:p-8 space-y-8">
+    <div className="p-4 md:p-8 space-y-6 md:space-y-8 pb-28 md:pb-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -169,29 +170,33 @@ export default async function DashboardPage() {
             Halo {profile?.full_name?.split(' ')[0] || user.user_metadata?.full_name?.split(' ')[0] || 'User'}, inilah kondisi keuangan kamu bulan ini.
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="hidden md:flex items-center gap-2 flex-wrap">
           <ReceiptScanner wallets={walletsRes.data || []} categories={categoriesRes.data || []} />
           <TransferForm />
           <TransactionForm />
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stats Grid - Figma Color Blocks (Compact 2-Cols on Mobile) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{stat.label}</p>
-                  <h3 className="text-2xl font-bold mt-1 dark:text-white">{stat.value}</h3>
-                </div>
-                <div className={`${stat.bg} p-3 rounded-xl`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
+          <div 
+            key={stat.label} 
+            className={cn(
+              "p-3.5 sm:p-6 rounded-lg border border-transparent dark:border-slate-800 flex flex-col justify-between min-h-[85px] sm:min-h-[110px] transition-all hover:scale-[1.01] shadow-none",
+              stat.bgClass
+            )}
+          >
+            <div className="flex items-center justify-between w-full gap-1">
+              <div className="min-w-0 flex-1">
+                <p className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-widest opacity-60 truncate">{stat.label}</p>
+                <h3 className="text-base sm:text-2xl font-extrabold sm:font-bold mt-1 sm:mt-2 tracking-tight truncate">{stat.value}</h3>
               </div>
-            </CardContent>
-          </Card>
+              <div className="bg-black text-white dark:bg-white dark:text-black p-1.5 sm:p-3 rounded-full flex items-center justify-center shrink-0 shadow-sm">
+                <stat.icon className="h-4 w-4 sm:h-5 sm:w-5" />
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
@@ -230,23 +235,24 @@ export default async function DashboardPage() {
             <div className="space-y-6">
               <RecentTransactions />
             </div>
-            <Button variant="ghost" className="w-full text-slate-500 mt-4 text-sm">
-              Lihat Semua
-            </Button>
+            <Link href="/dashboard/transactions" className="w-full block">
+              <Button variant="ghost" className="w-full text-slate-500 mt-4 text-sm">
+                Lihat Semua
+              </Button>
+            </Link>
           </CardContent>
         </Card>
 
-        {/* Quick Tips */}
-        <div className="bg-emerald-600 rounded-2xl p-6 text-white overflow-hidden relative h-fit">
+        {/* Quick Tips - Figma Lilac/Navy Block */}
+        <div className="bg-[#c5b0f4] dark:bg-[#1f1d3d] rounded-lg p-6 text-black dark:text-white relative h-fit">
           <div className="relative z-10">
-            <h3 className="text-xl font-bold mb-2">Tips Hemat Hari Ini</h3>
-            <p className="text-emerald-100 text-sm leading-relaxed">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 mb-2">Tips Harian</p>
+            <h3 className="text-xl font-bold mb-3">Tips Hemat Hari Ini</h3>
+            <p className="text-black/80 dark:text-white/80 text-sm leading-relaxed">
               &quot;Jangan menabung apa yang tersisa setelah dibelanjakan, tetapi belanjakanlah apa yang tersisa setelah menabung.&quot; 
               — Warren Buffett
             </p>
           </div>
-          <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-          <div className="absolute -left-8 -top-8 w-32 h-32 bg-emerald-400/20 rounded-full blur-2xl"></div>
         </div>
       </div>
     </div>
