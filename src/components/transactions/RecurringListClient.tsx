@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { id as localeId } from 'date-fns/locale'
-import { Trash2, Play, Pause, Calendar, Wallet } from 'lucide-react'
+import { Trash2, Calendar, Wallet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { 
@@ -119,7 +119,6 @@ export function RecurringListClient({ templates: initialTemplates }: RecurringLi
           {templates.map((t) => {
             const categoryColor = t.categories?.color || '#94a3b8'
             const categoryIcon = t.categories?.icon || '📄'
-            const categoryName = t.categories?.name || 'Lainnya'
 
             return (
               <Card 
