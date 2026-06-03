@@ -68,7 +68,7 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
             "flex items-center space-x-2.5 px-5 py-2.5 rounded-full text-sm font-semibold border transition-all duration-300 transform active:scale-95 shadow-sm focus:outline-none shrink-0",
             activeTab === 'expense'
               ? "bg-rose-500 border-rose-600 text-white shadow-rose-200 dark:shadow-none ring-4 ring-rose-500/10 scale-105"
-              : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/80"
+              : "bg-white dark:bg-card border-border text-muted-foreground hover:bg-secondary dark:hover:bg-secondary"
           )}
         >
           <LucideIcons.TrendingDown className={cn(
@@ -88,7 +88,7 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
             "flex items-center space-x-2.5 px-5 py-2.5 rounded-full text-sm font-semibold border transition-all duration-300 transform active:scale-95 shadow-sm focus:outline-none shrink-0",
             activeTab === 'income'
               ? "bg-emerald-500 border-emerald-600 text-white shadow-emerald-200 dark:shadow-none ring-4 ring-emerald-500/10 scale-105"
-              : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/80"
+              : "bg-white dark:bg-card border-border text-muted-foreground hover:bg-secondary dark:hover:bg-secondary"
           )}
         >
           <LucideIcons.TrendingUp className={cn(

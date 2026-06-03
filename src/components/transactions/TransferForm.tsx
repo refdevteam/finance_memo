@@ -103,7 +103,7 @@ export function TransferForm() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button variant="outline" className="rounded-xl shadow-sm border-slate-200 dark:border-slate-800">
+          <Button variant="outline" className="rounded-xl shadow-sm border-border">
             <ArrowRightLeft className="h-4 w-4 mr-2" />
             Transfer
           </Button>
@@ -118,7 +118,7 @@ export function TransferForm() {
           <div className="space-y-2">
             <Label htmlFor="amount">Jumlah Transfer</Label>
             <div className="relative">
-              <span className="absolute left-3 top-2.5 text-slate-500 font-medium">Rp</span>
+              <span className="absolute left-3 top-2.5 text-muted-foreground font-medium">Rp</span>
               <Input 
                 id="amount" 
                 name="amount" 
@@ -142,8 +142,8 @@ export function TransferForm() {
             </div>
             
             <div className="flex justify-center -my-2 relative z-10">
-              <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-full border-4 border-white dark:border-slate-950">
-                <ArrowRightLeft className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+              <div className="bg-secondary p-2 rounded-full border-4 border-background dark:border-background">
+                <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
               </div>
             </div>
 

@@ -39,7 +39,7 @@ export async function RecentTransactions() {
   if (!transactions || transactions.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-slate-500 text-sm italic">Belum ada transaksi.</p>
+        <p className="text-muted-foreground text-sm italic">Belum ada transaksi.</p>
       </div>
     )
   }
@@ -64,11 +64,11 @@ export async function RecentTransactions() {
         return (
           <div 
             key={t.id} 
-            className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+            className="flex items-center justify-between p-3 rounded-2xl hover:bg-secondary/40 dark:hover:bg-secondary/40 transition-colors"
           >
             <div className="flex items-center gap-4">
               <div 
-                className="h-12 w-12 rounded-[1rem] flex items-center justify-center text-xl shadow-sm border border-slate-100 dark:border-slate-800"
+                className="h-12 w-12 rounded-[1rem] flex items-center justify-center text-xl shadow-sm border border-border"
                 style={{ 
                   backgroundColor: `${categoryColor}15`, // Transparan 15%
                   color: categoryColor 
@@ -77,11 +77,11 @@ export async function RecentTransactions() {
                 <span>{categoryIcon}</span>
               </div>
               <div>
-                <p className="font-semibold text-slate-900 dark:text-white line-clamp-1">
+                <p className="font-semibold text-foreground line-clamp-1">
                   {t.description || categoryName}
                 </p>
-                <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 mt-1 gap-2">
-                  <span className="font-medium bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                <div className="flex items-center text-xs text-muted-foreground mt-1 gap-2">
+                  <span className="font-medium bg-secondary px-2 py-0.5 rounded-md">
                     {t.wallets?.name || 'Dompet'}
                   </span>
                   <span>•</span>
@@ -91,7 +91,7 @@ export async function RecentTransactions() {
             </div>
             
             <div className="text-right">
-              <p className={`font-bold ${t.type === 'income' ? 'text-emerald-600' : 'text-slate-900 dark:text-white'}`}>
+              <p className={`font-bold ${t.type === 'income' ? 'text-emerald-600' : 'text-foreground'}`}>
                 {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
               </p>
             </div>

@@ -124,8 +124,8 @@ const InlineSelect = React.forwardRef<HTMLInputElement, InlineSelectProps>(
           <div
             className={cn(
               "absolute left-0 right-0 z-50 mt-1.5",
-              "rounded-md border border-slate-200 dark:border-slate-800",
-              "bg-white dark:bg-slate-900",
+              "rounded-md border border-border",
+              "bg-popover",
               "shadow-md shadow-black/5 dark:shadow-black/20",
               "overflow-hidden",
               "animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-150"
@@ -140,11 +140,11 @@ const InlineSelect = React.forwardRef<HTMLInputElement, InlineSelectProps>(
                   onClick={() => handleSelect(opt.value)}
                   className={cn(
                     "flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors",
-                    "hover:bg-slate-100 dark:hover:bg-slate-800/60",
+                    "hover:bg-accent dark:hover:bg-accent",
                     "disabled:opacity-40 disabled:pointer-events-none",
                     currentValue === opt.value
-                      ? "text-foreground font-semibold bg-slate-50 dark:bg-slate-800"
-                      : "text-slate-700 dark:text-slate-300"
+                      ? "text-foreground font-semibold bg-accent"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   <span className="flex-1 text-left truncate">{opt.label}</span>

@@ -57,7 +57,7 @@ function ThemeToggle() {
       variant="ghost"
       size="icon"
       type="button"
-      className="rounded-full w-9 h-9 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors z-50"
+      className="rounded-full w-9 h-9 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors z-50"
       onClick={() => {
         console.log('Current theme:', theme);
         setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -66,7 +66,7 @@ function ThemeToggle() {
       {theme === 'dark' ? (
         <Sun className="h-5 w-5 text-amber-400" />
       ) : (
-        <Moon className="h-5 w-5 text-slate-600" />
+        <Moon className="h-5 w-5 text-neutral-600" />
       )}
       <span className="sr-only">Toggle theme</span>
     </Button>
@@ -102,7 +102,7 @@ function SidebarContent({ pathname }: { pathname: string }) {
               "flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
               pathname === item.href 
                 ? "bg-black text-white dark:bg-white dark:text-black font-semibold" 
-                : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900"
+                : "text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-900"
             )}
           >
             <item.icon className="h-5 w-5" />
@@ -111,13 +111,13 @@ function SidebarContent({ pathname }: { pathname: string }) {
         ))}
       </nav>
 
-      <div className="px-4 py-6 border-t border-slate-100 dark:border-slate-900 space-y-1">
+      <div className="px-4 py-6 border-t border-border space-y-1">
         {secondaryItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900"
+              "flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-900"
             )}
           >
             <item.icon className="h-5 w-5" />
@@ -144,19 +144,19 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
   return (
     <>
       {/* Mobile Top Header - iOS Style Glass */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-slate-200/20 dark:border-slate-800/20 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl z-40 flex items-center px-4 justify-between">
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-border bg-white/70 dark:bg-background/70 backdrop-blur-xl z-40 flex items-center px-4 justify-between">
         <Link href="/dashboard" className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-black dark:bg-white rounded-lg flex items-center justify-center shadow-md">
             <span className="text-white dark:text-black font-bold text-sm">F</span>
           </div>
-          <span className="font-bold tracking-tight text-slate-900 dark:text-white text-base">fimo</span>
+          <span className="font-bold tracking-tight text-neutral-900 dark:text-white text-base">fimo</span>
         </Link>
         
         <ThemeToggle />
       </div>
 
       {/* Mobile Floating Bottom Bar - iOS Glassmorphism */}
-      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[400px] h-16 rounded-full border border-white/20 dark:border-slate-800/40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-40 flex items-center justify-around px-2">
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[400px] h-16 rounded-full border border-border bg-white/70 dark:bg-card/70 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-40 flex items-center justify-around px-2">
         {/* Beranda */}
         <Link
           href="/dashboard"
@@ -164,7 +164,7 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
             "flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 relative",
             pathname === "/dashboard"
               ? "text-black dark:text-white"
-              : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+              : "text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200"
           )}
         >
           <LayoutDashboard className="h-5 w-5" />
@@ -181,7 +181,7 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
             "flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 relative",
             pathname === "/dashboard/wallets"
               ? "text-black dark:text-white"
-              : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+              : "text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200"
           )}
         >
           <Wallet className="h-5 w-5" />
@@ -194,14 +194,14 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
         {/* Floating Add (+) Action Sheet */}
         <Sheet>
           <SheetTrigger render={
-            <button className="flex items-center justify-center w-12 h-12 rounded-full bg-black dark:bg-white text-white dark:text-black shadow-lg hover:bg-slate-800 dark:hover:bg-slate-200 transition-all duration-200 active:scale-95 -translate-y-4 border-4 border-slate-50 dark:border-slate-950">
+            <button className="flex items-center justify-center w-12 h-12 rounded-full bg-black dark:bg-white text-white dark:text-black shadow-lg hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all duration-200 active:scale-95 -translate-y-4 border-4 border-background dark:border-background">
               <Plus className="h-6 w-6 font-bold" />
             </button>
           } />
-          <SheetContent side="bottom" className="rounded-t-3xl p-6 bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border-t border-slate-200/50 dark:border-slate-800/50 max-h-[85vh] overflow-y-auto">
+          <SheetContent side="bottom" className="rounded-t-3xl p-6 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-2xl border-t border-border max-h-[85vh] overflow-y-auto">
             <SheetHeader className="text-center pb-4">
               <SheetTitle className="text-lg font-bold">Catat Keuangan Baru</SheetTitle>
-              <SheetDescription className="text-xs text-slate-500 dark:text-slate-400">
+              <SheetDescription className="text-xs text-neutral-500 dark:text-neutral-400">
                 Pilih transaksi baru atau transfer antar dompet Anda.
               </SheetDescription>
             </SheetHeader>
@@ -220,7 +220,7 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
             "flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 relative",
             pathname === "/dashboard/transactions"
               ? "text-black dark:text-white"
-              : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+              : "text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200"
           )}
         >
           <ArrowLeftRight className="h-5 w-5" />
@@ -233,12 +233,12 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
         {/* More Menu Sheet */}
         <Sheet>
           <SheetTrigger render={
-            <button className="flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
+            <button className="flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200">
               <Menu className="h-5 w-5" />
               <span className="text-[10px] font-semibold mt-0.5">Menu</span>
             </button>
           } />
-          <SheetContent side="bottom" className="rounded-t-3xl p-6 bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border-t border-slate-200/50 dark:border-slate-800/50">
+          <SheetContent side="bottom" className="rounded-t-3xl p-6 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-2xl border-t border-border">
             <SheetHeader className="text-left pb-4">
               <SheetTitle className="text-lg font-bold">Fimo Menu</SheetTitle>
             </SheetHeader>
@@ -249,7 +249,7 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
                   "flex items-center space-x-3 px-3 py-3 rounded-xl text-sm font-medium transition-all",
                   pathname === "/dashboard/categories"
                     ? "bg-black text-white dark:bg-white dark:text-black font-semibold"
-                    : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900"
+                    : "text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-900"
                 )}
               >
                 <PieChart className="h-5 w-5" />
@@ -261,7 +261,7 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
                   "flex items-center space-x-3 px-3 py-3 rounded-xl text-sm font-medium transition-all",
                   pathname === "/dashboard/reports"
                     ? "bg-black text-white dark:bg-white dark:text-black font-semibold"
-                    : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900"
+                    : "text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-900"
                 )}
               >
                 <TrendingUp className="h-5 w-5" />
@@ -273,14 +273,14 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
                   "flex items-center space-x-3 px-3 py-3 rounded-xl text-sm font-medium transition-all",
                   pathname === "/dashboard/settings"
                     ? "bg-black text-white dark:bg-white dark:text-black font-semibold"
-                    : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900"
+                    : "text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-900"
                 )}
               >
                 <Settings className="h-5 w-5" />
                 <span>Pengaturan</span>
               </Link>
               
-              <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
+              <div className="h-px bg-border my-2" />
               
               <button
                 onClick={() => signOut()}
@@ -295,7 +295,7 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex-col h-screen sticky top-0">
+      <aside className="hidden md:flex w-64 border-r border-border bg-white dark:bg-background flex-col h-screen sticky top-0">
         <SidebarContent pathname={pathname} />
       </aside>
     </>

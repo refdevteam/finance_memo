@@ -152,10 +152,10 @@ export default async function DashboardPage() {
     .sort((a, b) => b.value - a.value)
 
   const stats = [
-    { label: 'Total Saldo', value: formatRupiah(totalBalance), icon: Wallet, bgClass: 'bg-[#dceeb1] dark:bg-slate-900 text-black dark:text-white' },
-    { label: 'Pemasukan', value: formatRupiah(totalIncome), icon: ArrowUpRight, bgClass: 'bg-[#c8e6cd] dark:bg-slate-900 text-black dark:text-white' },
-    { label: 'Pengeluaran', value: formatRupiah(totalExpense), icon: ArrowDownLeft, bgClass: 'bg-[#efd4d4] dark:bg-slate-900 text-black dark:text-white' },
-    { label: 'Rasio Tabungan', value: `${savingsRate}%`, icon: TrendingUp, bgClass: 'bg-[#f4ecd6] dark:bg-slate-900 text-black dark:text-white' },
+    { label: 'Total Saldo', value: formatRupiah(totalBalance), icon: Wallet, bgClass: 'bg-[#dceeb1] dark:bg-card text-black dark:text-white' },
+    { label: 'Pemasukan', value: formatRupiah(totalIncome), icon: ArrowUpRight, bgClass: 'bg-[#c8e6cd] dark:bg-card text-black dark:text-white' },
+    { label: 'Pengeluaran', value: formatRupiah(totalExpense), icon: ArrowDownLeft, bgClass: 'bg-[#efd4d4] dark:bg-card text-black dark:text-white' },
+    { label: 'Rasio Tabungan', value: `${savingsRate}%`, icon: TrendingUp, bgClass: 'bg-[#f4ecd6] dark:bg-card text-black dark:text-white' },
   ]
 
   // Month name for header
@@ -184,7 +184,7 @@ export default async function DashboardPage() {
           <div 
             key={stat.label} 
             className={cn(
-              "p-3.5 sm:p-6 rounded-lg border border-transparent dark:border-slate-800 flex flex-col justify-between min-h-[85px] sm:min-h-[110px] transition-all hover:scale-[1.01] shadow-none",
+              "p-3.5 sm:p-6 rounded-lg border border-transparent dark:border-border flex flex-col justify-between min-h-[85px] sm:min-h-[110px] transition-all hover:scale-[1.01] shadow-none",
               stat.bgClass
             )}
           >

@@ -80,9 +80,9 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row gap-4 bg-card dark:bg-card p-4 rounded-2xl border border-border">
         <div className="flex-1 space-y-1.5">
-          <label className="text-xs font-medium text-slate-500 ml-1">Filter Tipe</label>
+          <label className="text-xs font-medium text-muted-foreground ml-1">Filter Tipe</label>
           <InlineSelect 
             options={typeOptions}
             value={currentType}
@@ -90,7 +90,7 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
           />
         </div>
         <div className="flex-1 space-y-1.5">
-          <label className="text-xs font-medium text-slate-500 ml-1">Filter Dompet</label>
+          <label className="text-xs font-medium text-muted-foreground ml-1">Filter Dompet</label>
           <InlineSelect 
             options={walletOptions}
             value={currentWallet}
@@ -103,7 +103,7 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
             <Button 
               variant="ghost" 
               onClick={() => router.push('/dashboard/transactions')}
-              className="text-slate-500 hover:text-rose-500"
+              className="text-muted-foreground hover:text-rose-500"
             >
               <FilterX className="w-4 h-4 mr-2" />
               Reset
@@ -113,14 +113,14 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
       </div>
 
       {/* List */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+      <div className="bg-card dark:bg-card rounded-2xl border border-border overflow-hidden">
         {transactions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+          <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
             <p className="font-medium">Tidak ada transaksi ditemukan.</p>
             <p className="text-sm mt-1">Coba sesuaikan filter Anda atau tambah transaksi baru.</p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100 dark:divide-slate-800/50">
+          <div className="divide-y divide-border">
             {transactions.map((t) => {
               const categoryColor = t.categories?.color || '#94a3b8'
               const categoryIcon = t.categories?.icon || (t.type === 'transfer' ? '🔄' : '📄')
@@ -128,22 +128,22 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
               const isTransfer = t.type === 'transfer'
 
               return (
-                <div key={t.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors gap-4">
+                <div key={t.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 hover:bg-secondary/40 dark:hover:bg-secondary/40 transition-colors gap-4">
                   
                   {/* Left info */}
                   <div className="flex items-center gap-4">
                     <div 
-                      className="h-12 w-12 rounded-[1rem] flex items-center justify-center text-xl shadow-sm border border-slate-100 dark:border-slate-800 flex-shrink-0"
+                      className="h-12 w-12 rounded-[1rem] flex items-center justify-center text-xl shadow-sm border border-border flex-shrink-0"
                       style={{ backgroundColor: `${categoryColor}15`, color: categoryColor }}
                     >
                       <span>{categoryIcon}</span>
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-900 dark:text-white line-clamp-1">
+                      <p className="font-semibold text-foreground line-clamp-1">
                         {t.description || categoryName}
                       </p>
-                      <div className="flex flex-wrap items-center text-xs text-slate-500 dark:text-slate-400 mt-1 gap-2">
-                        <span className="font-medium bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                      <div className="flex flex-wrap items-center text-xs text-muted-foreground mt-1 gap-2">
+                        <span className="font-medium bg-secondary px-2 py-0.5 rounded-md">
                           {t.wallets?.name || 'Dompet'}
                         </span>
                         <span>•</span>
@@ -160,21 +160,21 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
                   
                   {/* Right Actions & Amount */}
                   <div className="flex items-center justify-between sm:justify-end gap-6 sm:w-auto w-full pl-16 sm:pl-0">
-                    <p className={`font-bold whitespace-nowrap ${t.type === 'income' ? 'text-emerald-600' : isTransfer ? 'text-blue-600' : 'text-slate-900 dark:text-white'}`}>
+                    <p className={`font-bold whitespace-nowrap ${t.type === 'income' ? 'text-emerald-600' : isTransfer ? 'text-blue-600' : 'text-foreground'}`}>
                       {t.type === 'income' ? '+' : t.type === 'expense' ? '-' : ''}{formatCurrency(t.amount)}
                     </p>
                     
-                    <div className="flex items-center gap-1 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-950 p-0.5">
+                    <div className="flex items-center gap-1 border border-border rounded-lg bg-card dark:bg-background p-0.5">
                       <EditTransactionForm transaction={t} />
                       
                       {isTransfer ? (
                         <Button variant="ghost" size="icon" disabled title="Hapus transfer tidak didukung">
-                          <Trash2 className="h-4 w-4 text-slate-300" />
+                          <Trash2 className="h-4 w-4 text-muted-foreground/50" />
                         </Button>
                       ) : (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-slate-500" disabled={isDeleting === t.id}>
+                            <Button variant="ghost" size="icon" className="hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-muted-foreground" disabled={isDeleting === t.id}>
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>

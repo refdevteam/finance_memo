@@ -27,31 +27,31 @@
   }
 
   .dark {
-    --background: 0 0% 0%; /* Pure Black Canvas */
+    --background: 0 0% 8%; /* Soft Charcoal Canvas (#141414) */
     --foreground: 0 0% 100%; /* Pure White Ink */
-    --card: 0 0% 10%; /* Very dark card bg */
+    --card: 0 0% 12%; /* Slightly lighter charcoal (#1e1e1e) */
     --card-foreground: 0 0% 100%;
-    --popover: 0 0% 8%;
+    --popover: 0 0% 10%; /* (#1a1a1a) */
     --popover-foreground: 0 0% 100%;
     --primary: 0 0% 100%; /* Pure White Brand */
     --primary-foreground: 0 0% 0%; /* Pure Black */
-    --secondary: 240 5.9% 10%;
+    --secondary: 0 0% 15%; /* Neutral (#262626) */
     --secondary-foreground: 0 0% 100%;
-    --muted: 240 5.9% 10%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 240 5.9% 15%;
+    --muted: 0 0% 15%; /* Neutral (#262626) */
+    --muted-foreground: 0 0% 65%;
+    --accent: 0 0% 18%; /* Neutral (#2e2e2e) */
     --accent-foreground: 0 0% 100%;
     --destructive: 343 100% 62%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 5.9% 15%;
-    --input: 240 5.9% 15%;
+    --border: 0 0% 16%; /* Neutral (#292929) */
+    --input: 0 0% 16%;
     --ring: 0 0% 100%;
   }
 }
 
 @layer base {
   * {
-    @apply border-slate-200 dark:border-slate-800;
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;

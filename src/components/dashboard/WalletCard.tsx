@@ -48,8 +48,8 @@ export function WalletCard({ id, name, type, balance, color }: WalletCardProps) 
         />
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
-              <Icon className="h-6 w-6 text-slate-600 dark:text-slate-400" />
+            <div className="p-3 rounded-xl bg-secondary">
+              <Icon className="h-6 w-6 text-muted-foreground" />
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -76,8 +76,8 @@ export function WalletCard({ id, name, type, balance, color }: WalletCardProps) 
           </div>
           
           <div>
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 capitalize">{type}</p>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">{name}</h3>
+            <p className="text-sm font-medium text-muted-foreground capitalize">{type}</p>
+            <h3 className="text-lg font-bold text-foreground truncate">{name}</h3>
             <p className="text-2xl font-black mt-2 tracking-tight text-emerald-600">
               {formatCurrency(balance)}
             </p>

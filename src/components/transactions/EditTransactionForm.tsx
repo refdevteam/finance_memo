@@ -142,18 +142,18 @@ export function EditTransactionForm({ transaction }: EditTransactionFormProps) {
         <form onSubmit={handleSubmit} className="space-y-6 pt-4">
           
           {/* Tipe Transaksi (Toggle) */}
-          <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+          <div className="flex bg-neutral-100 dark:bg-neutral-800 p-1 rounded-xl">
             <button
               type="button"
               onClick={() => setType('expense')}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${type === 'expense' ? 'bg-white dark:bg-slate-900 shadow-sm text-rose-600' : 'text-slate-500'}`}
+              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${type === 'expense' ? 'bg-white dark:bg-card shadow-sm text-rose-600' : 'text-neutral-500 dark:text-neutral-400'}`}
             >
               Pengeluaran
             </button>
             <button
               type="button"
               onClick={() => setType('income')}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${type === 'income' ? 'bg-white dark:bg-slate-900 shadow-sm text-emerald-600' : 'text-slate-500'}`}
+              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${type === 'income' ? 'bg-white dark:bg-card shadow-sm text-emerald-600' : 'text-neutral-500 dark:text-neutral-400'}`}
             >
               Pemasukan
             </button>

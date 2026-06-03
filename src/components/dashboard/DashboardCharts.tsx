@@ -54,17 +54,17 @@ function formatRupiah(amount: number): string {
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-xl border border-slate-200/50 dark:border-slate-700/50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg shadow-lg p-3 text-xs">
-      <p className="font-medium text-slate-600 dark:text-slate-300 mb-1.5">{label}</p>
+    <div className="rounded-xl border border-border bg-popover/90 dark:bg-popover/90 backdrop-blur-lg shadow-lg p-3 text-xs text-popover-foreground">
+      <p className="font-medium text-muted-foreground mb-1.5">{label}</p>
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {payload.map((entry: any, idx: number) => (
         <div key={idx} className="flex items-center gap-2">
           <span
-            className="w-2 h-2 rounded-full"
+            className="w-2.5 h-2.5 rounded-full"
             style={{ backgroundColor: entry.color }}
           />
-          <span className="text-slate-500 dark:text-slate-400">{entry.name}:</span>
-          <span className="font-semibold text-slate-800 dark:text-slate-100">
+          <span className="text-muted-foreground">{entry.name}:</span>
+          <span className="font-semibold text-foreground">
             {formatRupiah(entry.value)}
           </span>
         </div>
@@ -86,7 +86,7 @@ function CustomLegend({ payload }: any) {
             className="w-2.5 h-2.5 rounded-full shrink-0"
             style={{ backgroundColor: entry.color }}
           />
-          <span className="text-slate-600 dark:text-slate-400 truncate max-w-[100px]">
+          <span className="text-muted-foreground truncate max-w-[100px]">
             {entry.value}
           </span>
         </div>
@@ -101,15 +101,15 @@ function PieTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null
   const data = payload[0]
   return (
-    <div className="rounded-xl border border-slate-200/50 dark:border-slate-700/50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg shadow-lg p-3 text-xs">
+    <div className="rounded-xl border border-border bg-popover/90 dark:bg-popover/90 backdrop-blur-lg shadow-lg p-3 text-xs text-popover-foreground">
       <div className="flex items-center gap-2">
         <span
           className="w-2.5 h-2.5 rounded-full"
           style={{ backgroundColor: data.payload.color }}
         />
-        <span className="font-medium text-slate-700 dark:text-slate-200">{data.name}</span>
+        <span className="font-medium text-muted-foreground">{data.name}</span>
       </div>
-      <p className="font-bold text-slate-800 dark:text-slate-100 mt-1">
+      <p className="font-bold text-foreground mt-1">
         {formatRupiah(data.value)}
       </p>
     </div>
@@ -119,10 +119,10 @@ function PieTooltip({ active, payload }: any) {
 export function SpendingTrendChart({ data }: { data: DailyData[] }) {
   if (!data.length) {
     return (
-      <div className="h-[300px] flex items-center justify-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">
+      <div className="h-[300px] flex items-center justify-center border-2 border-dashed border-border rounded-xl">
         <div className="text-center">
-          <p className="text-slate-400 text-sm">Belum ada data transaksi bulan ini.</p>
-          <p className="text-slate-300 text-xs mt-1">Mulai catat transaksi untuk melihat tren.</p>
+          <p className="text-muted-foreground text-sm">Belum ada data transaksi bulan ini.</p>
+          <p className="text-muted-foreground/60 text-xs mt-1">Mulai catat transaksi untuk melihat tren.</p>
         </div>
       </div>
     )
@@ -183,9 +183,9 @@ export function SpendingTrendChart({ data }: { data: DailyData[] }) {
 export function CategoryPieChart({ data }: { data: CategoryData[] }) {
   if (!data.length) {
     return (
-      <div className="h-[260px] flex items-center justify-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">
+      <div className="h-[260px] flex items-center justify-center border-2 border-dashed border-border rounded-xl">
         <div className="text-center">
-          <p className="text-slate-400 text-sm">Belum ada pengeluaran bulan ini.</p>
+          <p className="text-muted-foreground text-sm">Belum ada pengeluaran bulan ini.</p>
         </div>
       </div>
     )
@@ -218,9 +218,9 @@ export function CategoryPieChart({ data }: { data: CategoryData[] }) {
 export function SixMonthTrendChart({ data }: { data: DailyData[] }) {
   if (!data.length) {
     return (
-      <div className="h-[300px] flex items-center justify-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">
+      <div className="h-[300px] flex items-center justify-center border-2 border-dashed border-border rounded-xl">
         <div className="text-center">
-          <p className="text-slate-400 text-sm">Belum ada data transaksi.</p>
+          <p className="text-muted-foreground text-sm">Belum ada data transaksi.</p>
         </div>
       </div>
     )
