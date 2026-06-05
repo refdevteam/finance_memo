@@ -1,21 +1,26 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 export function DashboardRangeToggle() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   
   // Get active range. Default to '30days'
   const activeRange = searchParams.get('range') === 'month' ? 'month' : '30days'
 
   const handleRangeChange = (range: '30days' | 'month') => {
+    const params = new URLSearchParams(searchParams.toString())
     if (range === '30days') {
-      router.push('/dashboard') // Default doesn't need param
+      params.delete('range')
     } else {
-      router.push('/dashboard?range=month')
+      params.set('range', 'month')
     }
+    
+    const queryString = params.toString()
+    router.push(queryString ? `${pathname}?${queryString}` : pathname)
   }
 
   return (

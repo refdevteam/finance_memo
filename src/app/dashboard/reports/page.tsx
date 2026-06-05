@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 export default async function ReportsPage({
   searchParams,
 }: {
-  searchParams: { month?: string; year?: string; wallet?: string }
+  searchParams: { month?: string; year?: string; wallet?: string; range?: string }
 }) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -17,13 +17,27 @@ export default async function ReportsPage({
   }
 
   const now = new Date()
+  const range = searchParams.range || '30days'
+  const isMonth = range === 'month'
+
   const selectedMonth = parseInt(searchParams.month || String(now.getMonth() + 1))
   const selectedYear = parseInt(searchParams.year || String(now.getFullYear()))
   const selectedWallet = searchParams.wallet && searchParams.wallet !== 'all' ? searchParams.wallet : null
 
-  // Tentukan rentang waktu untuk bulan yang dipilih
-  const startOfMonth = new Date(selectedYear, selectedMonth - 1, 1).toISOString().split('T')[0]
-  const endOfMonth = new Date(selectedYear, selectedMonth, 0).toISOString().split('T')[0]
+  // Tentukan rentang waktu untuk bulan yang dipilih atau 30 hari terakhir
+  let startDateStr: string
+  let endDateStr: string
+
+  if (isMonth) {
+    startDateStr = new Date(selectedYear, selectedMonth - 1, 1).toISOString().split('T')[0]
+    endDateStr = new Date(selectedYear, selectedMonth, 0).toISOString().split('T')[0]
+  } else {
+    // 30 days ago from today (inclusive)
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(now.getDate() - 29)
+    startDateStr = thirtyDaysAgo.toISOString().split('T')[0]
+    endDateStr = now.toISOString().split('T')[0]
+  }
 
   // Tentukan rentang waktu 6 bulan terakhir dari bulan yang dipilih
   const startOfSixMonthsAgo = new Date(selectedYear, selectedMonth - 6, 1).toISOString().split('T')[0]
@@ -37,13 +51,13 @@ export default async function ReportsPage({
     .eq('user_id', user.id)
     .order('name')
 
-  // 2. Ambil transaksi 1 bulan (untuk summary dan pie chart)
+  // 2. Ambil transaksi (untuk summary dan pie chart)
   let monthQuery = supabase
     .from('transactions')
     .select('amount, type, category_id, categories(name, color)')
     .eq('user_id', user.id)
-    .gte('transaction_date', startOfMonth)
-    .lte('transaction_date', endOfMonth)
+    .gte('transaction_date', startDateStr)
+    .lte('transaction_date', endDateStr)
 
   if (selectedWallet) {
     monthQuery = monthQuery.eq('wallet_id', selectedWallet)
@@ -57,7 +71,7 @@ export default async function ReportsPage({
     .select('amount, type, transaction_date')
     .eq('user_id', user.id)
     .gte('transaction_date', startOfSixMonthsAgo)
-    .lte('transaction_date', endOfMonth)
+    .lte('transaction_date', endDateStr)
 
   if (selectedWallet) {
     sixMonthQuery = sixMonthQuery.eq('wallet_id', selectedWallet)
@@ -74,6 +88,7 @@ export default async function ReportsPage({
         selectedMonth={selectedMonth}
         selectedYear={selectedYear}
         selectedWallet={selectedWallet}
+        range={range}
       />
     </div>
   )

@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Card } from '@/components/ui/card'
 import { BudgetCategory } from '@/actions/budgets'
-import { SpendingTrendChart, CategoryPieChart } from '@/components/dashboard/DashboardCharts'
+import { SpendingTrendChart, CategoryPieChart, CategoryMiniPieChart } from '@/components/dashboard/DashboardCharts'
 import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
 import { cn } from '@/lib/utils'
 
@@ -180,21 +180,27 @@ export function DashboardWidgetsMobile({
               </p>
             </div>
 
-            <div className="space-y-1 mt-2">
-              {topCategories.length > 0 ? (
-                topCategories.map((c) => (
-                  <div key={c.name} className="flex items-center justify-between text-[9px] text-slate-600 dark:text-slate-400">
-                    <div className="flex items-center min-w-0">
-                      <span className="w-1.5 h-1.5 rounded-full mr-1 shrink-0" style={{ backgroundColor: c.color }} />
-                      <span className="truncate">{c.name}</span>
+            <div className="flex items-center justify-between mt-2 gap-1.5">
+              <div className="flex-1 space-y-1 min-w-0">
+                {topCategories.length > 0 ? (
+                  topCategories.map((c) => (
+                    <div key={c.name} className="flex items-center justify-between text-[9px] text-slate-600 dark:text-slate-400">
+                      <div className="flex items-center min-w-0">
+                        <span className="w-1.5 h-1.5 rounded-full mr-1 shrink-0" style={{ backgroundColor: c.color }} />
+                        <span className="truncate">{c.name}</span>
+                      </div>
+                      <span className="font-mono shrink-0 font-semibold ml-1">{formatRupiah(c.value)}</span>
                     </div>
-                    <span className="font-mono shrink-0 font-semibold">{formatRupiah(c.value)}</span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-[9px] text-slate-400 italic text-center py-2">
-                  Tidak ada transaksi
-                </p>
+                  ))
+                ) : (
+                  <p className="text-[9px] text-slate-400 italic py-2">
+                    Tidak ada transaksi
+                  </p>
+                )}
+              </div>
+              
+              {categoryChartData.length > 0 && (
+                <CategoryMiniPieChart data={categoryChartData} />
               )}
             </div>
           </Card>

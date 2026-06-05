@@ -180,26 +180,26 @@ export function SpendingTrendChart({ data }: { data: DailyData[] }) {
   )
 }
 
-export function CategoryPieChart({ data }: { data: CategoryData[] }) {
+export function CategoryPieChart({ data, height = 260 }: { data: CategoryData[]; height?: number }) {
   if (!data.length) {
     return (
-      <div className="h-[260px] flex items-center justify-center border-2 border-dashed border-border rounded-xl">
-        <div className="text-center">
-          <p className="text-muted-foreground text-sm">Belum ada pengeluaran bulan ini.</p>
+      <div style={{ height }} className="flex items-center justify-center border-2 border-dashed border-border rounded-xl">
+        <div className="text-center p-2">
+          <p className="text-muted-foreground text-xs sm:text-sm">Belum ada pengeluaran bulan ini.</p>
         </div>
       </div>
     )
   }
 
   return (
-    <ResponsiveContainer width="100%" height={260}>
+    <ResponsiveContainer width="100%" height={height}>
       <RechartsPie>
         <Pie
           data={data}
           cx="50%"
           cy="45%"
-          innerRadius={55}
-          outerRadius={85}
+          innerRadius={height > 180 ? 55 : 22}
+          outerRadius={height > 180 ? 85 : 42}
           paddingAngle={3}
           dataKey="value"
           strokeWidth={0}
@@ -209,43 +209,70 @@ export function CategoryPieChart({ data }: { data: CategoryData[] }) {
           ))}
         </Pie>
         <Tooltip content={<PieTooltip />} />
-        <Legend content={<CustomLegend />} />
+        {height > 180 && <Legend content={<CustomLegend />} />}
       </RechartsPie>
     </ResponsiveContainer>
   )
 }
 
-export function SixMonthTrendChart({ data }: { data: DailyData[] }) {
+export function CategoryMiniPieChart({ data }: { data: CategoryData[] }) {
+  if (!data.length) return null
+  const chartData = data.slice(0, 4)
+  return (
+    <div className="w-[42px] h-[42px] relative shrink-0">
+      <ResponsiveContainer width="100%" height="100%">
+        <RechartsPie>
+          <Pie
+            data={chartData}
+            cx="50%"
+            cy="50%"
+            innerRadius={11}
+            outerRadius={20}
+            paddingAngle={2}
+            dataKey="value"
+            strokeWidth={0}
+          >
+            {chartData.map((entry, idx) => (
+              <Cell key={idx} fill={entry.color || COLORS[idx % COLORS.length]} />
+            ))}
+          </Pie>
+        </RechartsPie>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
+export function SixMonthTrendChart({ data, height = 300 }: { data: DailyData[]; height?: number }) {
   if (!data.length) {
     return (
-      <div className="h-[300px] flex items-center justify-center border-2 border-dashed border-border rounded-xl">
-        <div className="text-center">
-          <p className="text-muted-foreground text-sm">Belum ada data transaksi.</p>
+      <div style={{ height }} className="flex items-center justify-center border-2 border-dashed border-border rounded-xl">
+        <div className="text-center p-2">
+          <p className="text-muted-foreground text-xs sm:text-sm">Belum ada data transaksi.</p>
         </div>
       </div>
     )
   }
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={data} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart data={data} margin={{ top: 5, right: 5, left: height > 180 ? -15 : -25, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.4} vertical={false} />
         <XAxis 
           dataKey="date" 
-          tick={{ fontSize: 11, fill: '#94a3b8' }} 
+          tick={{ fontSize: height > 180 ? 11 : 9, fill: '#94a3b8' }} 
           axisLine={false}
           tickLine={false}
         />
         <YAxis 
-          tick={{ fontSize: 11, fill: '#94a3b8' }} 
+          tick={{ fontSize: height > 180 ? 11 : 9, fill: '#94a3b8' }} 
           tickFormatter={formatCompact}
           axisLine={false}
           tickLine={false}
         />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
-        <Legend wrapperStyle={{ fontSize: '12px' }} />
-        <Bar dataKey="income" name="Pemasukan" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={20} />
-        <Bar dataKey="expense" name="Pengeluaran" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={20} />
+        {height > 180 && <Legend wrapperStyle={{ fontSize: '12px' }} />}
+        <Bar dataKey="income" name="Pemasukan" fill="#3b82f6" radius={[2, 2, 0, 0]} barSize={height > 180 ? 20 : 8} />
+        <Bar dataKey="expense" name="Pengeluaran" fill="#f43f5e" radius={[2, 2, 0, 0]} barSize={height > 180 ? 20 : 8} />
       </BarChart>
     </ResponsiveContainer>
   )

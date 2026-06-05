@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Download, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,6 +10,8 @@ import { toast } from 'sonner'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import { CategoryPieChart, SixMonthTrendChart } from '@/components/dashboard/DashboardCharts'
+import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
+import { cn } from '@/lib/utils'
 // Note: We are reusing the dashboard charts, but transforming the data differently for Reports
 
 function formatRupiah(amount: number): string {
@@ -36,7 +38,8 @@ export function ReportsClient({
   sixMonthTransactions,
   selectedMonth,
   selectedYear,
-  selectedWallet
+  selectedWallet,
+  range
 }: { 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   wallets: any[]
@@ -47,11 +50,20 @@ export function ReportsClient({
   selectedMonth: number
   selectedYear: number
   selectedWallet: string | null
+  range: string
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const reportRef = useRef<HTMLDivElement>(null)
   const [isExporting, setIsExporting] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768)
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // -- CALCULATIONS FOR SUMMARY CARDS --
   const totalIncome = monthTransactions
@@ -137,7 +149,11 @@ export function ReportsClient({
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width
       
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-      pdf.save(`Laporan_Keuangan_Fimo_${MONTHS.find(m => m.value === String(selectedMonth))?.label}_${selectedYear}.pdf`)
+      const isMonth = range === 'month'
+      const pdfFileName = isMonth
+        ? `Laporan_Keuangan_Fimo_${MONTHS.find(m => m.value === String(selectedMonth))?.label}_${selectedYear}.pdf`
+        : `Laporan_Keuangan_Fimo_30_Hari_Terakhir.pdf`
+      pdf.save(pdfFileName)
       
       toast.success('Laporan berhasil diunduh')
     } catch (error) {
@@ -158,105 +174,132 @@ export function ReportsClient({
     ...wallets.map(w => ({ value: w.id, label: w.name }))
   ]
 
+  const isMonth = range === 'month'
+
   return (
     <div className="space-y-8">
       {/* HEADER & FILTERS */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight dark:text-white">Laporan Keuangan</h1>
-          <p className="text-slate-500 dark:text-slate-400">Analisis pengeluaran dan pemasukan bulanan.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">Analisis pengeluaran dan pemasukan bulanan.</p>
         </div>
         
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="w-32">
-            <InlineSelect 
-              options={MONTHS} 
-              value={String(selectedMonth)} 
-              onChange={(v) => updateFilters('month', v)} 
-            />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+          {/* Range Segmented Control Toggle */}
+          <div className="flex justify-start sm:justify-end">
+            <DashboardRangeToggle />
           </div>
-          <div className="w-24">
-            <InlineSelect 
-              options={yearOptions} 
-              value={String(selectedYear)} 
-              onChange={(v) => updateFilters('year', v)} 
-            />
+
+          <div className={cn(
+            "grid gap-2 w-full sm:w-auto sm:flex sm:flex-wrap sm:items-center",
+            isMonth ? "grid-cols-2" : "grid-cols-1"
+          )}>
+            {isMonth && (
+              <>
+                <div className="col-span-1 sm:w-32">
+                  <InlineSelect 
+                    options={MONTHS} 
+                    value={String(selectedMonth)} 
+                    onChange={(v) => updateFilters('month', v)} 
+                  />
+                </div>
+                <div className="col-span-1 sm:w-24">
+                  <InlineSelect 
+                    options={yearOptions} 
+                    value={String(selectedYear)} 
+                    onChange={(v) => updateFilters('year', v)} 
+                  />
+                </div>
+              </>
+            )}
+            
+            <div className={cn(
+              "sm:w-40",
+              isMonth ? "col-span-2" : "col-span-1"
+            )}>
+              <InlineSelect 
+                options={walletOptions} 
+                value={selectedWallet || 'all'} 
+                onChange={(v) => updateFilters('wallet', v)} 
+              />
+            </div>
+            
+            <Button 
+              onClick={exportPDF} 
+              disabled={isExporting}
+              className={cn(
+                "sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white w-full rounded-full text-xs font-semibold",
+                isMonth ? "col-span-2" : "col-span-1"
+              )}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              {isExporting ? 'Memproses...' : 'Export PDF'}
+            </Button>
           </div>
-          <div className="w-40">
-            <InlineSelect 
-              options={walletOptions} 
-              value={selectedWallet || 'all'} 
-              onChange={(v) => updateFilters('wallet', v)} 
-            />
-          </div>
-          <Button 
-            onClick={exportPDF} 
-            disabled={isExporting}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            {isExporting ? 'Memproses...' : 'Export PDF'}
-          </Button>
         </div>
       </div>
 
       {/* REPORT CONTENT TO BE CAPTURED */}
-      <div ref={reportRef} className="bg-slate-50 dark:bg-slate-900 p-6 rounded-3xl space-y-8 print:bg-white print:text-black">
+      <div ref={reportRef} className="bg-slate-50 dark:bg-slate-900 p-4 sm:p-6 rounded-3xl space-y-6 sm:space-y-8 print:bg-white print:text-black">
         
         {/* REPORT HEADER (Visible mostly in PDF) */}
         <div className="text-center pb-4 border-b border-slate-200 dark:border-slate-800">
-          <h2 className="text-2xl font-bold dark:text-white">Fimo - Laporan Keuangan</h2>
-          <p className="text-slate-500 dark:text-slate-400">
-            Periode: {MONTHS.find(m => m.value === String(selectedMonth))?.label} {selectedYear}
+          <h2 className="text-xl sm:text-2xl font-bold dark:text-white">Fimo - Laporan Keuangan</h2>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Periode: {isMonth 
+              ? `${MONTHS.find(m => m.value === String(selectedMonth))?.label} ${selectedYear}`
+              : '30 Hari Terakhir'
+            }
             {selectedWallet && ` • Dompet: ${wallets.find(w => w.id === selectedWallet)?.name}`}
           </p>
         </div>
 
         {/* SUMMARY CARDS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Pemasukan</p>
-                  <h3 className="text-2xl font-bold mt-1 text-emerald-700 dark:text-emerald-300">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+          <Card className="col-span-1 bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30">
+            <CardContent className="p-3.5 sm:p-6">
+              <div className="flex items-center justify-between gap-1">
+                <div className="min-w-0">
+                  <p className="text-[10px] sm:text-sm font-medium text-emerald-600 dark:text-emerald-400 truncate">Pemasukan</p>
+                  <h3 className="text-sm sm:text-2xl font-bold mt-1 text-emerald-700 dark:text-emerald-300 truncate">
                     {formatRupiah(totalIncome)}
                   </h3>
                 </div>
-                <div className="bg-emerald-100 dark:bg-emerald-900/50 p-3 rounded-xl">
-                  <TrendingUp className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                <div className="bg-emerald-100 dark:bg-emerald-900/50 p-1.5 sm:p-3 rounded-xl shrink-0">
+                  <TrendingUp className="h-4 w-4 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-rose-50 dark:bg-rose-900/10 border-rose-100 dark:border-rose-900/30">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-rose-600 dark:text-rose-400">Pengeluaran</p>
-                  <h3 className="text-2xl font-bold mt-1 text-rose-700 dark:text-rose-300">
+          <Card className="col-span-1 bg-rose-50 dark:bg-rose-900/10 border-rose-100 dark:border-rose-900/30">
+            <CardContent className="p-3.5 sm:p-6">
+              <div className="flex items-center justify-between gap-1">
+                <div className="min-w-0">
+                  <p className="text-[10px] sm:text-sm font-medium text-rose-600 dark:text-rose-400 truncate">Pengeluaran</p>
+                  <h3 className="text-sm sm:text-2xl font-bold mt-1 text-rose-700 dark:text-rose-300 truncate">
                     {formatRupiah(totalExpense)}
                   </h3>
                 </div>
-                <div className="bg-rose-100 dark:bg-rose-900/50 p-3 rounded-xl">
-                  <TrendingDown className="h-6 w-6 text-rose-600 dark:text-rose-400" />
+                <div className="bg-rose-100 dark:bg-rose-900/50 p-1.5 sm:p-3 rounded-xl shrink-0">
+                  <TrendingDown className="h-4 w-4 sm:h-6 sm:w-6 text-rose-600 dark:text-rose-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Arus Kas Bersih</p>
-                  <h3 className="text-2xl font-bold mt-1 text-blue-700 dark:text-blue-300">
+          <Card className="col-span-2 md:col-span-1 bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30">
+            <CardContent className="p-3.5 sm:p-6">
+              <div className="flex items-center justify-between gap-1">
+                <div className="min-w-0">
+                  <p className="text-[10px] sm:text-sm font-medium text-blue-600 dark:text-blue-400 truncate">Arus Kas Bersih</p>
+                  <h3 className="text-sm sm:text-2xl font-bold mt-1 text-blue-700 dark:text-blue-300 truncate">
                     {formatRupiah(netSavings)}
                   </h3>
                 </div>
-                <div className="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-xl">
-                  <Wallet className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                <div className="bg-blue-100 dark:bg-blue-900/50 p-1.5 sm:p-3 rounded-xl shrink-0">
+                  <Wallet className="h-4 w-4 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
                 </div>
               </div>
             </CardContent>
@@ -264,28 +307,28 @@ export function ReportsClient({
         </div>
 
         {/* CHARTS */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Distribusi Pengeluaran</CardTitle>
+        <div className="grid grid-cols-2 lg:grid-cols-2 gap-3 md:gap-8">
+          <Card className="col-span-1">
+            <CardHeader className="p-3 md:p-6 pb-0 md:pb-2">
+              <CardTitle className="text-xs sm:text-lg font-bold">Distribusi Pengeluaran</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-2 md:p-6 pt-2 md:pt-0">
               {categoryChartData.length > 0 ? (
-                <CategoryPieChart data={categoryChartData} />
+                <CategoryPieChart data={categoryChartData} height={isMobile ? 150 : 260} />
               ) : (
-                <div className="h-[300px] flex items-center justify-center text-slate-400">
+                <div style={{ height: isMobile ? 150 : 260 }} className="flex items-center justify-center text-slate-400 text-xs sm:text-sm text-center p-2 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
                   Belum ada data pengeluaran bulan ini.
                 </div>
               )}
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Tren 6 Bulan Terakhir</CardTitle>
+          <Card className="col-span-1">
+            <CardHeader className="p-3 md:p-6 pb-0 md:pb-2">
+              <CardTitle className="text-xs sm:text-lg font-bold">Tren 6 Bulan Terakhir</CardTitle>
             </CardHeader>
-            <CardContent>
-              <SixMonthTrendChart data={trendChartData} />
+            <CardContent className="p-2 md:p-6 pt-2 md:pt-0">
+              <SixMonthTrendChart data={trendChartData} height={isMobile ? 150 : 300} />
             </CardContent>
           </Card>
         </div>
