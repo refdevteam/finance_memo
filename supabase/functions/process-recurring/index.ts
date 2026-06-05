@@ -1,3 +1,4 @@
+// @ts-nocheck — Deno Edge Function: URL imports are valid in Supabase's Deno runtime.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
@@ -31,8 +32,8 @@ serve(async (req) => {
       throw error
     }
 
-    return new Response(JSON.stringify({ 
-      success: true, 
+    return new Response(JSON.stringify({
+      success: true,
       message: 'Processed due recurring templates successfully.',
       result: data
     }), {
@@ -42,9 +43,9 @@ serve(async (req) => {
 
   } catch (err) {
     console.error('Error in process-recurring function:', err)
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: err instanceof Error ? err.message : 'Unknown error' 
+    return new Response(JSON.stringify({
+      success: false,
+      error: err instanceof Error ? err.message : 'Unknown error'
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
