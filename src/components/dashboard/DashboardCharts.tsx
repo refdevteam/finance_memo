@@ -277,3 +277,31 @@ export function SixMonthTrendChart({ data, height = 300 }: { data: DailyData[]; 
     </ResponsiveContainer>
   )
 }
+
+export function SpendingMiniTrendChart({ data }: { data: DailyData[] }) {
+  if (!data.length) return null
+  return (
+    <div className="w-[52px] h-[32px] relative shrink-0">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
+          <Area
+            type="monotone"
+            dataKey="income"
+            stroke="#3b82f6"
+            strokeWidth={1.5}
+            fill="transparent"
+            dot={false}
+          />
+          <Area
+            type="monotone"
+            dataKey="expense"
+            stroke="#f43f5e"
+            strokeWidth={1.5}
+            fill="transparent"
+            dot={false}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}

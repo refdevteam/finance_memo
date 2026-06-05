@@ -278,42 +278,42 @@ export function ReportsClient({
         {/* SUMMARY CARDS */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
           <Card className="col-span-1 bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30 relative min-h-[75px] sm:min-h-[105px] overflow-hidden">
-            <CardContent className="p-3 sm:p-5 flex flex-col justify-between h-full">
-              <div className="min-w-0 w-full pr-6 sm:pr-0">
+            <CardContent className="p-2 sm:p-5 flex flex-col justify-between h-full">
+              <div className="min-w-0 w-full pr-2 sm:pr-0">
                 <p className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 opacity-80 truncate">Pemasukan</p>
-                <h3 className="text-[13px] xs:text-sm sm:text-2xl font-extrabold sm:font-bold mt-0.5 tracking-tight text-emerald-700 dark:text-emerald-300 truncate">
+                <h3 className="text-[12px] xs:text-sm sm:text-2xl font-extrabold sm:font-bold mt-0.5 tracking-tight text-emerald-700 dark:text-emerald-300 truncate">
                   {formatRupiah(totalIncome)}
                 </h3>
               </div>
-              <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 bg-emerald-100 dark:bg-emerald-900/40 p-1 sm:p-2.5 rounded-full flex items-center justify-center shadow-xs">
+              <div className="absolute bottom-1.5 right-1.5 sm:bottom-4 sm:right-4 bg-emerald-100 dark:bg-emerald-900/40 p-1 sm:p-2.5 rounded-full flex items-center justify-center shadow-xs">
                 <TrendingUp className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
             </CardContent>
           </Card>
           
           <Card className="col-span-1 bg-rose-50 dark:bg-rose-900/10 border-rose-100 dark:border-rose-900/30 relative min-h-[75px] sm:min-h-[105px] overflow-hidden">
-            <CardContent className="p-3 sm:p-5 flex flex-col justify-between h-full">
-              <div className="min-w-0 w-full pr-6 sm:pr-0">
+            <CardContent className="p-2 sm:p-5 flex flex-col justify-between h-full">
+              <div className="min-w-0 w-full pr-2 sm:pr-0">
                 <p className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 opacity-80 truncate">Pengeluaran</p>
-                <h3 className="text-[13px] xs:text-sm sm:text-2xl font-extrabold sm:font-bold mt-0.5 tracking-tight text-rose-700 dark:text-rose-300 truncate">
+                <h3 className="text-[12px] xs:text-sm sm:text-2xl font-extrabold sm:font-bold mt-0.5 tracking-tight text-rose-700 dark:text-rose-300 truncate">
                   {formatRupiah(totalExpense)}
                 </h3>
               </div>
-              <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 bg-rose-100 dark:bg-rose-900/40 p-1 sm:p-2.5 rounded-full flex items-center justify-center shadow-xs">
+              <div className="absolute bottom-1.5 right-1.5 sm:bottom-4 sm:right-4 bg-rose-100 dark:bg-rose-900/40 p-1 sm:p-2.5 rounded-full flex items-center justify-center shadow-xs">
                 <TrendingDown className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-rose-600 dark:text-rose-400" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="col-span-2 md:col-span-1 bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30 relative min-h-[75px] sm:min-h-[105px] overflow-hidden">
-            <CardContent className="p-3 sm:p-5 flex flex-col justify-between h-full">
-              <div className="min-w-0 w-full pr-6 sm:pr-0">
+            <CardContent className="p-2 sm:p-5 flex flex-col justify-between h-full">
+              <div className="min-w-0 w-full pr-2 sm:pr-0">
                 <p className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 opacity-80 truncate">Arus Kas Bersih</p>
-                <h3 className="text-[13px] xs:text-sm sm:text-2xl font-extrabold sm:font-bold mt-0.5 tracking-tight text-blue-700 dark:text-blue-300 truncate">
+                <h3 className="text-[12px] xs:text-sm sm:text-2xl font-extrabold sm:font-bold mt-0.5 tracking-tight text-blue-700 dark:text-blue-300 truncate">
                   {formatRupiah(netSavings)}
                 </h3>
               </div>
-              <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 bg-blue-100 dark:bg-blue-900/40 p-1.5 sm:p-2.5 rounded-full flex items-center justify-center shadow-xs">
+              <div className="absolute bottom-1.5 right-1.5 sm:bottom-4 sm:right-4 bg-blue-100 dark:bg-blue-900/40 p-1.5 sm:p-2.5 rounded-full flex items-center justify-center shadow-xs">
                 <Wallet className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
               </div>
             </CardContent>

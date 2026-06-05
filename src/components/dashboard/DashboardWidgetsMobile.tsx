@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Card } from '@/components/ui/card'
 import { BudgetCategory } from '@/actions/budgets'
-import { SpendingTrendChart, CategoryPieChart, CategoryMiniPieChart } from '@/components/dashboard/DashboardCharts'
+import { SpendingTrendChart, CategoryPieChart, CategoryMiniPieChart, SpendingMiniTrendChart } from '@/components/dashboard/DashboardCharts'
 import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
 import { cn } from '@/lib/utils'
 
@@ -84,15 +84,21 @@ export function DashboardWidgetsMobile({
               </p>
             </div>
             
-            <div className="space-y-1 mt-2">
-              <div className="flex items-center text-[10px] text-slate-600 dark:text-slate-400">
-                <LucideIcons.ArrowUpRight className="h-3 w-3 text-emerald-500 mr-1 shrink-0" />
-                <span className="truncate font-mono">{formatRupiah(totalIncome)}</span>
+            <div className="flex items-center justify-between mt-2 gap-1.5">
+              <div className="flex-1 space-y-1 min-w-0">
+                <div className="flex items-center text-[10px] text-slate-600 dark:text-slate-400">
+                  <LucideIcons.ArrowUpRight className="h-3 w-3 text-emerald-500 mr-1 shrink-0" />
+                  <span className="truncate font-mono">{formatRupiah(totalIncome)}</span>
+                </div>
+                <div className="flex items-center text-[10px] text-slate-600 dark:text-slate-400">
+                  <LucideIcons.ArrowDownLeft className="h-3 w-3 text-rose-500 mr-1 shrink-0" />
+                  <span className="truncate font-mono">{formatRupiah(totalExpense)}</span>
+                </div>
               </div>
-              <div className="flex items-center text-[10px] text-slate-600 dark:text-slate-400">
-                <LucideIcons.ArrowDownLeft className="h-3 w-3 text-rose-500 mr-1 shrink-0" />
-                <span className="truncate font-mono">{formatRupiah(totalExpense)}</span>
-              </div>
+              
+              {dailyChartData.length > 0 && (
+                <SpendingMiniTrendChart data={dailyChartData} />
+              )}
             </div>
           </Card>
         } />
