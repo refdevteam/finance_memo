@@ -16,6 +16,8 @@ import { TransferForm } from '@/components/transactions/TransferForm'
 import { ReceiptScanner } from '@/components/transactions/ReceiptScanner'
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions'
 import { SpendingTrendChart, CategoryPieChart } from '@/components/dashboard/DashboardCharts'
+import { getBudgets } from '@/actions/budgets'
+import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
 
 function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', {
@@ -103,6 +105,9 @@ export default async function DashboardPage() {
       .select('id, name, type')
       .or(`user_id.eq.${user.id},user_id.is.null`),
   ])
+
+  // Fetch budgets for current month
+  const budgets = await getBudgets(now.getMonth() + 1, now.getFullYear())
 
   // Stats calculations
   const totalBalance = walletsRes.data?.reduce((sum, w) => sum + Number(w.balance || 0), 0) ?? 0
@@ -244,15 +249,28 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Quick Tips - Figma Lilac/Navy Block */}
-        <div className="bg-[#c5b0f4] dark:bg-[#1f1d3d] rounded-lg p-6 text-black dark:text-white relative h-fit">
-          <div className="relative z-10">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 mb-2">Tips Harian</p>
-            <h3 className="text-xl font-bold mb-3">Tips Hemat Hari Ini</h3>
-            <p className="text-black/80 dark:text-white/80 text-sm leading-relaxed">
-              &quot;Jangan menabung apa yang tersisa setelah dibelanjakan, tetapi belanjakanlah apa yang tersisa setelah menabung.&quot; 
-              — Warren Buffett
-            </p>
+        {/* Right side container for Budget & Tips */}
+        <div className="space-y-8 h-fit">
+          {/* Anggaran Bulanan Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold dark:text-white">Anggaran Kategori</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <BudgetProgress budgets={budgets} />
+            </CardContent>
+          </Card>
+
+          {/* Quick Tips - Figma Lilac/Navy Block */}
+          <div className="bg-[#c5b0f4] dark:bg-[#1f1d3d] rounded-lg p-6 text-black dark:text-white relative">
+            <div className="relative z-10">
+              <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 mb-2">Tips Harian</p>
+              <h3 className="text-xl font-bold mb-3">Tips Hemat Hari Ini</h3>
+              <p className="text-black/80 dark:text-white/80 text-sm leading-relaxed">
+                &quot;Jangan menabung apa yang tersisa setelah dibelanjakan, tetapi belanjakanlah apa yang tersisa setelah menabung.&quot; 
+                — Warren Buffett
+              </p>
+            </div>
           </div>
         </div>
       </div>

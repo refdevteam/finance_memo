@@ -14,7 +14,8 @@ import {
   Menu,
   Sun,
   Moon,
-  Plus
+  Plus,
+  PiggyBank
 } from 'lucide-react'
 import { signOut } from '@/actions/auth'
 import { useTheme } from 'next-themes'
@@ -36,6 +37,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
   { icon: Wallet, label: 'Dompet', href: '/dashboard/wallets' },
   { icon: ArrowLeftRight, label: 'Transaksi', href: '/dashboard/transactions' },
+  { icon: PiggyBank, label: 'Anggaran', href: '/dashboard/budgets' },
   { icon: PieChart, label: 'Kategori', href: '/dashboard/categories' },
   { icon: TrendingUp, label: 'Laporan', href: '/dashboard/reports' },
 ]
@@ -266,6 +268,18 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
               >
                 <TrendingUp className="h-5 w-5" />
                 <span>Laporan</span>
+              </Link>
+              <Link
+                href="/dashboard/budgets"
+                className={cn(
+                  "flex items-center space-x-3 px-3 py-3 rounded-xl text-sm font-medium transition-all",
+                  pathname === "/dashboard/budgets"
+                    ? "bg-black text-white dark:bg-white dark:text-black font-semibold"
+                    : "text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-900"
+                )}
+              >
+                <PiggyBank className="h-5 w-5" />
+                <span>Anggaran</span>
               </Link>
               <Link
                 href="/dashboard/settings"

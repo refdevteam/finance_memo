@@ -11,36 +11,41 @@ Progress pengerjaan sesuai dengan `.agent/ROADMAP.md`. Kita telah memasuki Phase
 - [x] **Halaman Onboarding**: Form multi-step untuk profil awal.
 - [x] **Database Schema**: Tabel, RLS, dan function di-deploy ke Supabase.
 
-## ✅ Completed Tasks (Phase 2 - Ongoing)
-- [x] **CRUD Wallets (`/dashboard/wallets`)**: Inisialisasi halaman manajemen dompet, list dompet, dan form tambah dompet.
-- [x] **Custom InlineSelect Component**: Solusi untuk bug dropdown di dalam modal Dialog.
-- [x] **WalletForm & WalletCard**: Komponen untuk input dan tampilan dompet dengan styling premium.
-- [x] **CategoryForm**: Fitur tambah kategori kustom (Pemasukan/Pengeluaran).
-- [x] **Dashboard Real Data**: Menghubungkan statistik dashboard (Total Saldo, Income, Expense) ke query Supabase.
-- [x] **Dashboard Charts**: Implementasi grafik tren (Area Chart) dan breakdown kategori (Donut Chart) menggunakan Recharts.
-- [x] **Transaction Integration**: Form transaksi baru yang sudah terhubung ke database.
+## ✅ Completed Tasks (Phase 2)
+- [x] **AI Scan Struk (Gemini)**: API route `/api/ai/scan-receipt` dan komponen ReceiptScanner dengan rate limiting.
+- [x] **Laporan & Export**: Grafik tren 6 bulan, breakdown kategori, dan export PDF.
+- [x] **Recurring Transaction**: Edge function dan pg_cron untuk mengotomatiskan pencatatan transaksi berulang.
+
+## ✅ Completed Tasks (Phase 3 - Ongoing)
+- [x] **Week 8 — Budgeting System**:
+  - Halaman kelola anggaran di `/dashboard/budgets`.
+  - Form atur budget per kategori per bulan (dengan dialog & input format Rupiah).
+  - Copy budget dari bulan sebelumnya.
+  - Komponen `BudgetProgress` di dashboard (status total anggaran & 3 kategori kritis).
+  - Progress bar dengan warna dinamis (Hijau, Kuning, Merah, Merah Berkedip).
+  - Stored procedure `check_budget_alerts` & daily pg_cron (alert >80% dan >100%).
+  - Supabase Edge Function `budget-alert` untuk memicu pengecekan alert.
 
 ## 🛠️ Current Focus / Next Steps
-- [ ] **Transaction Management**: Halaman khusus list transaksi dengan filter tanggal dan kategori.
-- [ ] **Edit/Delete Actions**: Menambahkan fitur hapus/edit untuk dompet dan kategori.
-- [ ] **Budgeting System**: Setup limit anggaran per kategori.
-- [ ] **AI Insights**: Implementasi tips keuangan yang lebih dinamis berbasis data transaksi user.
+- [ ] **Week 9 — Reminder & Notifikasi**:
+  - CRUD reminders.
+  - Notifikasi in-app (NotifCenter, bell icon, badge).
+  - Realtime subscription via Supabase Realtime.
+  - Edge Function `send-reminder` (cron tiap jam).
+  - Setup FCM untuk push notification dan Resend untuk email.
 
 ## 📂 File Structure (Updated)
 ```
 src/
-├── actions/            # Server Actions (auth, wallets, categories, transactions)
+├── actions/            # Server Actions (auth, wallets, categories, transactions, budgets)
 ├── app/
 │   ├── auth/           # Login & OAuth callback
-│   └── dashboard/      # Protected area (wallets, onboarding, main dashboard)
+│   └── dashboard/      # Protected area (wallets, onboarding, budgets, transactions, reports, main dashboard)
 ├── components/
 │   ├── auth/           # Auth UI components
-│   ├── dashboard/      # Dashboard, Wallet, Category UI components
+│   ├── dashboard/      # Dashboard, Wallet, Category, Budget UI components
+│   ├── layout/         # Sidebar shell
 │   ├── onboarding/     # Onboarding UI components
 │   ├── transactions/   # Transaction UI components
-│   └── ui/             # Shared & custom UI (shadcn, InlineSelect)
-├── lib/
-│   ├── supabase/       # Supabase client setup
-│   └── utils/          # Formatting & helpers
-└── types/              # TypeScript definitions
+│   └── ui/             # Shared & custom UI
 ```

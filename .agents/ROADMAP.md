@@ -106,13 +106,13 @@ Tujuan: Fitur unggulan — scan struk AI dan laporan visual.
 
 Tujuan: Budgeting envelope + sistem reminder multi-channel.
 
-### Week 8 — Budgeting
-- [ ] Form atur budget per kategori per bulan
-- [ ] Progress bar dengan warna dinamis
-- [ ] Copy budget dari bulan sebelumnya
-- [ ] Komponen BudgetProgress di dashboard
-- [ ] Budget alert (notif in-app saat >80%)
-- [ ] Edge Function `budget-alert` (cron harian pagi)
+### Week 8 — Budgeting ✅
+- [x] Form atur budget per kategori per bulan
+- [x] Progress bar dengan warna dinamis
+- [x] Copy budget dari bulan sebelumnya
+- [x] Komponen BudgetProgress di dashboard
+- [x] Budget alert (notif in-app saat >80%)
+- [x] Edge Function `budget-alert` (cron harian pagi)
 
 **Deliverable:** User bisa budgeting per kategori dengan alert otomatis.
 

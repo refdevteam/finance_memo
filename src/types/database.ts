@@ -150,6 +150,38 @@ export interface Database {
           created_at: string
         }
       }
+      budgets: {
+        Row: {
+          id: string
+          user_id: string
+          category_id: string
+          amount: number
+          month: number
+          year: number
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          category_id: string
+          amount: number
+          month: number
+          year: number
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          category_id?: string
+          amount?: number
+          month?: number
+          year?: number
+          notes?: string | null
+          created_at?: string
+        }
+      }
     }
   }
 }
