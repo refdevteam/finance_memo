@@ -23,6 +23,17 @@ function formatRupiah(amount: number): string {
   }).format(amount)
 }
 
+function formatIndonesianDate(dateStr: string): string {
+  if (!dateStr) return ''
+  const [y, m, d] = dateStr.split('-')
+  const monthNames = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+  ]
+  const monthIndex = parseInt(m) - 1
+  return `${parseInt(d)} ${monthNames[monthIndex]} ${y}`
+}
+
 const MONTHS = [
   { value: '1', label: 'Januari' }, { value: '2', label: 'Februari' },
   { value: '3', label: 'Maret' }, { value: '4', label: 'April' },
@@ -39,7 +50,9 @@ export function ReportsClient({
   selectedMonth,
   selectedYear,
   selectedWallet,
-  range
+  range,
+  startDateStr,
+  endDateStr
 }: { 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   wallets: any[]
@@ -51,6 +64,8 @@ export function ReportsClient({
   selectedYear: number
   selectedWallet: string | null
   range: string
+  startDateStr: string
+  endDateStr: string
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -95,14 +110,19 @@ export function ReportsClient({
   
   // Initialize last 6 months to ensure they show even if 0
   for (let i = 5; i >= 0; i--) {
-    const d = new Date(selectedYear, selectedMonth - 1 - i, 1)
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    let targetMonth = selectedMonth - i
+    let targetYear = selectedYear
+    while (targetMonth <= 0) {
+      targetMonth += 12
+      targetYear -= 1
+    }
+    const key = `${targetYear}-${String(targetMonth).padStart(2, '0')}`
     trendMap.set(key, { income: 0, expense: 0 })
   }
 
   sixMonthTransactions.forEach(t => {
-    const d = new Date(t.transaction_date)
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    const [y, m] = t.transaction_date.split('-')
+    const key = `${y}-${m}`
     if (trendMap.has(key)) {
       const data = trendMap.get(key)!
       if (t.type === 'income') data.income += Number(t.amount)
@@ -249,7 +269,7 @@ export function ReportsClient({
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             Periode: {isMonth 
               ? `${MONTHS.find(m => m.value === String(selectedMonth))?.label} ${selectedYear}`
-              : '30 Hari Terakhir'
+              : `30 Hari Terakhir (${formatIndonesianDate(startDateStr)} - ${formatIndonesianDate(endDateStr)})`
             }
             {selectedWallet && ` • Dompet: ${wallets.find(w => w.id === selectedWallet)?.name}`}
           </p>

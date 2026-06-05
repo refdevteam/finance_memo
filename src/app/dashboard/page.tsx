@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+
+export const dynamic = 'force-dynamic'
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
@@ -35,6 +37,13 @@ function formatShortDate(dateStr: string): string {
   return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
 }
 
+function toLocalYYYYMMDD(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 export default async function DashboardPage({
   searchParams,
 }: {
@@ -63,18 +72,16 @@ export default async function DashboardPage({
   let startDateStr: string
   let endDateStr: string
   
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
-
   if (isMonth) {
-    startDateStr = startOfMonth
-    endDateStr = endOfMonth
+    startDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    endDateStr = toLocalYYYYMMDD(lastDay)
   } else {
     // 30 days ago from today (inclusive)
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(now.getDate() - 29)
-    startDateStr = thirtyDaysAgo.toISOString().split('T')[0]
-    endDateStr = now.toISOString().split('T')[0]
+    startDateStr = toLocalYYYYMMDD(thirtyDaysAgo)
+    endDateStr = toLocalYYYYMMDD(now)
   }
 
   // Fetch all data in parallel
@@ -155,7 +162,7 @@ export default async function DashboardPage({
     for (let i = 0; i < 30; i++) {
       const d = new Date()
       d.setDate(now.getDate() - (29 - i))
-      const dateStr = d.toISOString().split('T')[0]
+      const dateStr = toLocalYYYYMMDD(d)
       dailyMap.set(dateStr, { income: 0, expense: 0 })
     }
   }

@@ -4,6 +4,13 @@ import { ReportsClient } from '@/components/reports/ReportsClient'
 
 export const dynamic = 'force-dynamic'
 
+function toLocalYYYYMMDD(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 export default async function ReportsPage({
   searchParams,
 }: {
@@ -29,18 +36,25 @@ export default async function ReportsPage({
   let endDateStr: string
 
   if (isMonth) {
-    startDateStr = new Date(selectedYear, selectedMonth - 1, 1).toISOString().split('T')[0]
-    endDateStr = new Date(selectedYear, selectedMonth, 0).toISOString().split('T')[0]
+    startDateStr = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-01`
+    const lastDay = new Date(selectedYear, selectedMonth, 0)
+    endDateStr = toLocalYYYYMMDD(lastDay)
   } else {
     // 30 days ago from today (inclusive)
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(now.getDate() - 29)
-    startDateStr = thirtyDaysAgo.toISOString().split('T')[0]
-    endDateStr = now.toISOString().split('T')[0]
+    startDateStr = toLocalYYYYMMDD(thirtyDaysAgo)
+    endDateStr = toLocalYYYYMMDD(now)
   }
 
   // Tentukan rentang waktu 6 bulan terakhir dari bulan yang dipilih
-  const startOfSixMonthsAgo = new Date(selectedYear, selectedMonth - 6, 1).toISOString().split('T')[0]
+  let startMonth = selectedMonth - 6
+  let startYear = selectedYear
+  while (startMonth <= 0) {
+    startMonth += 12
+    startYear -= 1
+  }
+  const startOfSixMonthsAgo = `${startYear}-${String(startMonth).padStart(2, '0')}-01`
 
   // --- QUERIES ---
 
@@ -89,6 +103,8 @@ export default async function ReportsPage({
         selectedYear={selectedYear}
         selectedWallet={selectedWallet}
         range={range}
+        startDateStr={startDateStr}
+        endDateStr={endDateStr}
       />
     </div>
   )
