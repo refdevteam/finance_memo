@@ -119,15 +119,15 @@ Tujuan: Budgeting envelope + sistem reminder multi-channel.
 ---
 
 ### Week 9 — Reminder & Notifikasi
-- [ ] CRUD reminders
-- [ ] Notifikasi in-app (NotifCenter, bell icon, badge)
-- [ ] Realtime subscription via Supabase Realtime
-- [ ] Edge Function `send-reminder` (cron tiap jam)
-- [ ] Setup FCM untuk push notification
-- [ ] Permission request push notif di browser
-- [ ] Setup Resend untuk email reminder
-- [ ] Setting notifikasi (aktif/nonaktif per channel)
-- [ ] Upcoming reminders widget di dashboard
+- [x] CRUD reminders
+- [x] Notifikasi in-app (NotifCenter, bell icon, badge)
+- [x] Realtime subscription via Supabase Realtime
+- [x] Edge Function `send-reminder` (cron tiap jam)
+- [x] Setup FCM untuk push notification (FCM Service Worker)
+- [x] Permission request push notif di browser (Settings panel)
+- [x] Setup Resend untuk email reminder (Edge Function integration)
+- [x] Setting notifikasi (aktif/nonaktif per channel)
+- [x] Upcoming reminders widget di dashboard
 
 **Deliverable:** Sistem reminder berjalan multi-channel.
 

@@ -22,6 +22,7 @@ import { getBudgets } from '@/actions/budgets'
 import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
 import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
 import { DashboardWidgetsMobile } from '@/components/dashboard/DashboardWidgetsMobile'
+import { UpcomingReminders } from '@/components/dashboard/UpcomingReminders'
 
 function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', {
@@ -261,6 +262,15 @@ export default async function DashboardPage({
         monthName={chartTitleLabel}
       />
 
+      {/* Mobile-only Upcoming Reminders */}
+      <div className="block md:hidden">
+        <Card>
+          <CardContent className="pt-6">
+            <UpcomingReminders />
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Desktop-only Charts Grid */}
       <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Spending Trend Chart */}
@@ -307,6 +317,13 @@ export default async function DashboardPage({
 
         {/* Right side container for Budget & Tips (Desktop only) */}
         <div className="hidden md:block space-y-8 h-fit">
+          {/* Upcoming Reminders Card */}
+          <Card>
+            <CardContent className="pt-6">
+              <UpcomingReminders />
+            </CardContent>
+          </Card>
+
           {/* Anggaran Bulanan Card */}
           <Card>
             <CardHeader>

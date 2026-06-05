@@ -32,6 +32,7 @@ import { Button } from '@/components/ui/button'
 import { TransactionForm } from '@/components/transactions/TransactionForm'
 import { TransferForm } from '@/components/transactions/TransferForm'
 import { ReceiptScanner } from '@/components/transactions/ReceiptScanner'
+import { NotificationCenter } from '@/components/layout/NotificationCenter'
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
@@ -91,7 +92,8 @@ function SidebarContent({ pathname }: { pathname: string }) {
           </div>
           <span className="text-xl font-bold tracking-tight dark:text-white">fimo</span>
         </Link>
-        <div className="hidden md:block">
+        <div className="hidden md:flex items-center space-x-1">
+          <NotificationCenter />
           <ThemeToggle />
         </div>
       </div>
@@ -160,7 +162,10 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
           <span className="font-bold tracking-tight text-neutral-900 dark:text-white text-base">fimo</span>
         </Link>
         
-        <ThemeToggle />
+        <div className="flex items-center space-x-1">
+          <NotificationCenter />
+          <ThemeToggle />
+        </div>
       </div>
 
       {/* Mobile Floating Bottom Bar - iOS Glassmorphism */}

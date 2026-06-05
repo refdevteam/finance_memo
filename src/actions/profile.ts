@@ -38,3 +38,34 @@ export async function completeOnboarding(formData: z.infer<typeof profileSchema>
   revalidatePath('/dashboard')
   redirect('/dashboard')
 }
+
+export async function updateProfile(formData: { full_name: string; currency: string; timezone: string }) {
+  const supabase = createClient()
+  
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return { error: 'Unauthorized' }
+
+  const parsed = profileSchema.safeParse(formData)
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message }
+  }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      full_name: parsed.data.full_name,
+      currency: parsed.data.currency,
+      timezone: parsed.data.timezone,
+    })
+    .eq('id', user.id)
+
+  if (error) {
+    console.error('Error updating profile:', error.message)
+    return { error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/settings')
+  return { success: true }
+}
+
