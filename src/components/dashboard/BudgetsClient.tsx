@@ -204,16 +204,12 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4">
           {filteredBudgets.map((b) => {
             const hasBudget = b.budget_limit > 0
             const percentage = hasBudget ? Math.round((b.spent / b.budget_limit) * 100) : 0
             
             // Dynamic Color Selection based on percentage
-            // < 70% : Emerald (green)
-            // 70% - 80% : Amber (yellow/orange)
-            // >= 80% and < 100%: Rose (red)
-            // >= 100%: Red/rose pulsing
             let progressBgColor = 'bg-emerald-500'
             let badgeColorClass = 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-950/50'
             
@@ -235,29 +231,29 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
               <div 
                 key={b.category_id}
                 className={cn(
-                  "p-5 bg-white dark:bg-slate-900 rounded-2xl border transition-all duration-300 flex flex-col justify-between min-h-[140px] shadow-xs hover:shadow-md",
+                  "p-3 sm:p-5 bg-white dark:bg-slate-900 rounded-2xl border transition-all duration-300 flex flex-col justify-between min-h-[125px] sm:min-h-[140px] shadow-xs hover:shadow-md",
                   hasBudget ? "border-slate-100 dark:border-slate-800/80" : "border-slate-100 dark:border-slate-800/80 opacity-75 hover:opacity-100"
                 )}
               >
                 {/* Upper row: Icon, Category Name, Action Trigger */}
                 <div className="flex items-start justify-between w-full">
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
                     <div 
-                      className="w-10 h-10 rounded-full flex items-center justify-center border shadow-xs"
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border shadow-xs shrink-0"
                       style={{ 
                         backgroundColor: `${b.category_color}12`,
                         color: b.category_color,
                         borderColor: `${b.category_color}25`
                       }}
                     >
-                      <Icon className="h-5 w-5" />
+                      <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
-                    <div>
-                      <h4 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">
+                    <div className="min-w-0">
+                      <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 dark:text-slate-100 truncate">
                         {b.category_name}
                       </h4>
                       {b.budget_notes && (
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500 italic truncate max-w-[200px] mt-0.5">
+                        <p className="text-[8px] sm:text-[10px] text-slate-400 dark:text-slate-500 italic truncate max-w-[120px] mt-0.5">
                           &quot;{b.budget_notes}&quot;
                         </p>
                       )}
@@ -277,12 +273,12 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-8 w-8 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 shrink-0"
+                        className="h-7 w-7 sm:h-8 sm:w-8 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 shrink-0"
                       >
                         {hasBudget ? (
-                          <LucideIcons.Edit2 className="h-4 w-4" />
+                          <LucideIcons.Edit2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                         ) : (
-                          <LucideIcons.Plus className="h-4 w-4" />
+                          <LucideIcons.Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                         )}
                       </Button>
                     }
@@ -290,27 +286,27 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
                 </div>
 
                 {/* Lower row: Details & Progress bar */}
-                <div className="mt-5 space-y-2">
+                <div className="mt-3.5 sm:mt-5 space-y-1.5 sm:space-y-2">
                   {hasBudget ? (
                     <>
-                      <div className="flex justify-between items-end text-xs font-bold text-slate-500 dark:text-slate-400">
-                        <div>
+                      <div className="flex justify-between items-end text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400">
+                        <div className="truncate pr-1">
                           <span className="text-slate-800 dark:text-slate-100 font-extrabold">
                             {formatRupiah(b.spent)}
                           </span>
-                          <span className="text-slate-400 dark:text-slate-600 font-normal text-[10px] mx-1">dari</span>
-                          <span className="font-semibold text-slate-600 dark:text-slate-300">
+                          <span className="text-slate-400 dark:text-slate-600 font-normal text-[8px] sm:text-[10px] mx-0.5 sm:mx-1">/</span>
+                          <span className="font-semibold text-slate-500 dark:text-slate-400">
                             {formatRupiah(b.budget_limit)}
                           </span>
                         </div>
                         <span className={cn(
-                          "px-2 py-0.5 rounded-full text-[10px] font-extrabold border",
+                          "px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[10px] font-extrabold border shrink-0",
                           badgeColorClass
                         )}>
                           {percentage}%
                         </span>
                       </div>
-                      <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-1.5 sm:h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                         <div 
                           className={cn("h-full rounded-full transition-all duration-500", progressBgColor)} 
                           style={{ width: `${Math.min(percentage, 100)}%` }}
@@ -318,9 +314,9 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
                       </div>
                     </>
                   ) : (
-                    <div className="flex items-center justify-between text-xs py-1">
-                      <span className="text-slate-400 dark:text-slate-500 font-medium">
-                        Belum ada batas anggaran diatur
+                    <div className="flex items-center justify-between text-[10px] sm:text-xs py-0.5">
+                      <span className="text-slate-400 dark:text-slate-500 font-medium truncate pr-1">
+                        Belum diatur
                       </span>
                       <BudgetForm
                         categoryId={b.category_id}
@@ -335,9 +331,9 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="rounded-full text-[10px] h-7 border-dashed border-slate-200 dark:border-slate-800 text-slate-500 px-3"
+                            className="rounded-full text-[8px] sm:text-[10px] h-6 sm:h-7 border-dashed border-slate-200 dark:border-slate-800 text-slate-500 px-2 sm:px-3"
                           >
-                            Atur Anggaran
+                            Atur
                           </Button>
                         }
                       />

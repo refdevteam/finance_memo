@@ -46,15 +46,15 @@ export function WalletCard({ id, name, type, balance, color }: WalletCardProps) 
           className="h-1.5 w-full" 
           style={{ backgroundColor: color || '#000000' }}
         />
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-3 rounded-xl bg-secondary">
-              <Icon className="h-6 w-6 text-muted-foreground" />
+        <div className="p-3.5 sm:p-6">
+          <div className="flex justify-between items-start mb-2.5 sm:mb-4">
+            <div className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-secondary">
+              <Icon className="h-4.5 w-4.5 sm:h-6 sm:w-6 text-muted-foreground" />
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
-                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 }
@@ -76,9 +76,9 @@ export function WalletCard({ id, name, type, balance, color }: WalletCardProps) 
           </div>
           
           <div>
-            <p className="text-sm font-medium text-muted-foreground capitalize">{type}</p>
-            <h3 className="text-lg font-bold text-foreground truncate">{name}</h3>
-            <p className="text-2xl font-black mt-2 tracking-tight text-emerald-600">
+            <p className="text-[10px] sm:text-sm font-medium text-muted-foreground capitalize">{type}</p>
+            <h3 className="text-xs sm:text-lg font-extrabold sm:font-bold text-foreground truncate">{name}</h3>
+            <p className="text-sm sm:text-2xl font-extrabold sm:font-black mt-1 sm:mt-2 tracking-tight text-emerald-600 font-mono">
               {formatCurrency(balance)}
             </p>
           </div>

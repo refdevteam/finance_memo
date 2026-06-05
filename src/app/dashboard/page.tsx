@@ -18,6 +18,8 @@ import { RecentTransactions } from '@/components/dashboard/RecentTransactions'
 import { SpendingTrendChart, CategoryPieChart } from '@/components/dashboard/DashboardCharts'
 import { getBudgets } from '@/actions/budgets'
 import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
+import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
+import { DashboardWidgetsMobile } from '@/components/dashboard/DashboardWidgetsMobile'
 
 function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', {
@@ -33,7 +35,11 @@ function formatShortDate(dateStr: string): string {
   return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { range?: string }
+}) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -49,10 +55,27 @@ export default async function DashboardPage() {
     redirect('/dashboard/onboarding')
   }
 
-  // Get current month range
+  // Get date range based on search parameter (default is '30days')
+  const range = searchParams?.range || '30days'
+  const isMonth = range === 'month'
   const now = new Date()
+  
+  let startDateStr: string
+  let endDateStr: string
+  
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+
+  if (isMonth) {
+    startDateStr = startOfMonth
+    endDateStr = endOfMonth
+  } else {
+    // 30 days ago from today (inclusive)
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(now.getDate() - 29)
+    startDateStr = thirtyDaysAgo.toISOString().split('T')[0]
+    endDateStr = now.toISOString().split('T')[0]
+  }
 
   // Fetch all data in parallel
   const [walletsRes, incomeRes, expenseRes, dailyTransactionsRes, categoryExpensesRes, categoriesRes] = await Promise.all([
@@ -63,41 +86,41 @@ export default async function DashboardPage() {
       .eq('user_id', user.id)
       .eq('is_active', true),
     
-    // Total income this month
+    // Total income this month or in 30 days
     supabase
       .from('transactions')
       .select('amount')
       .eq('user_id', user.id)
       .eq('type', 'income')
-      .gte('transaction_date', startOfMonth)
-      .lte('transaction_date', endOfMonth),
+      .gte('transaction_date', startDateStr)
+      .lte('transaction_date', endDateStr),
     
-    // Total expenses this month
+    // Total expenses this month or in 30 days
     supabase
       .from('transactions')
       .select('amount')
       .eq('user_id', user.id)
       .eq('type', 'expense')
-      .gte('transaction_date', startOfMonth)
-      .lte('transaction_date', endOfMonth),
+      .gte('transaction_date', startDateStr)
+      .lte('transaction_date', endDateStr),
 
-    // Daily transactions for trend chart (this month)
+    // Daily transactions for trend chart
     supabase
       .from('transactions')
       .select('amount, type, transaction_date')
       .eq('user_id', user.id)
-      .gte('transaction_date', startOfMonth)
-      .lte('transaction_date', endOfMonth)
+      .gte('transaction_date', startDateStr)
+      .lte('transaction_date', endDateStr)
       .order('transaction_date', { ascending: true }),
 
-    // Expenses by category for pie chart (this month)
+    // Expenses by category for pie chart
     supabase
       .from('transactions')
       .select('amount, category_id, categories(name, color)')
       .eq('user_id', user.id)
       .eq('type', 'expense')
-      .gte('transaction_date', startOfMonth)
-      .lte('transaction_date', endOfMonth),
+      .gte('transaction_date', startDateStr)
+      .lte('transaction_date', endDateStr),
       
     // Fetch all categories for Receipt Scanner
     supabase
@@ -120,11 +143,21 @@ export default async function DashboardPage() {
   // Build daily trend data
   const dailyMap = new Map<string, { income: number; expense: number }>()
   
-  // Initialize all days in month
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
-    dailyMap.set(dateStr, { income: 0, expense: 0 })
+  if (isMonth) {
+    // Initialize all days in month
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+      dailyMap.set(dateStr, { income: 0, expense: 0 })
+    }
+  } else {
+    // Initialize all 30 days
+    for (let i = 0; i < 30; i++) {
+      const d = new Date()
+      d.setDate(now.getDate() - (29 - i))
+      const dateStr = d.toISOString().split('T')[0]
+      dailyMap.set(dateStr, { income: 0, expense: 0 })
+    }
   }
   
   // Fill with actual data
@@ -165,6 +198,7 @@ export default async function DashboardPage() {
 
   // Month name for header
   const monthName = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+  const chartTitleLabel = isMonth ? monthName : '30 Hari Terakhir'
 
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8 pb-28 md:pb-8">
@@ -173,13 +207,16 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight dark:text-white">Ringkasan Keuangan</h1>
           <p className="text-slate-500 dark:text-slate-400">
-            Halo {profile?.full_name?.split(' ')[0] || user.user_metadata?.full_name?.split(' ')[0] || 'User'}, inilah kondisi keuangan kamu bulan ini.
+            Halo {profile?.full_name?.split(' ')[0] || user.user_metadata?.full_name?.split(' ')[0] || 'User'}, inilah kondisi keuangan kamu {isMonth ? 'bulan ini' : '30 hari terakhir'}.
           </p>
         </div>
-        <div className="hidden md:flex items-center gap-2 flex-wrap">
-          <ReceiptScanner wallets={walletsRes.data || []} categories={categoriesRes.data || []} />
-          <TransferForm />
-          <TransactionForm />
+        <div className="flex items-center gap-3 flex-wrap">
+          <DashboardRangeToggle />
+          <div className="hidden md:flex items-center gap-2 flex-wrap">
+            <ReceiptScanner wallets={walletsRes.data || []} categories={categoriesRes.data || []} />
+            <TransferForm />
+            <TransactionForm />
+          </div>
         </div>
       </div>
 
@@ -206,12 +243,24 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Mobile-only 2x2 widgets grid */}
+      <DashboardWidgetsMobile
+        dailyChartData={dailyChartData}
+        categoryChartData={categoryChartData}
+        budgets={budgets}
+        totalIncome={totalIncome}
+        totalExpense={totalExpense}
+        savingsRate={savingsRate}
+        monthName={chartTitleLabel}
+      />
+
+      {/* Desktop-only Charts Grid */}
+      <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Spending Trend Chart */}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-lg font-semibold dark:text-white">
-              Tren Keuangan — {monthName}
+              Tren Keuangan — {chartTitleLabel}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -249,8 +298,8 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Right side container for Budget & Tips */}
-        <div className="space-y-8 h-fit">
+        {/* Right side container for Budget & Tips (Desktop only) */}
+        <div className="hidden md:block space-y-8 h-fit">
           {/* Anggaran Bulanan Card */}
           <Card>
             <CardHeader>

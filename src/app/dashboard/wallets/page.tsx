@@ -32,7 +32,7 @@ export default async function WalletsPage() {
           <WalletForm />
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {wallets.map((wallet) => (
             <WalletCard
               key={wallet.id}

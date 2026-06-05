@@ -147,110 +147,30 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
         </div>
       )}
 
-      {/* Mobile list view */}
-      <div className="block sm:hidden space-y-2.5">
-        {filteredCategories.map((cat) => {
-          // Dynamic icon loading from Lucide
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const Icon = (LucideIcons as any)[cat.icon || 'Tag'] || LucideIcons.Tag
-          const isCustom = !!cat.user_id
-
-          return (
-            <div 
-              key={cat.id} 
-              className="flex items-center justify-between p-3.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm active:scale-[0.99] transition-all duration-200"
-            >
-              <div className="flex items-center space-x-3.5">
-                <div 
-                  className="w-10 h-10 rounded-full flex items-center justify-center border shadow-sm transition-transform active:scale-95"
-                  style={{ 
-                    backgroundColor: `${cat.color}12`, // 12% opacity
-                    color: cat.color || '#64748b',
-                    borderColor: `${cat.color}25` // 25% opacity
-                  }}
-                >
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <span className="font-semibold text-slate-800 dark:text-slate-100 text-sm block">
-                    {cat.name}
-                  </span>
-                  <span className={cn(
-                    "inline-block text-[8px] px-1.5 py-0.5 rounded-md uppercase tracking-wider font-extrabold mt-0.5",
-                    isCustom 
-                      ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400" 
-                      : "bg-slate-50 text-slate-500 dark:bg-slate-800/40 dark:text-slate-400"
-                  )}>
-                    {isCustom ? 'Kustom' : 'Sistem'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Action area */}
-              <div className="flex items-center space-x-2">
-                {isCustom && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8.5 w-8.5 rounded-full text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all shrink-0 active:scale-90"
-                        disabled={isPending}
-                      >
-                        <LucideIcons.Trash2 className="h-4.5 w-4.5" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="max-w-[90%] sm:max-w-[400px] rounded-3xl">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Hapus Kategori?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-slate-500 dark:text-slate-400 text-sm">
-                          Apakah Anda yakin ingin menghapus kategori kustom <strong>&quot;{cat.name}&quot;</strong>? Transaksi yang sudah menggunakan kategori ini mungkin akan dipindahkan ke kategori default.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter className="mt-4 gap-2">
-                        <AlertDialogCancel className="rounded-xl border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
-                          Batal
-                        </AlertDialogCancel>
-                        <AlertDialogAction 
-                          onClick={() => handleDelete(cat.id, cat.name)}
-                          className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl"
-                        >
-                          Hapus
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Desktop Grid View */}
-      <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      {/* Unified Responsive Grid View (Compact 2 columns on Mobile) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
         {filteredCategories.map((cat) => {
           const isCustom = !!cat.user_id
           return (
             <div 
               key={cat.id} 
-              className="group relative p-4.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800/80 hover:border-slate-200 dark:hover:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center justify-center text-center min-h-[120px]"
+              className="group relative p-3.5 sm:p-4.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800/80 hover:border-slate-200 dark:hover:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center justify-center text-center min-h-[105px] sm:min-h-[120px]"
             >
               {/* Custom item delete button (absolute position corner) */}
               {isCustom && (
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-7 w-7 rounded-full text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 active:scale-95"
+                        className="h-7.5 w-7.5 rounded-full text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 active:scale-95"
                         disabled={isPending}
                       >
                         <LucideIcons.Trash2 className="h-4 w-4" />
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="rounded-2xl">
+                    <AlertDialogContent className="rounded-2xl max-w-[90%] sm:max-w-[400px]">
                       <AlertDialogHeader>
                         <AlertDialogTitle>Hapus Kategori?</AlertDialogTitle>
                         <AlertDialogDescription>
@@ -275,11 +195,11 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
                 name={cat.name} 
                 iconName={cat.icon} 
                 color={cat.color} 
-                className="scale-110 mb-3 shadow-sm"
+                className="scale-95 sm:scale-110 mb-2 sm:mb-3 shadow-xs"
               />
               
               <span className={cn(
-                "text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider font-extrabold mt-1 scale-90",
+                "text-[8px] px-2 py-0.5 rounded-full uppercase tracking-wider font-extrabold mt-0.5 sm:mt-1 scale-90",
                 isCustom 
                   ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400" 
                   : "bg-slate-50 text-slate-500 dark:bg-slate-800/40 dark:text-slate-400"

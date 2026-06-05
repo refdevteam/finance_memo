@@ -47,26 +47,32 @@ const secondaryItems = [
 ]
 
 function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
+  const { theme, resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   // Avoid hydration mismatch
   useEffect(() => setMounted(true), [])
   if (!mounted) return <div className="w-8 h-8" />
 
+  const isDark = theme === 'dark' || resolvedTheme === 'dark'
+
   return (
     <Button
       variant="ghost"
       size="icon"
       type="button"
-      className="rounded-full w-9 h-9 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors z-50"
+      className={cn(
+        "rounded-full w-9 h-9 transition-all z-50",
+        isDark
+          ? "bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.2)] hover:bg-amber-500/20"
+          : "hover:bg-neutral-100 text-neutral-600 border border-transparent"
+      )}
       onClick={() => {
-        console.log('Current theme:', theme);
-        setTheme(theme === 'dark' ? 'light' : 'dark');
+        setTheme(isDark ? 'light' : 'dark');
       }}
     >
-      {theme === 'dark' ? (
-        <Sun className="h-5 w-5 text-amber-400" />
+      {isDark ? (
+        <Sun className="h-5 w-5 text-amber-400 fill-amber-400/20" />
       ) : (
         <Moon className="h-5 w-5 text-neutral-600" />
       )}
@@ -146,7 +152,7 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
   return (
     <>
       {/* Mobile Top Header - iOS Style Glass */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-border bg-white/70 dark:bg-background/70 backdrop-blur-xl z-40 flex items-center px-4 justify-between">
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-border dark:border-slate-900 bg-white/70 dark:bg-slate-950/85 backdrop-blur-xl z-40 flex items-center px-4 justify-between">
         <Link href="/dashboard" className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-black dark:bg-white rounded-lg flex items-center justify-center shadow-md">
             <span className="text-white dark:text-black font-bold text-sm">F</span>
