@@ -68,7 +68,8 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
         } else {
           toast.error(res.error || 'Gagal menyalin anggaran.')
         }
-      } catch (err) {
+      } catch (error) {
+        console.error('Error copying budgets:', error)
         toast.error('Terjadi kesalahan sistem saat menyalin anggaran.')
       }
     })

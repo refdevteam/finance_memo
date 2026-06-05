@@ -73,7 +73,8 @@ export function BudgetForm({
         } else {
           toast.error(res.error || 'Gagal menyimpan anggaran.')
         }
-      } catch (err) {
+      } catch (error) {
+        console.error('Error setting budget:', error)
         toast.error('Terjadi kesalahan sistem saat menyimpan anggaran.')
       }
     })
@@ -89,7 +90,8 @@ export function BudgetForm({
         } else {
           toast.error(res.error || 'Gagal menonaktifkan anggaran.')
         }
-      } catch (err) {
+      } catch (error) {
+        console.error('Error removing budget:', error)
         toast.error('Terjadi kesalahan sistem saat menonaktifkan anggaran.')
       }
     })
