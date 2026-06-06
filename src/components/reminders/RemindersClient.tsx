@@ -13,8 +13,6 @@ import {
   Search, 
   SlidersHorizontal,
   Clock, 
-  FileText,
-  DollarSign,
   Info
 } from 'lucide-react'
 import { 
@@ -55,7 +53,7 @@ interface Reminder {
 }
 
 interface RemindersClientProps {
-  initialReminders: any[]
+  initialReminders: Reminder[]
 }
 
 function formatRupiah(amount: number | null | undefined): string {
@@ -76,7 +74,7 @@ function formatDateIndo(dateStr: string): string {
       month: 'short',
       year: 'numeric'
     })
-  } catch (e) {
+  } catch {
     return dateStr
   }
 }

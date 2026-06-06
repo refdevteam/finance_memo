@@ -10,16 +10,13 @@ import {
   Info, 
   Sparkles, 
   Check, 
-  Trash2, 
   X 
 } from 'lucide-react'
 import { 
   DropdownMenu, 
   DropdownMenuTrigger, 
   DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator 
+  DropdownMenuLabel 
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { 
@@ -62,7 +59,7 @@ function formatRelativeTime(dateStr: string): string {
       day: 'numeric',
       month: 'short'
     })
-  } catch (e) {
+  } catch {
     return 'Beberapa saat lalu'
   }
 }
@@ -95,7 +92,7 @@ export function NotificationCenter() {
       try {
         const data = await getNotifications()
         setNotifications(data as Notification[])
-        setUnreadCount(data.filter((n: any) => !n.is_read).length)
+        setUnreadCount(data.filter((n: Notification) => !n.is_read).length)
       } catch (err) {
         console.error('Failed to load notifications:', err)
       }
@@ -135,7 +132,7 @@ export function NotificationCenter() {
             setNotifications(prev => 
               prev.map(n => n.id === updatedNotif.id ? updatedNotif : n)
             )
-            setUnreadCount(prev => {
+            setUnreadCount(_prev => {
               // Recalculate based on updated state
               return notifications.reduce((acc, n) => {
                 if (n.id === updatedNotif.id) {

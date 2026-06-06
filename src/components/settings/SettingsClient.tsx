@@ -7,7 +7,6 @@ import {
   Wallet, 
   Globe, 
   Smartphone, 
-  Check, 
   Loader2, 
   Bell, 
   AlertCircle 
@@ -87,7 +86,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
 
       if (permission === 'granted') {
         // Retrieve or simulate registration token
-        let token = 'mock_fcm_token_' + Math.random().toString(36).substring(2, 12)
+        const token = 'mock_fcm_token_' + Math.random().toString(36).substring(2, 12)
         
         // Save token to database
         const res = await updateFcmToken(token)
