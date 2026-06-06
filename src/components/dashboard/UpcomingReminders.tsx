@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Bell, Calendar, CheckCircle2, ChevronRight, Clock, AlertCircle } from 'lucide-react'
+import { CheckCircle2, ChevronRight, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { completeReminder } from '@/actions/reminders'
 import { toast } from 'sonner'

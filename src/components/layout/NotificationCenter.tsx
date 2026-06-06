@@ -81,10 +81,12 @@ function getNotificationIcon(type: string) {
 
 export function NotificationCenter() {
   const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
   const [open, setOpen] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+
+  // Derive unread count dynamically from state
+  const unreadCount = notifications.filter(n => !n.is_read).length
 
   // Fetch initial notifications
   useEffect(() => {
@@ -92,7 +94,6 @@ export function NotificationCenter() {
       try {
         const data = await getNotifications()
         setNotifications(data as Notification[])
-        setUnreadCount(data.filter((n: Notification) => !n.is_read).length)
       } catch (err) {
         console.error('Failed to load notifications:', err)
       }
@@ -116,7 +117,6 @@ export function NotificationCenter() {
           if (payload.eventType === 'INSERT') {
             const newNotif = payload.new as Notification
             setNotifications(prev => [newNotif, ...prev].slice(0, 20))
-            setUnreadCount(prev => prev + 1)
             
             // Show toast
             toast(newNotif.title, {
@@ -132,22 +132,9 @@ export function NotificationCenter() {
             setNotifications(prev => 
               prev.map(n => n.id === updatedNotif.id ? updatedNotif : n)
             )
-            setUnreadCount(_prev => {
-              // Recalculate based on updated state
-              return notifications.reduce((acc, n) => {
-                if (n.id === updatedNotif.id) {
-                  return acc + (updatedNotif.is_read ? 0 : 1)
-                }
-                return acc + (n.is_read ? 0 : 1)
-              }, 0)
-            })
           } else if (payload.eventType === 'DELETE') {
             const deletedId = payload.old.id
             setNotifications(prev => prev.filter(n => n.id !== deletedId))
-            setUnreadCount(prev => {
-              const wasUnread = notifications.find(n => n.id === deletedId)?.is_read === false
-              return wasUnread ? Math.max(0, prev - 1) : prev
-            })
           }
         }
       )
@@ -156,7 +143,7 @@ export function NotificationCenter() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [supabase, notifications, router])
+  }, [supabase, router])
 
   // Mark single as read
   async function handleMarkAsRead(id: string, actionUrl: string | null) {
@@ -164,7 +151,6 @@ export function NotificationCenter() {
     setNotifications(prev => 
       prev.map(n => n.id === id ? { ...n, is_read: true } : n)
     )
-    setUnreadCount(prev => Math.max(0, prev - 1))
 
     await markNotificationAsRead(id)
 
@@ -177,7 +163,6 @@ export function NotificationCenter() {
   // Mark all as read
   async function handleMarkAllAsRead() {
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
-    setUnreadCount(0)
     await markAllNotificationsAsRead()
     toast.success('Semua notifikasi ditandai terbaca')
   }
@@ -185,11 +170,7 @@ export function NotificationCenter() {
   // Delete notification
   async function handleDelete(e: React.MouseEvent, id: string) {
     e.stopPropagation()
-    const wasUnread = notifications.find(n => n.id === id)?.is_read === false
     setNotifications(prev => prev.filter(n => n.id !== id))
-    if (wasUnread) {
-      setUnreadCount(prev => Math.max(0, prev - 1))
-    }
     await deleteNotification(id)
   }
 
