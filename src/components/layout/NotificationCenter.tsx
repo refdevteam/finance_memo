@@ -83,7 +83,7 @@ export function NotificationCenter() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [open, setOpen] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
+  const [supabase] = useState(() => createClient())
 
   // Derive unread count dynamically from state
   const unreadCount = notifications.filter(n => !n.is_read).length
@@ -104,8 +104,9 @@ export function NotificationCenter() {
 
   // Subscribe to real-time notifications
   useEffect(() => {
+    const channelName = 'realtime-notifications-' + Math.random().toString(36).substring(7)
     const channel = supabase
-      .channel('realtime-notifications')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
