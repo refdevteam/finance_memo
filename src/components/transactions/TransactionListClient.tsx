@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
-import { Trash2, FilterX } from 'lucide-react'
+import { Trash2, FilterX, Search, SlidersHorizontal, Tag, DollarSign } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +33,13 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
+
+  // Filters State
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  const [minAmount, setMinAmount] = useState<string>('')
+  const [maxAmount, setMaxAmount] = useState<string>('')
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   const currentType = searchParams.get('type') || 'all'
   const currentWallet = searchParams.get('wallet') || 'all'
@@ -65,6 +73,48 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
     setIsDeleting(null)
   }
 
+  const handleResetFilters = () => {
+    setSearchQuery('')
+    setSelectedTag(null)
+    setMinAmount('')
+    setMaxAmount('')
+    router.push('/dashboard/transactions')
+  }
+
+  // Extract unique tags from fetched transactions
+  const allTags = Array.from(
+    new Set(
+      transactions.flatMap(t => t.tags || [])
+    )
+  ).filter(Boolean) as string[]
+
+  // Filter transactions on client side for live search and range queries
+  const filteredTransactions = transactions.filter(t => {
+    // 1. Search Query Filter (Description & Notes)
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      const descMatch = t.description?.toLowerCase().includes(query)
+      const notesMatch = t.notes?.toLowerCase().includes(query)
+      if (!descMatch && !notesMatch) return false
+    }
+
+    // 2. Tag Filter
+    if (selectedTag) {
+      if (!t.tags || !t.tags.includes(selectedTag)) return false
+    }
+
+    // 3. Amount Range Filter
+    const amount = Number(t.amount)
+    if (minAmount && !isNaN(Number(minAmount))) {
+      if (amount < Number(minAmount)) return false
+    }
+    if (maxAmount && !isNaN(Number(maxAmount))) {
+      if (amount > Number(maxAmount)) return false
+    }
+
+    return true
+  })
+
   const walletOptions = [
     { value: 'all', label: 'Semua Dompet' },
     ...wallets.map(w => ({ value: w.id, label: w.name }))
@@ -77,51 +127,141 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
     { value: 'transfer', label: 'Transfer' },
   ]
 
+  const hasActiveFilters = 
+    currentType !== 'all' || 
+    currentWallet !== 'all' || 
+    searchQuery !== '' || 
+    selectedTag !== null || 
+    minAmount !== '' || 
+    maxAmount !== ''
+
   return (
     <div className="space-y-6">
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 bg-card dark:bg-card p-4 rounded-2xl border border-border">
-        <div className="flex-1 space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground ml-1">Filter Tipe</label>
-          <InlineSelect 
-            options={typeOptions}
-            value={currentType}
-            onChange={(val) => handleFilterChange('type', val)}
-          />
-        </div>
-        <div className="flex-1 space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground ml-1">Filter Dompet</label>
-          <InlineSelect 
-            options={walletOptions}
-            value={currentWallet}
-            onChange={(val) => handleFilterChange('wallet', val)}
-          />
-        </div>
-        
-        {(currentType !== 'all' || currentWallet !== 'all') && (
-          <div className="flex items-end">
-            <Button 
-              variant="ghost" 
-              onClick={() => router.push('/dashboard/transactions')}
-              className="text-muted-foreground hover:text-rose-500"
+      {/* Search and Quick Filters */}
+      <div className="bg-white dark:bg-card p-4 rounded-2xl border border-border space-y-4 shadow-xs">
+        <div className="flex flex-col md:flex-row gap-3">
+          {/* Global Search Input */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Cari deskripsi atau catatan..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 rounded-xl border-neutral-200 dark:border-neutral-800"
+            />
+          </div>
+
+          {/* Quick Dropdowns */}
+          <div className="flex flex-wrap sm:flex-nowrap gap-3">
+            <div className="w-full sm:w-40">
+              <InlineSelect 
+                options={typeOptions}
+                value={currentType}
+                onChange={(val) => handleFilterChange('type', val)}
+              />
+            </div>
+            <div className="w-full sm:w-48">
+              <InlineSelect 
+                options={walletOptions}
+                value={currentWallet}
+                onChange={(val) => handleFilterChange('wallet', val)}
+              />
+            </div>
+
+            {/* Toggle Advanced Filters Button */}
+            <Button
+              variant="outline"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className={`rounded-xl border-neutral-200 dark:border-neutral-800 gap-2 ${
+                showAdvanced ? 'bg-neutral-100 dark:bg-neutral-800' : ''
+              }`}
             >
-              <FilterX className="w-4 h-4 mr-2" />
-              Reset
+              <SlidersHorizontal className="h-4 w-4" />
+              <span>Filter</span>
             </Button>
+
+            {hasActiveFilters && (
+              <Button 
+                variant="ghost" 
+                onClick={handleResetFilters}
+                className="text-muted-foreground hover:text-rose-500 rounded-xl"
+              >
+                <FilterX className="w-4 h-4 mr-2" />
+                Reset
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Collapsible Advanced Filters Panel */}
+        {showAdvanced && (
+          <div className="pt-4 border-t border-border space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Amount Range Filter */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 flex items-center gap-1.5">
+                  <DollarSign className="h-3.5 w-3.5" />
+                  Rentang Nominal (IDR)
+                </label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Min"
+                    value={minAmount}
+                    onChange={(e) => setMinAmount(e.target.value)}
+                    className="rounded-xl border-neutral-200 dark:border-neutral-800 text-sm"
+                  />
+                  <span className="text-muted-foreground text-xs">—</span>
+                  <Input
+                    type="number"
+                    placeholder="Maks"
+                    value={maxAmount}
+                    onChange={(e) => setMaxAmount(e.target.value)}
+                    className="rounded-xl border-neutral-200 dark:border-neutral-800 text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Tag Pills Filter */}
+              {allTags.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 flex items-center gap-1.5">
+                    <Tag className="h-3.5 w-3.5" />
+                    Filter Tag
+                  </label>
+                  <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                    {allTags.map((tag) => (
+                      <button
+                        key={tag}
+                        onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                        className={`text-xs px-2.5 py-1 rounded-full font-medium transition-all ${
+                          selectedTag === tag
+                            ? 'bg-black text-white dark:bg-white dark:text-black shadow-xs'
+                            : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'
+                        }`}
+                      >
+                        #{tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
 
-      {/* List */}
+      {/* Transactions List */}
       <div className="bg-card dark:bg-card rounded-2xl border border-border overflow-hidden">
-        {transactions.length === 0 ? (
+        {filteredTransactions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
             <p className="font-medium">Tidak ada transaksi ditemukan.</p>
-            <p className="text-sm mt-1">Coba sesuaikan filter Anda atau tambah transaksi baru.</p>
+            <p className="text-sm mt-1">Coba sesuaikan kata kunci atau filter lanjutan Anda.</p>
           </div>
         ) : (
           <div className="divide-y divide-border">
-            {transactions.map((t) => {
+            {filteredTransactions.map((t) => {
               const categoryColor = t.categories?.color || '#94a3b8'
               const categoryIcon = t.categories?.icon || (t.type === 'transfer' ? '🔄' : '📄')
               const categoryName = t.categories?.name || (t.type === 'transfer' ? 'Transfer' : 'Lainnya')
@@ -133,7 +273,7 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
                   {/* Left info */}
                   <div className="flex items-center gap-4">
                     <div 
-                      className="h-12 w-12 rounded-[1rem] flex items-center justify-center text-xl shadow-sm border border-border flex-shrink-0"
+                      className="h-12 w-12 rounded-[1rem] flex items-center justify-center text-xl shadow-xs border border-border flex-shrink-0"
                       style={{ backgroundColor: `${categoryColor}15`, color: categoryColor }}
                     >
                       <span>{categoryIcon}</span>
@@ -142,6 +282,7 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
                       <p className="font-semibold text-foreground line-clamp-1">
                         {t.description || categoryName}
                       </p>
+                      
                       <div className="flex flex-wrap items-center text-xs text-muted-foreground mt-1 gap-2">
                         <span className="font-medium bg-secondary px-2 py-0.5 rounded-md">
                           {t.wallets?.name || 'Dompet'}
@@ -155,6 +296,20 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
                           </>
                         )}
                       </div>
+
+                      {/* Display Tags */}
+                      {t.tags && t.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-1.5">
+                          {t.tags.map((tag: string) => (
+                            <span 
+                              key={tag} 
+                              className="text-[10px] bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 px-2 py-0.5 rounded-full font-medium"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                   

@@ -35,6 +35,8 @@ export default async function TransactionsPage({
       amount,
       type,
       description,
+      notes,
+      tags,
       transaction_date,
       created_at,
       wallet_id,

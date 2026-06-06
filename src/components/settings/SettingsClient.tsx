@@ -9,7 +9,10 @@ import {
   Smartphone, 
   Loader2, 
   Bell, 
-  AlertCircle 
+  AlertCircle,
+  Download,
+  Trash2,
+  ShieldAlert
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -19,6 +22,18 @@ import { updateProfile } from '@/actions/profile'
 import { updateFcmToken } from '@/actions/notifications'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { exportUserData, deleteUserAccount } from '@/actions/gdpr'
 
 interface Profile {
   id: string
@@ -43,6 +58,53 @@ export function SettingsClient({ profile }: SettingsClientProps) {
   const [hasToken, setHasToken] = useState(!!profile?.fcm_token)
   const [registeringPush, setRegisteringPush] = useState(false)
   const router = useRouter()
+
+  const [exporting, setExporting] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  const handleExportData = async () => {
+    setExporting(true)
+    try {
+      const res = await exportUserData()
+      if (res.success && res.data) {
+        const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
+          JSON.stringify(res.data, null, 2)
+        )}`
+        const downloadAnchor = document.createElement('a')
+        downloadAnchor.setAttribute('href', jsonString)
+        downloadAnchor.setAttribute('download', `fimo_data_export_${new Date().toISOString().split('T')[0]}.json`)
+        document.body.appendChild(downloadAnchor)
+        downloadAnchor.click()
+        downloadAnchor.remove()
+        toast.success('Ekspor data berhasil diunduh.')
+      } else {
+        toast.error(res.error || 'Gagal mengekspor data.')
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error('Terjadi kesalahan saat mengekspor data.')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true)
+    try {
+      const res = await deleteUserAccount()
+      if (res.success) {
+        toast.success('Akun Anda berhasil dihapus.')
+        router.push('/auth/login')
+      } else {
+        toast.error(res.error || 'Gagal menghapus akun.')
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error('Terjadi kesalahan saat menghapus akun.')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
@@ -289,6 +351,82 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   <span>Izin ditolak. Silakan ubah izin situs di pengaturan URL gembok browser Anda.</span>
                 </div>
               )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* GDPR Privacy & Actions Card */}
+        <Card className="border-rose-100 dark:border-rose-950/30 rounded-2xl bg-white dark:bg-card/40 backdrop-blur-md">
+          <CardHeader>
+            <CardTitle className="text-base font-bold flex items-center gap-2 text-rose-600 dark:text-rose-400">
+              <ShieldAlert className="h-4 w-4" />
+              Keamanan & Privasi (GDPR)
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Ekspor salinan data Anda atau hapus akun Anda secara permanen beserta seluruh catatan keuangan Anda.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Export Button */}
+              <Button
+                onClick={handleExportData}
+                disabled={exporting}
+                variant="outline"
+                type="button"
+                className="flex-1 rounded-xl px-5 border-neutral-200 dark:border-neutral-800 gap-2 text-xs font-semibold"
+              >
+                {exporting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
+                Ekspor Semua Data (JSON)
+              </Button>
+
+              {/* Delete Account Alert Dialog */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    type="button"
+                    disabled={deleting}
+                    className="flex-1 rounded-xl px-5 gap-2 text-xs font-semibold border-none"
+                  >
+                    {deleting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                    Hapus Seluruh Akun & Data
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-rose-600 dark:text-rose-400 flex items-center gap-2">
+                      <ShieldAlert className="h-5 w-5" />
+                      Apakah Anda yakin ingin menghapus akun?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-sm space-y-2">
+                      <p>
+                        Tindakan ini <strong>permanen</strong> dan tidak dapat dibatalkan.
+                      </p>
+                      <p>
+                        Seluruh profil, daftar dompet, kategori custom, catatan transaksi, anggaran bulanan, rencana berulang, pengingat, dan notifikasi Anda akan <strong>dihapus selamanya</strong> dari server kami.
+                      </p>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteAccount}
+                      className="bg-rose-600 hover:bg-rose-700 text-white"
+                    >
+                      Ya, Hapus Permanen
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </CardContent>
         </Card>

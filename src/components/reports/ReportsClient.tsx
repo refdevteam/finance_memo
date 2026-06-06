@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Download, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
+import { Download, TrendingUp, TrendingDown, Wallet, Sparkles, BrainCircuit, AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -12,7 +12,7 @@ import jsPDF from 'jspdf'
 import { CategoryPieChart, SixMonthTrendChart } from '@/components/dashboard/DashboardCharts'
 import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
 import { cn } from '@/lib/utils'
-// Note: We are reusing the dashboard charts, but transforming the data differently for Reports
+import { generateMonthlyInsights } from '@/actions/ai-insights'
 
 function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', {
@@ -73,12 +73,26 @@ export function ReportsClient({
   const [isExporting, setIsExporting] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
+  // AI Insights State
+  const [insight, setInsight] = useState<{
+    summary: string
+    financial_score: number
+    tips: string[]
+    warnings: string[]
+  } | null>(null)
+  const [isLoadingInsight, setIsLoadingInsight] = useState(false)
+
   useEffect(() => {
     setIsMobile(window.innerWidth < 768)
     const handleResize = () => setIsMobile(window.innerWidth < 768)
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
+
+  // Reset insights when period changes
+  useEffect(() => {
+    setInsight(null)
+  }, [selectedMonth, selectedYear, selectedWallet, range])
 
   // -- CALCULATIONS FOR SUMMARY CARDS --
   const totalIncome = monthTransactions
@@ -104,11 +118,9 @@ export function ReportsClient({
   const categoryChartData = Array.from(categoryMap.values()).sort((a, b) => b.value - a.value)
 
   // -- DATA PREP FOR 6 MONTH TREND BAR CHART --
-  // We need to group by YYYY-MM
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]
   const trendMap = new Map<string, { income: number, expense: number }>()
   
-  // Initialize last 6 months to ensure they show even if 0
   for (let i = 5; i >= 0; i--) {
     let targetMonth = selectedMonth - i
     let targetYear = selectedYear
@@ -184,6 +196,24 @@ export function ReportsClient({
     }
   }
 
+  const handleGenerateInsight = async () => {
+    setIsLoadingInsight(true)
+    try {
+      const res = await generateMonthlyInsights(selectedMonth, selectedYear)
+      if (res.success && res.data) {
+        setInsight(res.data)
+        toast.success('Analisis AI berhasil dibuat!')
+      } else {
+        toast.error(res.error || 'Gagal membuat analisis AI.')
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error('Terjadi kesalahan saat menghubungi Fimo AI.')
+    } finally {
+      setIsLoadingInsight(false)
+    }
+  }
+
   const yearOptions = Array.from({ length: 5 }, (_, i) => {
     const y = new Date().getFullYear() - 2 + i
     return { value: String(y), label: String(y) }
@@ -196,6 +226,13 @@ export function ReportsClient({
 
   const isMonth = range === 'month'
 
+  // Determine score color
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-emerald-500 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 dark:border-emerald-900/50'
+    if (score >= 50) return 'text-amber-500 border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-900/50'
+    return 'text-rose-500 border-rose-200 bg-rose-50 dark:bg-rose-950/20 dark:border-rose-900/50'
+  }
+
   return (
     <div className="space-y-8">
       {/* HEADER & FILTERS */}
@@ -206,7 +243,6 @@ export function ReportsClient({
         </div>
         
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-          {/* Range Segmented Control Toggle */}
           <div className="flex justify-start sm:justify-end">
             <DashboardRangeToggle />
           </div>
@@ -263,7 +299,7 @@ export function ReportsClient({
       {/* REPORT CONTENT TO BE CAPTURED */}
       <div ref={reportRef} className="bg-slate-50 dark:bg-slate-900 p-4 sm:p-6 rounded-3xl space-y-6 sm:space-y-8 print:bg-white print:text-black">
         
-        {/* REPORT HEADER (Visible mostly in PDF) */}
+        {/* REPORT HEADER */}
         <div className="text-center pb-4 border-b border-slate-200 dark:border-slate-800">
           <h2 className="text-xl sm:text-2xl font-bold dark:text-white">Fimo - Laporan Keuangan</h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -331,7 +367,7 @@ export function ReportsClient({
                 <CategoryPieChart data={categoryChartData} height={isMobile ? 150 : 260} />
               ) : (
                 <div style={{ height: isMobile ? 150 : 260 }} className="flex items-center justify-center text-slate-400 text-xs sm:text-sm text-center p-2 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
-                  Belum ada data pengeluaran bulan ini.
+                  Belum ada data pengeluaran periode ini.
                 </div>
               )}
             </CardContent>
@@ -346,6 +382,105 @@ export function ReportsClient({
             </CardContent>
           </Card>
         </div>
+
+        {/* FIMO AI MONTHLY INSIGHTS */}
+        <Card className="border-indigo-100 dark:border-indigo-950/30 overflow-hidden relative bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/40 dark:from-indigo-950/10 dark:via-card/40 dark:to-purple-950/10 backdrop-blur-md rounded-2xl shadow-xs">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-sm sm:text-lg font-bold flex items-center gap-2 text-indigo-700 dark:text-indigo-400">
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 animate-pulse" />
+                Analisis Finansial AI Fimo
+              </CardTitle>
+              <p className="text-[11px] text-muted-foreground">Analisis pola spending bulanan dan tips efisiensi otomatis.</p>
+            </div>
+            {!insight && !isLoadingInsight && (
+              <Button
+                onClick={handleGenerateInsight}
+                size="sm"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-xs font-semibold px-4"
+              >
+                <BrainCircuit className="h-4 w-4 mr-2" />
+                Analisis
+              </Button>
+            )}
+          </CardHeader>
+          <CardContent className="pt-2">
+            {isLoadingInsight && (
+              <div className="py-12 flex flex-col items-center justify-center space-y-4">
+                <Loader2 className="h-8 w-8 text-indigo-600 animate-spin" />
+                <p className="text-xs text-indigo-600 dark:text-indigo-400 font-mono animate-pulse">Fimo sedang menganalisis pola keuangan Anda...</p>
+              </div>
+            )}
+
+            {!insight && !isLoadingInsight && (
+              <div className="py-6 text-center border border-dashed border-indigo-100 dark:border-indigo-950/40 rounded-xl bg-white/40 dark:bg-black/10">
+                <p className="text-xs text-muted-foreground px-4">
+                  Klik tombol <strong>Analisis</strong> di atas untuk memproses data keuangan periode ini menggunakan model AI Gemini.
+                </p>
+              </div>
+            )}
+
+            {insight && !isLoadingInsight && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                {/* Upper block: Score and summary */}
+                <div className="flex flex-col md:flex-row gap-4 items-start">
+                  {/* Circular Score display */}
+                  <div className={cn(
+                    "flex flex-col items-center justify-center h-20 w-20 sm:h-24 sm:w-24 rounded-full border-4 font-black flex-shrink-0 mx-auto md:mx-0 shadow-xs",
+                    getScoreColor(insight.financial_score)
+                  )}>
+                    <span className="text-2xl sm:text-3xl font-extrabold">{insight.financial_score}</span>
+                    <span className="text-[9px] uppercase tracking-wider font-mono opacity-80 mt-0.5">Skor</span>
+                  </div>
+
+                  {/* Summary Text */}
+                  <div className="flex-1">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 mb-1">Analisis Fimo:</h4>
+                    <p className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed font-medium">
+                      {insight.summary}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                  {/* Tips list */}
+                  <div className="bg-white/60 dark:bg-neutral-900/40 p-4 rounded-xl border border-indigo-50 dark:border-indigo-950/20 space-y-2.5">
+                    <h5 className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 uppercase tracking-wide">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Rekomendasi Hemat Fimo
+                    </h5>
+                    <ul className="space-y-2">
+                      {insight.tips.map((tip, i) => (
+                        <li key={i} className="text-xs text-neutral-600 dark:text-neutral-400 flex items-start gap-2 leading-relaxed">
+                          <span className="text-emerald-500 font-bold mt-0.5">•</span>
+                          <span>{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Warnings list */}
+                  {insight.warnings && insight.warnings.length > 0 && (
+                    <div className="bg-white/60 dark:bg-neutral-900/40 p-4 rounded-xl border border-indigo-50 dark:border-indigo-950/20 space-y-2.5">
+                      <h5 className="text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1.5 uppercase tracking-wide">
+                        <AlertTriangle className="h-4 w-4" />
+                        Peringatan Pengeluaran
+                      </h5>
+                      <ul className="space-y-2">
+                        {insight.warnings.map((warn, i) => (
+                          <li key={i} className="text-xs text-neutral-600 dark:text-neutral-400 flex items-start gap-2 leading-relaxed">
+                            <span className="text-rose-500 font-bold mt-0.5">•</span>
+                            <span>{warn}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
         
       </div>
     </div>

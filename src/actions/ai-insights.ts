@@ -1,0 +1,158 @@
+'use server'
+
+import { createClient } from '@/lib/supabase/server'
+import { GoogleGenerativeAI } from '@google/generative-ai'
+
+interface AIInsightResult {
+  success: boolean
+  data?: {
+    summary: string
+    financial_score: number
+    tips: string[]
+    warnings: string[]
+  }
+  error?: string
+}
+
+export async function generateMonthlyInsights(month: number, year: number): Promise<AIInsightResult> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return { success: false, error: 'Unauthorized' }
+
+  const hasGemini = !!process.env.GEMINI_API_KEY
+  if (!hasGemini) {
+    // Return simulated insights if API key is not configured
+    return {
+      success: true,
+      data: {
+        summary: "Kunci API Gemini belum dikonfigurasi. Ini adalah analisis simulasi Fimo: Pengeluaran bulanan Anda terlihat wajar, namun pastikan untuk mengalokasikan dana darurat minimal 10% dari pendapatan bulanan.",
+        financial_score: 75,
+        tips: [
+          "Mulailah menyisihkan 10% pendapatan di awal bulan sebelum berbelanja.",
+          "Batasi pengeluaran kategori Makan & Minum dengan menetapkan anggaran envelopes."
+        ],
+        warnings: [
+          "Belum ada budget terdaftar untuk bulan ini. Buat budget di halaman Anggaran untuk memantau batas pengeluaran."
+        ]
+      }
+    }
+  }
+
+  try {
+    // 1. Fetch Profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name, currency')
+      .eq('id', user.id)
+      .single()
+
+    const currency = profile?.currency || 'IDR'
+    const userName = profile?.full_name || 'Pengguna'
+
+    // 2. Fetch Transactions for the specified month
+    const startDate = `${year}-${String(month).padStart(2, '0')}-01`
+    const lastDay = new Date(year, month, 0).getDate()
+    const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+
+    const { data: transactions } = await supabase
+      .from('transactions')
+      .select(`
+        amount,
+        type,
+        description,
+        transaction_date,
+        categories (
+          name
+        )
+      `)
+      .eq('user_id', user.id)
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate)
+
+    // 3. Fetch Budgets
+    const { data: budgets } = await supabase
+      .from('budgets')
+      .select(`
+        amount,
+        category_id,
+        categories (
+          name
+        )
+      `)
+      .eq('user_id', user.id)
+      .eq('month', month)
+      .eq('year', year)
+
+    const trxs = transactions || []
+    const totalIncome = trxs.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
+    const totalExpense = trxs.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
+    const netSavings = totalIncome - totalExpense
+
+    // Compile list of categories and spending
+    const expenseBreakdown: Record<string, number> = {}
+    trxs.filter(t => t.type === 'expense').forEach(t => {
+      const catName = t.categories?.name || 'Lainnya'
+      expenseBreakdown[catName] = (expenseBreakdown[catName] || 0) + Number(t.amount)
+    })
+
+    const prompt = `
+      Kamu adalah Fimo, asisten keuangan pribadi AI cerdas yang ramah, analitis, dan solutif.
+      Berikan analisis keuangan bulanan (Bahasa Indonesia) berdasarkan data berikut untuk pengguna bernama ${userName}:
+      
+      Mata Uang Default: ${currency}
+      Periode: Bulan ${month} Tahun ${year}
+      Total Pemasukan: ${currency} ${totalIncome}
+      Total Pengeluaran: ${currency} ${totalExpense}
+      Saldo Bersih Tabungan: ${currency} ${netSavings}
+      
+      Rincian Pengeluaran per Kategori:
+      ${Object.entries(expenseBreakdown).map(([cat, amt]) => `- ${cat}: ${currency} ${amt}`).join('\n')}
+      
+      Anggaran Kategori (Budgets):
+      ${(budgets || []).map(b => `- ${b.categories?.name || 'Lainnya'}: Target ${currency} ${b.amount}`).join('\n')}
+      
+      Aturan ketat keluaran (output):
+      1. Kembalikan respons dalam format JSON murni yang valid.
+      2. Jangan sertakan tag markdown \`\`\`json atau blok teks penjelasan lain di luar JSON.
+      3. Analisis harus kritis tapi memotivasi, gunakan kalimat pendek dan jelas.
+      4. "financial_score" adalah angka bulat 1-100. Berikan nilai tinggi jika pemasukan jauh lebih besar dari pengeluaran, ada sisa tabungan sehat, dan tidak melebihi anggaran. Berikan nilai rendah jika pengeluaran membengkak.
+      
+      Format Output Wajib:
+      {
+        "summary": "Analisis ringkas kondisi finansial bulan ini...",
+        "financial_score": 80,
+        "tips": [
+          "Tips praktis pertama untuk berhemat atau berinvestasi...",
+          "Tips praktis kedua..."
+        ],
+        "warnings": [
+          "Peringatan pertama jika ada pengeluaran berlebih di kategori tertentu atau melebihi anggaran...",
+          "Peringatan kedua..."
+        ]
+      }
+    `
+
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
+
+    const result = await model.generateContent([prompt])
+    const response = await result.response
+    const textOutput = response.text()
+
+    // Clean markdown if present
+    const cleanedText = textOutput.replace(/```json/g, '').replace(/```/g, '').trim()
+    const parsedData = JSON.parse(cleanedText)
+
+    return {
+      success: true,
+      data: parsedData
+    }
+  } catch (error) {
+    console.error('Gemini generate insights error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Terjadi kesalahan sistem saat menghubungi AI.'
+    }
+  }
+}

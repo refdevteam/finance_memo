@@ -1,12 +1,81 @@
-// Service worker for Firebase Cloud Messaging (FCM) Simulation & Production
+// Service worker for PWA caching and Firebase Cloud Messaging (FCM)
+
+const CACHE_NAME = 'fimo-cache-v1';
+const ASSETS_TO_CACHE = [
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png',
+];
+
+// PWA Install & Cache assets
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
+  );
+  self.skipWaiting();
+});
+
+// Activate & Cleanup old cache
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+// Fetch cache-first or network fallback
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+  
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      return fetch(event.request).then((response) => {
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
+        }
+        
+        // Don't cache dynamic API routes or dashboard subpaths to avoid stale data
+        const url = new URL(event.request.url);
+        if (url.pathname.startsWith('/api') || url.pathname.startsWith('/dashboard')) {
+          return response;
+        }
+
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
+        return response;
+      }).catch(() => {
+        // Return cached page or fail silently
+      });
+    })
+  );
+});
+
+// FCM Notification Handling
 self.addEventListener('push', function(event) {
   console.log('[Service Worker] Push Message Received.');
   
   let title = 'fimo — Finance Memo';
   let options = {
     body: 'Ada pembaruan penting mengenai pengingat keuangan Anda.',
-    icon: '/icon.png',
-    badge: '/badge.png'
+    icon: '/icon-192.png',
+    badge: '/icon-192.png'
   };
 
   if (event.data) {
@@ -20,7 +89,6 @@ self.addEventListener('push', function(event) {
         data: data.data || {}
       };
     } catch (e) {
-      // Fallback if data is raw text
       options.body = event.data.text();
     }
   }
@@ -32,7 +100,6 @@ self.addEventListener('notificationclick', function(event) {
   console.log('[Service Worker] Notification clicked.');
   event.notification.close();
 
-  // Redirect client to action URL
   const actionUrl = event.notification.data?.action_url || '/dashboard';
 
   event.waitUntil(

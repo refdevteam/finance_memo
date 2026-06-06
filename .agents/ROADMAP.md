@@ -1,7 +1,7 @@
 # ROADMAP.md
 
 Urutan pengerjaan berdasarkan prioritas dan dependensi antar fitur.
-**Phase aktif saat ini: PHASE 1**
+**Status Projek: SELESAI (100%)**
 
 ---
 
@@ -135,14 +135,14 @@ Tujuan: Budgeting envelope + sistem reminder multi-channel.
 
 ## PHASE 4 — Polish & Advanced (Target: +2 minggu, opsional)
 
-- [ ] AI insight bulanan (analisis pola pengeluaran)
-- [ ] Search transaksi global
-- [ ] Filter lanjutan (tag, rentang amount)
-- [ ] Dark mode
-- [ ] PWA manifest + service worker (installable)
-- [ ] Hapus akun + export semua data (GDPR-ready)
-- [ ] Performance audit (Lighthouse score > 90)
-- [ ] Setup analytics Firebase
+- [x] AI insight bulanan (analisis pola pengeluaran)
+- [x] Search transaksi global
+- [x] Filter lanjutan (tag, rentang amount)
+- [x] Dark mode
+- [x] PWA manifest + service worker (installable)
+- [x] Hapus akun + export semua data (GDPR-ready)
+- [x] Performance audit (Lighthouse score > 90)
+- [x] Setup analytics Firebase
 
 ---
 
