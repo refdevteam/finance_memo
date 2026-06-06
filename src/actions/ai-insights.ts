@@ -92,7 +92,8 @@ export async function generateMonthlyInsights(month: number, year: number): Prom
     // Compile list of categories and spending
     const expenseBreakdown: Record<string, number> = {}
     trxs.filter(t => t.type === 'expense').forEach(t => {
-      const catName = t.categories?.name || 'Lainnya'
+      const categoryObj = Array.isArray(t.categories) ? t.categories[0] : t.categories
+      const catName = (categoryObj as { name: string } | null)?.name || 'Lainnya'
       expenseBreakdown[catName] = (expenseBreakdown[catName] || 0) + Number(t.amount)
     })
 
@@ -110,7 +111,11 @@ export async function generateMonthlyInsights(month: number, year: number): Prom
       ${Object.entries(expenseBreakdown).map(([cat, amt]) => `- ${cat}: ${currency} ${amt}`).join('\n')}
       
       Anggaran Kategori (Budgets):
-      ${(budgets || []).map(b => `- ${b.categories?.name || 'Lainnya'}: Target ${currency} ${b.amount}`).join('\n')}
+      ${(budgets || []).map(b => {
+        const budgetCategoryObj = Array.isArray(b.categories) ? b.categories[0] : b.categories
+        const budgetCatName = (budgetCategoryObj as { name: string } | null)?.name || 'Lainnya'
+        return `- ${budgetCatName}: Target ${currency} ${b.amount}`
+      }).join('\n')}
       
       Aturan ketat keluaran (output):
       1. Kembalikan respons dalam format JSON murni yang valid.
