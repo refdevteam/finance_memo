@@ -383,27 +383,30 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
 
                     {/* Channels icons */}
                     <div className="flex gap-1.5 items-center">
-                      <Bell 
-                        className={cn(
-                          "h-3.5 w-3.5", 
-                          reminder.channels?.inapp ? "text-emerald-500" : "text-neutral-300 dark:text-neutral-700"
-                        )} 
-                        title="Dalam Aplikasi" 
-                      />
-                      <Mail 
-                        className={cn(
-                          "h-3.5 w-3.5", 
-                          reminder.channels?.email ? "text-emerald-500" : "text-neutral-300 dark:text-neutral-700"
-                        )} 
-                        title="Email" 
-                      />
-                      <Smartphone 
-                        className={cn(
-                          "h-3.5 w-3.5", 
-                          reminder.channels?.push ? "text-emerald-500" : "text-neutral-300 dark:text-neutral-700"
-                        )} 
-                        title="Push Notification" 
-                      />
+                      <span title="Dalam Aplikasi">
+                        <Bell 
+                          className={cn(
+                            "h-3.5 w-3.5", 
+                            reminder.channels?.inapp ? "text-emerald-500" : "text-neutral-300 dark:text-neutral-700"
+                          )} 
+                        />
+                      </span>
+                      <span title="Email">
+                        <Mail 
+                          className={cn(
+                            "h-3.5 w-3.5", 
+                            reminder.channels?.email ? "text-emerald-500" : "text-neutral-300 dark:text-neutral-700"
+                          )} 
+                        />
+                      </span>
+                      <span title="Push Notification">
+                        <Smartphone 
+                          className={cn(
+                            "h-3.5 w-3.5", 
+                            reminder.channels?.push ? "text-emerald-500" : "text-neutral-300 dark:text-neutral-700"
+                          )} 
+                        />
+                      </span>
                     </div>
                   </div>
                 </div>
