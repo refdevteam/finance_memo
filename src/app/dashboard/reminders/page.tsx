@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getReminders } from '@/actions/reminders'
 import { RemindersClient } from '@/components/reminders/RemindersClient'
 
 export const dynamic = 'force-dynamic'
@@ -21,11 +20,19 @@ export default async function RemindersPage() {
     redirect('/dashboard/onboarding')
   }
 
-  const reminders = await getReminders()
+  const { data: reminders, error } = await supabase
+    .from('reminders')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('due_date', { ascending: true })
+
+  if (error) {
+    console.error('Error fetching reminders in page:', error)
+  }
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
-      <RemindersClient initialReminders={reminders} />
+      <RemindersClient initialReminders={reminders || []} />
     </div>
   )
 }
