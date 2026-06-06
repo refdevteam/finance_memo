@@ -15,8 +15,7 @@ import {
 import { 
   DropdownMenu, 
   DropdownMenuTrigger, 
-  DropdownMenuContent, 
-  DropdownMenuLabel 
+  DropdownMenuContent 
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { 
@@ -200,9 +199,9 @@ export function NotificationCenter() {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 bg-neutral-50/50 dark:bg-neutral-900/50 border-b border-neutral-100 dark:border-neutral-800">
-          <DropdownMenuLabel className="font-bold text-neutral-950 dark:text-white text-base py-0 px-0">
+          <h3 className="font-bold text-neutral-950 dark:text-white text-base py-0 px-0">
             Notifikasi
-          </DropdownMenuLabel>
+          </h3>
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllAsRead}
