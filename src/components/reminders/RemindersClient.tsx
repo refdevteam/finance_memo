@@ -262,36 +262,36 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
       {/* Search & Filter Controls */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+          <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-neutral-400" />
           <Input 
             placeholder="Cari pengingat..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-white dark:bg-card/50 border-neutral-200 dark:border-neutral-800 rounded-xl"
+            className="pl-9 h-11 bg-white dark:bg-card/50 border-neutral-200 dark:border-neutral-800 rounded-xl text-sm"
           />
         </div>
-        <div className="flex gap-2 shrink-0">
-          <div className="relative">
+        <div className="flex gap-2 w-full sm:w-auto shrink-0">
+          <div className="relative w-full">
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="appearance-none pl-3 pr-8 py-2 bg-white dark:bg-card/50 border border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-hidden focus:ring-1 focus:ring-neutral-400"
+              className="w-full h-11 appearance-none pl-3.5 pr-10 bg-white dark:bg-card/50 border border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-hidden focus:ring-1 focus:ring-neutral-400"
             >
-              <option value="all">Semua Kategori</option>
+              <option value="all">📁 Semua Kategori</option>
               <option value="bill">📄 Tagihan</option>
               <option value="saving">💰 Tabungan</option>
               <option value="installment">💳 Cicilan</option>
               <option value="subscription">🍿 Langganan</option>
               <option value="custom">🔔 Kustom</option>
             </select>
-            <SlidersHorizontal className="absolute right-3 top-2.5 h-3.5 w-3.5 text-neutral-400 pointer-events-none" />
+            <SlidersHorizontal className="absolute right-3.5 top-3.5 h-4 w-4 text-neutral-400 pointer-events-none" />
           </div>
         </div>
       </div>
 
       {/* Active Reminders List */}
       <div className="space-y-4">
-        <h2 className="text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+        <h2 className="text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
           Pengingat Aktif ({activeReminders.length})
         </h2>
 
@@ -310,103 +310,110 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
               return (
                 <div 
                   key={reminder.id}
-                  className="group relative border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-card/45 backdrop-blur-md rounded-2xl p-5 hover:shadow-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200"
+                  className="group relative border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-card/45 backdrop-blur-md rounded-2xl p-4 sm:p-5 hover:shadow-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200 flex flex-col justify-between"
                 >
-                  {/* Category, Status and Options */}
-                  <div className="flex items-center justify-between mb-4">
-                    <span className={cn("inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold", cfg.color)}>
-                      <span>{cfg.icon}</span>
-                      <span>{cfg.label}</span>
-                    </span>
+                  <div>
+                    {/* Category, Status and Options */}
+                    <div className="flex items-center justify-between mb-3.5">
+                      <span className={cn("inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold", cfg.color)}>
+                        <span>{cfg.icon}</span>
+                        <span>{cfg.label}</span>
+                      </span>
 
-                    {/* Status & Action Buttons */}
-                    <div className="flex items-center gap-1.5">
-                      <button 
-                        onClick={() => handleToggleActive(reminder.id, reminder.is_active)}
-                        className="p-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-neutral-500 hover:text-amber-500"
-                        title="Nonaktifkan"
-                      >
-                        <Clock className="h-4 w-4 fill-amber-500/10 text-amber-500" />
-                      </button>
-                      <button 
-                        onClick={() => openEditDialog(reminder)}
-                        className="p-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-                        title="Edit"
-                      >
-                        <Edit3 className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={() => setDeleteId(reminder.id)}
-                        className="p-1.5 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all text-neutral-400 hover:text-rose-600"
-                        title="Hapus"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Title & Notes */}
-                  <h3 className="font-bold text-neutral-900 dark:text-white text-base truncate mb-1" title={reminder.title}>
-                    {reminder.title}
-                  </h3>
-                  
-                  {reminder.notes && (
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 line-clamp-2 leading-relaxed mb-4 h-8">
-                      {reminder.notes}
-                    </p>
-                  )}
-                  {!reminder.notes && <div className="h-8 mb-4" />}
-
-                  {/* Amount / Price */}
-                  <div className="mb-4">
-                    <span className="text-[10px] text-neutral-400 dark:text-neutral-500 uppercase tracking-wider block">
-                      Jumlah Uang
-                    </span>
-                    <span className="text-lg font-extrabold text-neutral-900 dark:text-white">
-                      {formatRupiah(reminder.amount)}
-                    </span>
-                  </div>
-
-                  <div className="h-px bg-neutral-100 dark:bg-neutral-800/80 my-3" />
-
-                  {/* Due Date, Frequency, and Channels */}
-                  <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3.5 w-3.5 text-neutral-400" />
-                      <span>{formatDateIndo(reminder.due_date)}</span>
-                      {reminder.frequency && (
-                        <Badge variant="outline" className="text-[9px] px-1 py-0.5 border-neutral-300 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400">
-                          {frequencyLabels[reminder.frequency]}
-                        </Badge>
-                      )}
+                      {/* Status & Action Buttons */}
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={() => handleToggleActive(reminder.id, reminder.is_active)}
+                          className="p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-neutral-500 hover:text-amber-500 active:scale-95"
+                          title="Nonaktifkan"
+                        >
+                          <Clock className="h-4 w-4 fill-amber-500/10 text-amber-500" />
+                        </button>
+                        <button 
+                          onClick={() => openEditDialog(reminder)}
+                          className="p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-neutral-400 hover:text-neutral-900 dark:hover:text-white active:scale-95"
+                          title="Edit"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </button>
+                        <button 
+                          onClick={() => setDeleteId(reminder.id)}
+                          className="p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all text-neutral-400 hover:text-rose-600 active:scale-95"
+                          title="Hapus"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
 
-                    {/* Channels icons */}
-                    <div className="flex gap-1.5 items-center">
-                      <span title="Dalam Aplikasi">
-                        <Bell 
-                          className={cn(
-                            "h-3.5 w-3.5", 
-                            reminder.channels?.inapp ? "text-emerald-500" : "text-neutral-300 dark:text-neutral-700"
-                          )} 
-                        />
+                    {/* Title & Notes */}
+                    <h3 className="font-bold text-neutral-900 dark:text-white text-base truncate mb-1" title={reminder.title}>
+                      {reminder.title}
+                    </h3>
+                    
+                    {reminder.notes ? (
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400 line-clamp-2 leading-relaxed mb-3 h-8">
+                        {reminder.notes}
+                      </p>
+                    ) : (
+                      <div className="h-8 mb-3" />
+                    )}
+                  </div>
+
+                  <div>
+                    {/* Amount / Price */}
+                    <div className="mb-3">
+                      <span className="text-[10px] text-neutral-400 dark:text-neutral-500 uppercase tracking-wider block">
+                        Jumlah Uang
                       </span>
-                      <span title="Email">
-                        <Mail 
-                          className={cn(
-                            "h-3.5 w-3.5", 
-                            reminder.channels?.email ? "text-emerald-500" : "text-neutral-300 dark:text-neutral-700"
-                          )} 
-                        />
+                      <span className="text-lg sm:text-xl font-extrabold text-neutral-900 dark:text-white">
+                        {formatRupiah(reminder.amount)}
                       </span>
-                      <span title="Push Notification">
-                        <Smartphone 
-                          className={cn(
-                            "h-3.5 w-3.5", 
-                            reminder.channels?.push ? "text-emerald-500" : "text-neutral-300 dark:text-neutral-700"
-                          )} 
-                        />
-                      </span>
+                    </div>
+
+                    <div className="h-px bg-neutral-100 dark:bg-neutral-800/80 my-3" />
+
+                    {/* Due Date, Frequency, and Channels */}
+                    <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 gap-2">
+                      <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Calendar className="h-3.5 w-3.5 text-neutral-400" />
+                          <span className="text-[11px] sm:text-xs">{formatDateIndo(reminder.due_date)}</span>
+                        </div>
+                        {reminder.frequency && (
+                          <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-neutral-300 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 font-mono shrink-0">
+                            {frequencyLabels[reminder.frequency]}
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* Channels icons */}
+                      <div className="flex gap-2 items-center shrink-0 bg-neutral-50 dark:bg-neutral-900/60 px-2 py-1 rounded-lg border border-neutral-100 dark:border-neutral-800/40">
+                        <span title="Dalam Aplikasi" className="flex items-center">
+                          <Bell 
+                            className={cn(
+                              "h-3.5 w-3.5", 
+                              reminder.channels?.inapp ? "text-emerald-500 fill-emerald-500/10" : "text-neutral-300 dark:text-neutral-700"
+                            )} 
+                          />
+                        </span>
+                        <span title="Email" className="flex items-center">
+                          <Mail 
+                            className={cn(
+                              "h-3.5 w-3.5", 
+                              reminder.channels?.email ? "text-emerald-500 fill-emerald-500/10" : "text-neutral-300 dark:text-neutral-700"
+                            )} 
+                          />
+                        </span>
+                        <span title="Push Notification" className="flex items-center">
+                          <Smartphone 
+                            className={cn(
+                              "h-3.5 w-3.5", 
+                              reminder.channels?.push ? "text-emerald-500 fill-emerald-500/10" : "text-neutral-300 dark:text-neutral-700"
+                            )} 
+                          />
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -418,7 +425,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
 
       {/* Inactive Reminders (History) */}
       <div className="space-y-4 pt-4">
-        <h2 className="text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+        <h2 className="text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
           Histori Pengingat Nonaktif ({inactiveReminders.length})
         </h2>
 
@@ -429,63 +436,68 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
               return (
                 <div 
                   key={reminder.id}
-                  className="border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-card/10 rounded-2xl p-5 opacity-65 hover:opacity-100 transition-all duration-200"
+                  className="border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-card/10 rounded-2xl p-4 sm:p-5 opacity-65 hover:opacity-100 transition-all duration-200 flex flex-col justify-between"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-400">
-                      <span>{cfg.icon}</span>
-                      <span>{cfg.label}</span>
-                    </span>
+                  <div>
+                    <div className="flex items-center justify-between mb-3.5">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold bg-neutral-100 text-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-400">
+                        <span>{cfg.icon}</span>
+                        <span>{cfg.label}</span>
+                      </span>
 
-                    {/* Toggle and Delete */}
-                    <div className="flex items-center gap-1.5">
-                      <button 
-                        onClick={() => handleToggleActive(reminder.id, reminder.is_active)}
-                        className="p-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-neutral-400 hover:text-emerald-600"
-                        title="Aktifkan Kembali"
-                      >
-                        <Clock className="h-4 w-4 text-neutral-400" />
-                      </button>
-                      <button 
-                        onClick={() => setDeleteId(reminder.id)}
-                        className="p-1.5 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all text-neutral-400 hover:text-rose-600"
-                        title="Hapus"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      {/* Toggle and Delete */}
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={() => handleToggleActive(reminder.id, reminder.is_active)}
+                          className="p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-neutral-400 hover:text-emerald-600 active:scale-95"
+                          title="Aktifkan Kembali"
+                        >
+                          <Clock className="h-4 w-4 text-neutral-400" />
+                        </button>
+                        <button 
+                          onClick={() => setDeleteId(reminder.id)}
+                          className="p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all text-neutral-400 hover:text-rose-600 active:scale-95"
+                          title="Hapus"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
+
+                    <h3 className="font-bold text-neutral-500 dark:text-neutral-400 text-base truncate mb-1">
+                      {reminder.title}
+                    </h3>
+                    
+                    {reminder.notes ? (
+                      <p className="text-xs text-neutral-400 dark:text-neutral-500 line-clamp-2 leading-relaxed mb-3 h-8">
+                        {reminder.notes}
+                      </p>
+                    ) : (
+                      <div className="h-8 mb-3" />
+                    )}
                   </div>
 
-                  <h3 className="font-bold text-neutral-500 dark:text-neutral-400 text-base truncate mb-1">
-                    {reminder.title}
-                  </h3>
-                  
-                  {reminder.notes && (
-                    <p className="text-xs text-neutral-400 dark:text-neutral-500 line-clamp-2 leading-relaxed mb-4 h-8">
-                      {reminder.notes}
-                    </p>
-                  )}
-                  {!reminder.notes && <div className="h-8 mb-4" />}
-
-                  <div className="mb-4">
-                    <span className="text-[10px] text-neutral-400 dark:text-neutral-500 uppercase tracking-wider block">
-                      Jumlah Uang
-                    </span>
-                    <span className="text-base font-bold text-neutral-500 dark:text-neutral-400">
-                      {formatRupiah(reminder.amount)}
-                    </span>
-                  </div>
-
-                  <div className="h-px bg-neutral-100 dark:bg-neutral-800/80 my-3" />
-
-                  <div className="flex items-center justify-between text-xs text-neutral-400">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3.5 w-3.5 text-neutral-400" />
-                      <span>{formatDateIndo(reminder.due_date)}</span>
+                  <div>
+                    <div className="mb-3">
+                      <span className="text-[10px] text-neutral-400 dark:text-neutral-500 uppercase tracking-wider block">
+                        Jumlah Uang
+                      </span>
+                      <span className="text-base font-bold text-neutral-500 dark:text-neutral-400">
+                        {formatRupiah(reminder.amount)}
+                      </span>
                     </div>
-                    <Badge variant="outline" className="text-[9px] px-1 py-0.5 text-neutral-400 border-neutral-200 dark:border-neutral-800">
-                      Nonaktif
-                    </Badge>
+
+                    <div className="h-px bg-neutral-100 dark:bg-neutral-800/80 my-3" />
+
+                    <div className="flex items-center justify-between text-xs text-neutral-400 gap-2">
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Calendar className="h-3.5 w-3.5 text-neutral-400" />
+                        <span className="text-[11px] sm:text-xs">{formatDateIndo(reminder.due_date)}</span>
+                      </div>
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 text-neutral-400 border-neutral-200 dark:border-neutral-800 shrink-0">
+                        Nonaktif
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               )

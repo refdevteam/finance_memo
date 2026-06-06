@@ -8,8 +8,8 @@
 
 declare global {
   interface Window {
-    dataLayer: any[]
-    gtag: (...args: any[]) => void
+    dataLayer: unknown[]
+    gtag: (...args: unknown[]) => void
   }
 }
 
@@ -33,7 +33,10 @@ export function initAnalytics() {
     document.head.appendChild(script)
 
     window.dataLayer = window.dataLayer || []
+    
+    // eslint-disable-next-line prefer-rest-params
     window.gtag = function gtag() {
+      // eslint-disable-next-line prefer-rest-params
       window.dataLayer.push(arguments)
     }
     
@@ -45,10 +48,8 @@ export function initAnalytics() {
   }
 }
 
-export function logAnalyticsEvent(eventName: string, params: Record<string, any> = {}) {
+export function logAnalyticsEvent(eventName: string, params: Record<string, unknown> = {}) {
   if (typeof window === 'undefined') return
-
-  const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 
   if (window.gtag) {
     window.gtag('event', eventName, params)
