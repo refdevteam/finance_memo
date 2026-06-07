@@ -73,31 +73,6 @@ function CustomTooltip({ active, payload, label }: any) {
   )
 }
 
-// Custom legend renderer for pie chart
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function CustomLegend({ payload }: any) {
-  if (!payload?.length) return null
-  return (
-    <div className="flex flex-wrap gap-x-4 gap-y-1.5 justify-center mt-2">
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      {payload.map((entry: any, idx: number) => {
-        const val = entry.payload?.value
-        const valStr = typeof val === 'number' ? ` (${formatRupiah(val)})` : ''
-        return (
-          <div key={idx} className="flex items-center gap-1.5 text-xs">
-            <span
-              className="w-2.5 h-2.5 rounded-full shrink-0"
-              style={{ backgroundColor: entry.color }}
-            />
-            <span className="text-muted-foreground truncate max-w-[150px]">
-              {entry.value}{valStr}
-            </span>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
 
 // Custom tooltip for pie chart
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
