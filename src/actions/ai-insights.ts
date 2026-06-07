@@ -14,7 +14,11 @@ interface AIInsightResult {
   error?: string
 }
 
-export async function generateMonthlyInsights(month: number, year: number): Promise<AIInsightResult> {
+export async function generateMonthlyInsights(
+  rangeType: '30days' | 'month',
+  month: number,
+  year: number
+): Promise<AIInsightResult> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -52,10 +56,28 @@ export async function generateMonthlyInsights(month: number, year: number): Prom
     const currency = profile?.currency || 'IDR'
     const userName = profile?.full_name || 'Pengguna'
 
-    // 2. Fetch Transactions for the specified month
-    const startDate = `${year}-${String(month).padStart(2, '0')}-01`
-    const lastDay = new Date(year, month, 0).getDate()
-    const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+    // 2. Determine date range
+    let startDate: string
+    let endDate: string
+
+    if (rangeType === '30days') {
+      const now = new Date()
+      const thirtyDaysAgo = new Date()
+      thirtyDaysAgo.setDate(now.getDate() - 29)
+
+      const toLocalYYYYMMDD = (d: Date) => {
+        const y = d.getFullYear()
+        const m = String(d.getMonth() + 1).padStart(2, '0')
+        const day = String(d.getDate()).padStart(2, '0')
+        return `${y}-${m}-${day}`
+      }
+      startDate = toLocalYYYYMMDD(thirtyDaysAgo)
+      endDate = toLocalYYYYMMDD(now)
+    } else {
+      startDate = `${year}-${String(month).padStart(2, '0')}-01`
+      const lastDay = new Date(year, month, 0).getDate()
+      endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+    }
 
     const { data: transactions } = await supabase
       .from('transactions')
@@ -72,7 +94,12 @@ export async function generateMonthlyInsights(month: number, year: number): Prom
       .gte('transaction_date', startDate)
       .lte('transaction_date', endDate)
 
-    // 3. Fetch Budgets
+    // 3. Fetch Budgets (query current month/year if range is 30days)
+    const currentMonth = new Date().getMonth() + 1
+    const currentYear = new Date().getFullYear()
+    const budgetMonth = rangeType === '30days' ? currentMonth : month
+    const budgetYear = rangeType === '30days' ? currentYear : year
+
     const { data: budgets } = await supabase
       .from('budgets')
       .select(`
@@ -83,8 +110,8 @@ export async function generateMonthlyInsights(month: number, year: number): Prom
         )
       `)
       .eq('user_id', user.id)
-      .eq('month', month)
-      .eq('year', year)
+      .eq('month', budgetMonth)
+      .eq('year', budgetYear)
 
     const trxs = transactions || []
     const totalIncome = trxs.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
@@ -104,7 +131,7 @@ export async function generateMonthlyInsights(month: number, year: number): Prom
       Berikan analisis keuangan bulanan (Bahasa Indonesia) berdasarkan data berikut untuk pengguna bernama ${userName}:
       
       Mata Uang Default: ${currency}
-      Periode: Bulan ${month} Tahun ${year}
+      Periode: ${rangeType === '30days' ? '30 Hari Terakhir dari Hari Ini' : `Bulan ${month} Tahun ${year}`}
       Total Pemasukan: ${currency} ${totalIncome}
       Total Pengeluaran: ${currency} ${totalExpense}
       Saldo Bersih Tabungan: ${currency} ${netSavings}

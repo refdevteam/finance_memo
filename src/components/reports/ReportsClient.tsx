@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Download, TrendingUp, TrendingDown, Wallet, Sparkles, BrainCircuit, AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react'
+import { Download, TrendingUp, TrendingDown, Wallet, Sparkles, BrainCircuit, AlertTriangle, CheckCircle2, Loader2, Info } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -199,7 +199,7 @@ export function ReportsClient({
   const handleGenerateInsight = async () => {
     setIsLoadingInsight(true)
     try {
-      const res = await generateMonthlyInsights(selectedMonth, selectedYear)
+      const res = await generateMonthlyInsights(range === 'month' ? 'month' : '30days', selectedMonth, selectedYear)
       if (res.success && res.data) {
         setInsight(res.data)
         toast.success('Analisis AI berhasil dibuat!')
@@ -381,6 +381,17 @@ export function ReportsClient({
               <SixMonthTrendChart data={trendChartData} height={isMobile ? 150 : 300} />
             </CardContent>
           </Card>
+        </div>
+
+        {/* Tip Siklus Gajian */}
+        <div className="bg-blue-50/70 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-4 flex gap-3 text-xs text-blue-700 dark:text-blue-300 shadow-xs">
+          <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-bold">💡 Tip Analisis Siklus Gajian</p>
+            <p className="leading-relaxed">
+              Jika hari gajian Anda tidak jatuh di awal bulan (misalnya tanggal 25 atau 30), disarankan untuk memilih penyaringan rentang waktu <strong>"30 Hari Terakhir"</strong> pada opsi di atas. Ini membantu Fimo menganalisis pemasukan dan pengeluaran Anda pasca-gajian secara lebih presisi, alih-alih terbagi dalam dua bulan kalender yang berbeda.
+            </p>
+          </div>
         </div>
 
         {/* FIMO AI MONTHLY INSIGHTS */}
