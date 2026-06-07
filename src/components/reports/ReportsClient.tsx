@@ -10,7 +10,7 @@ import { InlineSelect } from '@/components/ui/inline-select'
 import { toast } from 'sonner'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
-import { CategoryPieChart, SixMonthTrendChart, CategoryMiniPieChart } from '@/components/dashboard/DashboardCharts'
+import { CategoryPieChart, SixMonthTrendChart } from '@/components/dashboard/DashboardCharts'
 import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
 import { cn } from '@/lib/utils'
 import { generateMonthlyInsights } from '@/actions/ai-insights'
@@ -523,46 +523,32 @@ export function ReportsClient({
             </CardHeader>
             <CardContent className="p-2 md:p-6 pt-2 md:pt-0">
               {categoryChartData.length > 0 ? (
-                isMobile && !isExporting ? (
-                  /* Mobile Compact View: Left list, Right mini chart */
-                  <div className="flex items-center justify-between gap-1.5 h-[150px] p-0.5">
-                    {/* Left Side: Kategori & Nominal List */}
-                    <div className="flex-1 space-y-1 overflow-y-auto max-h-[140px] pr-1">
-                      {categoryChartData.map((cat, i) => (
-                        <div key={i} className="flex items-center justify-between text-[9px] text-slate-700 dark:text-slate-300">
-                          <div className="flex items-center gap-1 min-w-0">
-                            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
-                            <span className="font-semibold truncate">{cat.name}</span>
-                          </div>
-                          <span className="font-mono font-extrabold shrink-0 ml-1">{formatRupiah(cat.value)}</span>
-                        </div>
-                      ))}
-                    </div>
+                <>
+                  {/* Pie Chart di atas */}
+                  <CategoryPieChart data={categoryChartData} height={isMobile && !isExporting ? 130 : 260} />
 
-                    {/* Right Side: Mini Pie Chart */}
-                    <div className="shrink-0 flex items-center justify-center p-1 bg-slate-50 dark:bg-black/10 rounded-xl border border-slate-100/30 dark:border-slate-800/30">
-                      <CategoryMiniPieChart data={categoryChartData} />
-                    </div>
+                  {/* Legenda Keterangan & Nominal di bawah (Layout Vertikal Stacked) */}
+                  <div className={cn(
+                    "mt-2 overflow-y-auto pr-1 category-details-list",
+                    isMobile && !isExporting ? "space-y-1 max-h-[120px]" : "grid grid-cols-2 gap-1.5 max-h-[140px]"
+                  )}>
+                    {categoryChartData.map((cat, i) => (
+                      <div 
+                        key={i} 
+                        className={cn(
+                          "flex items-center justify-between rounded-xl bg-white/40 dark:bg-black/10 border border-slate-100/50 dark:border-slate-800/50 hover:bg-white dark:hover:bg-neutral-800/80 transition-all duration-200 shadow-3xs",
+                          isMobile && !isExporting ? "p-1 px-2 text-[10px]" : "p-1.5 px-2.5 text-xs"
+                        )}
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                          <span className="w-1.5 h-1.5 rounded-full shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: cat.color }} />
+                          <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">{cat.name}</span>
+                        </div>
+                        <span className="font-mono font-bold text-slate-800 dark:text-slate-100 shrink-0 ml-1.5">{formatRupiah(cat.value)}</span>
+                      </div>
+                    ))}
                   </div>
-                ) : (
-                  /* Desktop / PDF Full View */
-                  <>
-                    <CategoryPieChart data={categoryChartData} height={260} />
-
-                    {/* Daftar Warna Kategori & Nominal (Amount) - Compact & Collision-Safe */}
-                    <div className="mt-3 grid grid-cols-2 gap-1.5 max-h-[140px] overflow-y-auto pr-1 category-details-list">
-                      {categoryChartData.map((cat, i) => (
-                        <div key={i} className="flex items-center justify-between text-[11px] sm:text-xs p-1.5 px-2.5 rounded-xl bg-white/40 dark:bg-black/10 border border-slate-100/50 dark:border-slate-800/50 hover:bg-white dark:hover:bg-neutral-800/80 transition-all duration-200 shadow-3xs">
-                          <div className="flex items-center gap-2 min-w-0 flex-1">
-                            <span className="w-2.5 h-2.5 rounded-full shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: cat.color }} />
-                            <span className="font-medium text-slate-700 dark:text-slate-200 truncate">{cat.name}</span>
-                          </div>
-                          <span className="font-mono font-bold text-slate-800 dark:text-slate-100 shrink-0 ml-2">{formatRupiah(cat.value)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )
+                </>
               ) : (
                 <div style={{ height: isMobile ? 150 : 260 }} className="flex items-center justify-center text-slate-400 text-xs sm:text-sm text-center p-2 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
                   Belum ada data pengeluaran periode ini.
