@@ -97,7 +97,6 @@ export function ReportsClient({
 
   // GSAP Entrance Stagger Animation
   useEffect(() => {
-    // @ts-ignore
     import('gsap').then(({ gsap }) => {
       gsap.fromTo(".report-card-animate",
         { opacity: 0, y: 15 },
