@@ -20,13 +20,15 @@ export async function generateMonthlyInsights(month: number, year: number): Prom
 
   if (!user) return { success: false, error: 'Unauthorized' }
 
+  const hasGroq = !!process.env.GROQ_API_KEY
   const hasGemini = !!process.env.GEMINI_API_KEY
-  if (!hasGemini) {
+
+  if (!hasGroq && !hasGemini) {
     // Return simulated insights if API key is not configured
     return {
       success: true,
       data: {
-        summary: "Kunci API Gemini belum dikonfigurasi. Ini adalah analisis simulasi Fimo: Pengeluaran bulanan Anda terlihat wajar, namun pastikan untuk mengalokasikan dana darurat minimal 10% dari pendapatan bulanan.",
+        summary: "Kunci API AI (Groq atau Gemini) belum dikonfigurasi. Ini adalah analisis simulasi Fimo: Pengeluaran bulanan Anda terlihat wajar, namun pastikan untuk mengalokasikan dana darurat minimal 10% dari pendapatan bulanan.",
         financial_score: 75,
         tips: [
           "Mulailah menyisihkan 10% pendapatan di awal bulan sebelum berbelanja.",
@@ -138,23 +140,62 @@ export async function generateMonthlyInsights(month: number, year: number): Prom
       }
     `
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let parsedData: any = null
 
-    const result = await model.generateContent([prompt])
-    const response = await result.response
-    const textOutput = response.text()
+    if (hasGroq) {
+      try {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "meta-llama/llama-4-scout-17b-16e-instruct",
+            messages: [
+              {
+                role: "user",
+                content: prompt,
+              },
+            ],
+            response_format: { type: "json_object" },
+            temperature: 0.2,
+          }),
+        })
 
-    // Clean markdown if present
-    const cleanedText = textOutput.replace(/```json/g, '').replace(/```/g, '').trim()
-    const parsedData = JSON.parse(cleanedText)
+        if (!response.ok) {
+          const errData = await response.json()
+          throw new Error(errData.error?.message || `Groq API returned status ${response.status}`)
+        }
+
+        const chatCompletion = await response.json()
+        const textOutput = chatCompletion.choices[0]?.message?.content || ''
+        parsedData = JSON.parse(textOutput)
+      } catch (groqErr) {
+        console.error('Groq insights generation failed:', groqErr)
+        throw groqErr
+      }
+    } else {
+      // ==== FALLBACK: MENGGUNAKAN GEMINI ====
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+      const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" })
+
+      const result = await model.generateContent([prompt])
+      const response = await result.response
+      const textOutput = response.text()
+
+      // Clean markdown if present
+      const cleanedText = textOutput.replace(/```json/g, '').replace(/```/g, '').trim()
+      parsedData = JSON.parse(cleanedText)
+    }
 
     return {
       success: true,
       data: parsedData
     }
   } catch (error) {
-    console.error('Gemini generate insights error:', error)
+    console.error('AI generate insights error:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Terjadi kesalahan sistem saat menghubungi AI.'
