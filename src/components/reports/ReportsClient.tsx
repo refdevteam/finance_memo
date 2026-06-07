@@ -389,7 +389,7 @@ export function ReportsClient({
           <div className="space-y-1">
             <p className="font-bold">💡 Tip Analisis Siklus Gajian</p>
             <p className="leading-relaxed">
-              Jika hari gajian Anda tidak jatuh di awal bulan (misalnya tanggal 25 atau 30), disarankan untuk memilih penyaringan rentang waktu <strong>"30 Hari Terakhir"</strong> pada opsi di atas. Ini membantu Fimo menganalisis pemasukan dan pengeluaran Anda pasca-gajian secara lebih presisi, alih-alih terbagi dalam dua bulan kalender yang berbeda.
+              Jika hari gajian Anda tidak jatuh di awal bulan (misalnya tanggal 25 atau 30), disarankan untuk memilih penyaringan rentang waktu <strong>&ldquo;30 Hari Terakhir&rdquo;</strong> pada opsi di atas. Ini membantu Fimo menganalisis pemasukan dan pengeluaran Anda pasca-gajian secara lebih presisi, alih-alih terbagi dalam dua bulan kalender yang berbeda.
             </p>
           </div>
         </div>
