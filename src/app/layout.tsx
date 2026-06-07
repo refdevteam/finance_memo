@@ -5,31 +5,7 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { PwaRegister } from "@/components/pwa-register";
-import fs from 'fs'
 
-try {
-  const baseDir = 'C:\\Users\\User\\.gemini\\antigravity-ide\\brain\\1af170df-ccb2-4f2c-be03-246aa17a635c'
-  const srcLogo = `${baseDir}\\media__1780856774634.png`
-  const srcMascot = `${baseDir}\\media__1780856779571.png`
-
-  const destLogo = 'd:\\Data\\My SSD\\Documents\\My-Project\\fimo\\finance_memo\\public\\logo-circle.png'
-  const destMascot = 'd:\\Data\\My SSD\\Documents\\My-Project\\fimo\\finance_memo\\public\\mascot.png'
-  const dest512 = 'd:\\Data\\My SSD\\Documents\\My-Project\\fimo\\finance_memo\\public\\icon-512.png'
-  const dest192 = 'd:\\Data\\My SSD\\Documents\\My-Project\\fimo\\finance_memo\\public\\icon-192.png'
-
-  if (fs.existsSync(srcLogo)) {
-    fs.copyFileSync(srcLogo, destLogo)
-    fs.copyFileSync(srcLogo, dest512)
-    fs.copyFileSync(srcLogo, dest192)
-    console.log('--- NEW LOGO COPIED IN LAYOUT.tsx ---')
-  }
-  if (fs.existsSync(srcMascot)) {
-    fs.copyFileSync(srcMascot, destMascot)
-    console.log('--- NEW MASCOT COPIED IN LAYOUT.tsx ---')
-  }
-} catch (e) {
-  console.error('--- LOGO/MASCOT COPY ERROR ---', e)
-}
 
 const inter = Inter({
   subsets: ['latin'],

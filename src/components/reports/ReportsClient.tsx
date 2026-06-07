@@ -97,16 +97,17 @@ export function ReportsClient({
 
   // GSAP Entrance Stagger Animation
   useEffect(() => {
+    // @ts-ignore
     import('gsap').then(({ gsap }) => {
       gsap.fromTo(".report-card-animate",
         { opacity: 0, y: 15 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          stagger: 0.08,
+        { 
+          opacity: 1, 
+          y: 0, 
+          duration: 0.6, 
+          stagger: 0.08, 
           ease: "power2.out",
-          clearProps: "all"
+          clearProps: "y,transform"
         }
       )
     })
@@ -185,12 +186,87 @@ export function ReportsClient({
     if (!reportRef.current) return
     setIsExporting(true)
 
+    const element = reportRef.current
+
+    // Create and append temporary stylesheet to force beautiful desktop grid layout during PDF generation
+    const style = document.createElement('style')
+    style.id = 'pdf-export-style'
+    style.innerHTML = `
+      .print-pdf-container {
+        width: 1024px !important;
+        max-width: 1024px !important;
+        padding: 32px !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border-radius: 24px !important;
+      }
+      .print-pdf-container .summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      }
+      .print-pdf-container .summary-grid > div {
+        grid-column: span 1 / span 1 !important;
+      }
+      .print-pdf-container .charts-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+      .print-pdf-container .ai-upper-block {
+        flex-direction: row !important;
+        align-items: flex-start !important;
+      }
+      .print-pdf-container .ai-score-circle {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+      .print-pdf-container .ai-details-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+      .print-pdf-container .category-details-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+      /* Clean white theme for dark mode users during PDF printing */
+      .dark .print-pdf-container {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+      }
+      .dark .print-pdf-container h2, 
+      .dark .print-pdf-container h3, 
+      .dark .print-pdf-container h4, 
+      .dark .print-pdf-container p,
+      .dark .print-pdf-container span,
+      .dark .print-pdf-container div {
+        color: #0d1117 !important;
+      }
+      .dark .print-pdf-container .bg-emerald-50, 
+      .dark .print-pdf-container .bg-rose-50, 
+      .dark .print-pdf-container .bg-blue-50 {
+        background-color: #f0fdf4 !important;
+      }
+      .dark .print-pdf-container .bg-rose-50 {
+        background-color: #fff1f2 !important;
+      }
+      .dark .print-pdf-container .bg-blue-50 {
+        background-color: #eff6ff !important;
+      }
+      .dark .print-pdf-container .bg-white\\/40 {
+        background-color: #f8fafc !important;
+      }
+      .dark .print-pdf-container .border-indigo-100 {
+        border-color: #e0e7ff !important;
+      }
+      .dark .print-pdf-container .from-indigo-50\\/40 {
+        background-image: linear-gradient(to bottom right, #f5f3ff, #ffffff, #faf5ff) !important;
+      }
+    `
+    document.body.appendChild(style)
+    element.classList.add('print-pdf-container')
+
     try {
-      const canvas = await html2canvas(reportRef.current, {
+      const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        windowWidth: 1024 // Simulates 1024px width viewport for responsive elements
       })
 
       const imgData = canvas.toDataURL('image/png')
@@ -210,7 +286,62 @@ export function ReportsClient({
       console.error(error)
       toast.error('Gagal membuat PDF')
     } finally {
+      // Remove classes and styles
+      element.classList.remove('print-pdf-container')
+      const styleTag = document.getElementById('pdf-export-style')
+      if (styleTag) styleTag.remove()
       setIsExporting(false)
+    }
+  }
+
+  const exportExcel = () => {
+    try {
+      // 1. Define CSV headers
+      const headers = ['Tanggal', 'Tipe', 'Kategori', 'Dompet', 'Nominal', 'Catatan']
+      
+      // 2. Format row values
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const rows = monthTransactions.map((t: any) => {
+        const typeLabel = t.type === 'income' ? 'Pemasukan' : t.type === 'expense' ? 'Pengeluaran' : 'Transfer'
+        const categoryLabel = t.categories?.name || 'Lainnya'
+        const walletLabel = wallets.find(w => w.id === t.wallet_id)?.name || 'Semua Dompet'
+        const amountVal = t.amount || 0
+        const notes = t.description ? t.description.replace(/"/g, '""') : ''
+        
+        return [
+          t.transaction_date,
+          typeLabel,
+          categoryLabel,
+          walletLabel,
+          amountVal,
+          `"${notes}"`
+        ]
+      })
+      
+      // 3. Assemble CSV string with BOM to support Excel UTF-8
+      const csvContent = '\ufeff' + 
+        [headers.join(','), ...rows.map(e => e.join(','))].join('\n')
+      
+      // 4. Trigger download link
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      const isMonth = range === 'month'
+      const fileName = isMonth
+        ? `Laporan_Keuangan_Fimo_${MONTHS.find(m => m.value === String(selectedMonth))?.label}_${selectedYear}.csv`
+        : `Laporan_Keuangan_Fimo_30_Hari_Terakhir.csv`
+        
+      link.setAttribute('href', url)
+      link.setAttribute('download', fileName)
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      
+      toast.success('Data transaksi berhasil diekspor ke Excel (CSV)')
+    } catch (error) {
+      console.error(error)
+      toast.error('Gagal mengekspor data ke Excel')
     }
   }
 
@@ -300,6 +431,17 @@ export function ReportsClient({
             </div>
 
             <Button
+              onClick={exportExcel}
+              className={cn(
+                "sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white w-full rounded-full text-xs font-semibold",
+                isMonth ? "col-span-2" : "col-span-1"
+              )}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export Excel
+            </Button>
+
+            <Button
               onClick={exportPDF}
               disabled={isExporting}
               className={cn(
@@ -330,7 +472,7 @@ export function ReportsClient({
         </div>
 
         {/* SUMMARY CARDS */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 summary-grid">
           <Card className="col-span-1 report-card-animate opacity-0 bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30 relative min-h-[75px] sm:min-h-[105px] overflow-hidden">
             <CardContent className="p-2 sm:p-5 flex flex-col justify-between h-full">
               <div className="min-w-0 w-full pr-2 sm:pr-0">
@@ -375,7 +517,7 @@ export function ReportsClient({
         </div>
 
         {/* CHARTS */}
-        <div className="grid grid-cols-2 lg:grid-cols-2 gap-3 md:gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-2 gap-3 md:gap-8 charts-grid">
           <Card className="col-span-1 report-card-animate opacity-0">
             <CardHeader className="p-3 md:p-6 pb-0 md:pb-2">
               <CardTitle className="text-xs sm:text-lg font-bold">Distribusi Pengeluaran</CardTitle>
@@ -386,7 +528,7 @@ export function ReportsClient({
                   <CategoryPieChart data={categoryChartData} height={isMobile ? 150 : 260} />
 
                   {/* Daftar Warna Kategori & Nominal (Amount) */}
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[160px] overflow-y-auto pr-1">
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[160px] overflow-y-auto pr-1 category-details-list">
                     {categoryChartData.map((cat, i) => (
                       <div key={i} className="flex items-center justify-between text-xs p-2 rounded-xl bg-white/40 dark:bg-black/10 border border-slate-100/50 dark:border-slate-800/50 hover:bg-white dark:hover:bg-neutral-800/80 transition-all duration-200 shadow-2xs hover:shadow-xs">
                         <div className="flex items-center gap-2 min-w-0">
@@ -428,7 +570,10 @@ export function ReportsClient({
         </div>
 
         {/* FIMO AI MONTHLY INSIGHTS */}
-        <Card className="report-card-animate opacity-0 border-indigo-100 dark:border-indigo-950/30 overflow-hidden relative bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/40 dark:from-indigo-950/10 dark:via-card/40 dark:to-purple-950/10 backdrop-blur-md rounded-2xl shadow-xs">
+        <Card className={cn(
+          "report-card-animate opacity-0 border-indigo-100 dark:border-indigo-950/30 overflow-hidden relative bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/40 dark:from-indigo-950/10 dark:via-card/40 dark:to-purple-950/10 backdrop-blur-md rounded-2xl shadow-xs",
+          !insight && "no-print-if-empty"
+        )}>
           <CardHeader className="pb-3 flex flex-row items-center justify-between">
             <div className="space-y-1">
               <CardTitle className="text-sm sm:text-lg font-bold flex items-center gap-2 text-indigo-700 dark:text-indigo-400">
@@ -488,10 +633,10 @@ export function ReportsClient({
                 className="space-y-6"
               >
                 {/* Upper block: Score and summary */}
-                <div className="flex flex-col md:flex-row gap-4 items-start">
+                <div className="flex flex-col md:flex-row gap-4 items-start ai-upper-block">
                   {/* Circular Score display */}
                   <div className={cn(
-                    "flex flex-col items-center justify-center h-20 w-20 sm:h-24 sm:w-24 rounded-full border-4 font-black flex-shrink-0 mx-auto md:mx-0 shadow-xs",
+                    "flex flex-col items-center justify-center h-20 w-20 sm:h-24 sm:w-24 rounded-full border-4 font-black flex-shrink-0 mx-auto md:mx-0 shadow-xs ai-score-circle",
                     getScoreColor(insight.financial_score)
                   )}>
                     <span className="text-2xl sm:text-3xl font-extrabold">{insight.financial_score}</span>
@@ -507,7 +652,7 @@ export function ReportsClient({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 ai-details-grid">
                   {/* Tips list */}
                   <div className="bg-white/60 dark:bg-neutral-900/40 p-4 rounded-xl border border-indigo-50 dark:border-indigo-950/20 space-y-2.5">
                     <h5 className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 uppercase tracking-wide">

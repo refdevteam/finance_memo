@@ -37,3 +37,7 @@ next-env.d.ts
 
 # secrets
 client_secret_*.json
+
+# local copy scripts
+copy-assets.js
+copy-logo.js
