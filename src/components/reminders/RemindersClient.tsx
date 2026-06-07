@@ -30,7 +30,8 @@ import {
   createReminder, 
   updateReminder, 
   deleteReminder, 
-  toggleReminderStatus 
+  toggleReminderStatus,
+  getReminders
 } from '@/actions/reminders'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -177,9 +178,12 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
       router.refresh()
       // Temporarily update local state for faster responsiveness
       setTimeout(async () => {
-        const fetchNew = await import('@/actions/reminders')
-        const data = await fetchNew.getReminders()
-        setReminders(data as Reminder[])
+        try {
+          const data = await getReminders()
+          setReminders(data as Reminder[])
+        } catch (err) {
+          console.error('Failed to reload reminders:', err)
+        }
       }, 300)
     } else {
       toast.error(res.error || 'Terjadi kesalahan.')
@@ -213,9 +217,12 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
       router.refresh()
       // Reload from source to ensure next_remind updates accurately
       setTimeout(async () => {
-        const fetchNew = await import('@/actions/reminders')
-        const data = await fetchNew.getReminders()
-        setReminders(data as Reminder[])
+        try {
+          const data = await getReminders()
+          setReminders(data as Reminder[])
+        } catch (err) {
+          console.error('Failed to reload reminders:', err)
+        }
       }, 300)
     } else {
       toast.error(res.error || 'Gagal mengubah status pengingat')

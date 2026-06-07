@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 const GREETINGS = [
   "Jangan lupa catat transaksimu hari ini ya! 📝",
@@ -15,6 +16,8 @@ const GREETINGS = [
 ]
 
 export function FloatingMascot() {
+  const pathname = usePathname()
+  const isDashboard = pathname?.startsWith('/dashboard')
   const [showBubble, setShowBubble] = useState(false)
   const [bubbleText, setBubbleText] = useState("")
   const [isWiggling, setIsWiggling] = useState(false)
@@ -46,7 +49,7 @@ export function FloatingMascot() {
   }, [showBubble])
 
   return (
-    <div className="fixed bottom-24 right-4 md:right-8 z-40 flex flex-col items-end pointer-events-none">
+    <div className={`fixed right-4 md:right-8 z-40 flex flex-col items-end pointer-events-none transition-all duration-300 ${isDashboard ? 'bottom-24' : 'bottom-6'}`}>
       {/* Speech Bubble */}
       <AnimatePresence>
         {showBubble && (

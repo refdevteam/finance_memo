@@ -286,12 +286,29 @@ export default async function DashboardPage({
         </Card>
 
         {/* Category Breakdown Pie */}
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="text-lg font-semibold dark:text-white">Pengeluaran per Kategori</CardTitle>
           </CardHeader>
-          <CardContent>
-            <CategoryPieChart data={categoryChartData} />
+          <CardContent className="flex-1 flex flex-col justify-between">
+            <div className="flex-1 flex items-center justify-center min-h-[200px]">
+              <CategoryPieChart data={categoryChartData} height={200} />
+            </div>
+            
+            {/* Legenda Baru: Keterangan Warna & Amount */}
+            <div className="mt-4 space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
+              {categoryChartData.map((c) => (
+                <div key={c.name} className="flex items-center justify-between text-xs p-1.5 px-2.5 rounded-xl bg-white/40 dark:bg-black/10 border border-slate-100/50 dark:border-slate-800/50 hover:bg-white dark:hover:bg-neutral-800/80 transition-all duration-200 shadow-3xs">
+                  <div className="flex items-center min-w-0 flex-1">
+                    <span className="w-2.5 h-2.5 rounded-full mr-2 shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: c.color }} />
+                    <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">{c.name}</span>
+                  </div>
+                  <span className="font-mono font-bold text-slate-800 dark:text-slate-100 ml-2 shrink-0">
+                    {formatRupiah(c.value)}
+                  </span>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>

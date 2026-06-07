@@ -68,7 +68,7 @@ export default async function ReportsPage({
   // 2. Ambil transaksi (untuk summary dan pie chart)
   let monthQuery = supabase
     .from('transactions')
-    .select('amount, type, category_id, categories(name, color)')
+    .select('amount, type, transaction_date, wallet_id, description, category_id, categories(name, color)')
     .eq('user_id', user.id)
     .gte('transaction_date', startDateStr)
     .lte('transaction_date', endDateStr)

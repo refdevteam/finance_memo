@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { PwaRegister } from "@/components/pwa-register";
+import { FloatingMascot } from "@/components/layout/FloatingMascot";
 
 
 const inter = Inter({
@@ -24,6 +25,11 @@ export const metadata: Metadata = {
   },
   description: 'Aplikasi pengelolaan keuangan pribadi yang cerdas dengan fitur scan struk AI.',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/logo-circle.png',
+    shortcut: '/logo-circle.png',
+    apple: '/logo-circle.png',
+  }
 }
 
 export default function RootLayout({
@@ -43,6 +49,7 @@ export default function RootLayout({
           <PwaRegister />
           {children}
           <Toaster />
+          <FloatingMascot />
         </ThemeProvider>
       </body>
     </html>

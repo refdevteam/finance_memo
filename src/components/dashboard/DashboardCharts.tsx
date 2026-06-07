@@ -213,7 +213,6 @@ export function CategoryPieChart({ data, height = 260 }: { data: CategoryData[];
           ))}
         </Pie>
         <Tooltip content={<PieTooltip />} />
-        {height > 180 && <Legend content={<CustomLegend />} />}
       </RechartsPie>
     </ResponsiveContainer>
   )
