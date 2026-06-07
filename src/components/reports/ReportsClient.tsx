@@ -526,15 +526,15 @@ export function ReportsClient({
                 <>
                   <CategoryPieChart data={categoryChartData} height={isMobile ? 150 : 260} />
 
-                  {/* Daftar Warna Kategori & Nominal (Amount) */}
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[160px] overflow-y-auto pr-1 category-details-list">
+                  {/* Daftar Warna Kategori & Nominal (Amount) - Compact & Collision-Safe */}
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-[140px] overflow-y-auto pr-1 category-details-list">
                     {categoryChartData.map((cat, i) => (
-                      <div key={i} className="flex items-center justify-between text-xs p-2 rounded-xl bg-white/40 dark:bg-black/10 border border-slate-100/50 dark:border-slate-800/50 hover:bg-white dark:hover:bg-neutral-800/80 transition-all duration-200 shadow-2xs hover:shadow-xs">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="w-3 h-3 rounded-full shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: cat.color }} />
-                          <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">{cat.name}</span>
+                      <div key={i} className="flex items-center justify-between text-[11px] sm:text-xs p-1.5 px-2.5 rounded-xl bg-white/40 dark:bg-black/10 border border-slate-100/50 dark:border-slate-800/50 hover:bg-white dark:hover:bg-neutral-800/80 transition-all duration-200 shadow-3xs">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <span className="w-2.5 h-2.5 rounded-full shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: cat.color }} />
+                          <span className="font-medium text-slate-700 dark:text-slate-200 truncate">{cat.name}</span>
                         </div>
-                        <span className="font-mono font-bold text-slate-900 dark:text-white shrink-0 ml-1">{formatRupiah(cat.value)}</span>
+                        <span className="font-mono font-bold text-slate-800 dark:text-slate-100 shrink-0 ml-2">{formatRupiah(cat.value)}</span>
                       </div>
                     ))}
                   </div>

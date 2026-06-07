@@ -1,4 +1,5 @@
 import { Sidebar } from '@/components/layout/Sidebar'
+import { FloatingMascot } from '@/components/layout/FloatingMascot'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
@@ -32,6 +33,7 @@ export default async function DashboardLayout({
       <main className="flex-1 overflow-y-auto h-screen pt-14 md:pt-0 pb-28 md:pb-0">
         {children}
       </main>
+      <FloatingMascot />
     </div>
   )
 }
