@@ -88,6 +88,7 @@ function SidebarContent({ pathname }: { pathname: string }) {
     <div className="flex flex-col h-full">
       <div className="p-6 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center space-x-2 group">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo-circle.png"
             className="w-8 h-8 object-contain rounded-full border border-neutral-200/30 dark:border-neutral-800/30 transition-transform duration-300 group-hover:rotate-12"
@@ -169,6 +170,7 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
       {/* Mobile Top Header - iOS Style Glass */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-border dark:border-slate-900 bg-white/70 dark:bg-slate-950/85 backdrop-blur-xl z-40 flex items-center px-4 justify-between">
         <Link href="/dashboard" className="flex items-center space-x-2 group">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo-circle.png"
             className="w-7 h-7 object-contain rounded-full border border-neutral-200/30 dark:border-neutral-800/30"

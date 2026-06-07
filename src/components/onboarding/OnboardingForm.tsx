@@ -67,6 +67,7 @@ export function OnboardingForm({ initialData }: { initialData?: Partial<Onboardi
     <div className="relative w-full max-w-lg mx-auto mt-12">
       {/* Floating Mascot sitting on top of the Onboarding Card */}
       <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-20">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <motion.img 
           src="/mascot.png" 
           alt="Fimo Mascot Guide" 
@@ -197,32 +198,32 @@ export function OnboardingForm({ initialData }: { initialData?: Partial<Onboardi
             </motion.div>
           </AnimatePresence>
         </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button
-          variant="ghost"
-          onClick={prevStep}
-          disabled={step === 1 || isSubmitting}
-        >
-          <ChevronLeft className="mr-2 h-4 w-4" /> Kembali
-        </Button>
-        {step < 3 ? (
-          <Button type="button" onClick={nextStep}>
-            Lanjut <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        ) : (
+        <CardFooter className="flex justify-between">
           <Button
-            onClick={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            variant="ghost"
+            onClick={prevStep}
+            disabled={step === 1 || isSubmitting}
           >
-            {isSubmitting ? 'Menyimpan...' : (
-              <>
-                Selesai <Check className="ml-2 h-4 w-4" />
-              </>
-            )}
+            <ChevronLeft className="mr-2 h-4 w-4" /> Kembali
           </Button>
-        )}
-      </CardFooter>
+          {step < 3 ? (
+            <Button type="button" onClick={nextStep}>
+              Lanjut <ChevronRight className="ml-2 h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              onClick={handleSubmit(onSubmit)}
+              disabled={isSubmitting}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              {isSubmitting ? 'Menyimpan...' : (
+                <>
+                  Selesai <Check className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          )}
+        </CardFooter>
       </Card>
     </div>
   )

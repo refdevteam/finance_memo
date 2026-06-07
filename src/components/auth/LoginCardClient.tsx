@@ -14,6 +14,7 @@ export function LoginCardClient() {
     >
       {/* Bobbing Mascot sitting on top of the card */}
       <div className="absolute -top-20 left-1/2 -translate-x-1/2 z-20">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <motion.img 
           src="/mascot.png" 
           alt="Fimo Mascot" 
@@ -34,6 +35,7 @@ export function LoginCardClient() {
         <CardHeader className="text-center space-y-2 pt-10">
           <div className="flex justify-center mb-2">
             <div className="flex items-center space-x-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <motion.img
                 src="/logo-circle.png"
                 alt="Fimo Logo"
