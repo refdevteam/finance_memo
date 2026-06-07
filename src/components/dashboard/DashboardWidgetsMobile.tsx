@@ -217,8 +217,23 @@ export function DashboardWidgetsMobile({
               Pengeluaran per Kategori
             </DialogTitle>
           </DialogHeader>
-          <div className="pt-4 flex items-center justify-center">
+          <div className="pt-4 flex flex-col items-center justify-center">
             <CategoryPieChart data={categoryChartData} />
+            
+            {/* Daftar Kategori & Nominal (Amount) */}
+            <div className="w-full mt-6 space-y-2 max-h-[200px] overflow-y-auto pr-1">
+              {categoryChartData.map((c) => (
+                <div key={c.name} className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200">
+                  <div className="flex items-center min-w-0">
+                    <span className="w-3.5 h-3.5 rounded-full mr-2 shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: c.color }} />
+                    <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">{c.name}</span>
+                  </div>
+                  <span className="font-mono font-bold text-slate-900 dark:text-white ml-2 shrink-0">
+                    {formatRupiah(c.value)}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </DialogContent>
       </Dialog>

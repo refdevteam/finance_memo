@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Download, TrendingUp, TrendingDown, Wallet, Sparkles, BrainCircuit, AlertTriangle, CheckCircle2, Loader2, Info } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -43,9 +44,9 @@ const MONTHS = [
   { value: '11', label: 'November' }, { value: '12', label: 'Desember' },
 ]
 
-export function ReportsClient({ 
-  wallets, 
-  monthTransactions, 
+export function ReportsClient({
+  wallets,
+  monthTransactions,
   sixMonthTransactions,
   selectedMonth,
   selectedYear,
@@ -53,7 +54,7 @@ export function ReportsClient({
   range,
   startDateStr,
   endDateStr
-}: { 
+}: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   wallets: any[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94,15 +95,32 @@ export function ReportsClient({
     setInsight(null)
   }, [selectedMonth, selectedYear, selectedWallet, range])
 
+  // GSAP Entrance Stagger Animation
+  useEffect(() => {
+    import('gsap').then(({ gsap }) => {
+      gsap.fromTo(".report-card-animate",
+        { opacity: 0, y: 15 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.08,
+          ease: "power2.out",
+          clearProps: "all"
+        }
+      )
+    })
+  }, [selectedMonth, selectedYear, selectedWallet, range])
+
   // -- CALCULATIONS FOR SUMMARY CARDS --
   const totalIncome = monthTransactions
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + Number(t.amount), 0)
-    
+
   const totalExpense = monthTransactions
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + Number(t.amount), 0)
-    
+
   const netSavings = totalIncome - totalExpense
 
   // -- DATA PREP FOR CATEGORY PIE CHART --
@@ -120,7 +138,7 @@ export function ReportsClient({
   // -- DATA PREP FOR 6 MONTH TREND BAR CHART --
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]
   const trendMap = new Map<string, { income: number, expense: number }>()
-  
+
   for (let i = 5; i >= 0; i--) {
     let targetMonth = selectedMonth - i
     let targetYear = selectedYear
@@ -166,7 +184,7 @@ export function ReportsClient({
   const exportPDF = async () => {
     if (!reportRef.current) return
     setIsExporting(true)
-    
+
     try {
       const canvas = await html2canvas(reportRef.current, {
         scale: 2,
@@ -174,19 +192,19 @@ export function ReportsClient({
         logging: false,
         backgroundColor: '#ffffff'
       })
-      
+
       const imgData = canvas.toDataURL('image/png')
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pdfWidth = pdf.internal.pageSize.getWidth()
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width
-      
+
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
       const isMonth = range === 'month'
       const pdfFileName = isMonth
         ? `Laporan_Keuangan_Fimo_${MONTHS.find(m => m.value === String(selectedMonth))?.label}_${selectedYear}.pdf`
         : `Laporan_Keuangan_Fimo_30_Hari_Terakhir.pdf`
       pdf.save(pdfFileName)
-      
+
       toast.success('Laporan berhasil diunduh')
     } catch (error) {
       console.error(error)
@@ -241,7 +259,7 @@ export function ReportsClient({
           <h1 className="text-2xl font-bold tracking-tight dark:text-white">Laporan Keuangan</h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm">Analisis pengeluaran dan pemasukan bulanan.</p>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
           <div className="flex justify-start sm:justify-end">
             <DashboardRangeToggle />
@@ -254,35 +272,35 @@ export function ReportsClient({
             {isMonth && (
               <>
                 <div className="col-span-1 sm:w-32">
-                  <InlineSelect 
-                    options={MONTHS} 
-                    value={String(selectedMonth)} 
-                    onChange={(v) => updateFilters('month', v)} 
+                  <InlineSelect
+                    options={MONTHS}
+                    value={String(selectedMonth)}
+                    onChange={(v) => updateFilters('month', v)}
                   />
                 </div>
                 <div className="col-span-1 sm:w-24">
-                  <InlineSelect 
-                    options={yearOptions} 
-                    value={String(selectedYear)} 
-                    onChange={(v) => updateFilters('year', v)} 
+                  <InlineSelect
+                    options={yearOptions}
+                    value={String(selectedYear)}
+                    onChange={(v) => updateFilters('year', v)}
                   />
                 </div>
               </>
             )}
-            
+
             <div className={cn(
               "sm:w-40",
               isMonth ? "col-span-2" : "col-span-1"
             )}>
-              <InlineSelect 
-                options={walletOptions} 
-                value={selectedWallet || 'all'} 
-                onChange={(v) => updateFilters('wallet', v)} 
+              <InlineSelect
+                options={walletOptions}
+                value={selectedWallet || 'all'}
+                onChange={(v) => updateFilters('wallet', v)}
               />
             </div>
-            
-            <Button 
-              onClick={exportPDF} 
+
+            <Button
+              onClick={exportPDF}
               disabled={isExporting}
               className={cn(
                 "sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white w-full rounded-full text-xs font-semibold",
@@ -298,12 +316,12 @@ export function ReportsClient({
 
       {/* REPORT CONTENT TO BE CAPTURED */}
       <div ref={reportRef} className="bg-slate-50 dark:bg-slate-900 p-4 sm:p-6 rounded-3xl space-y-6 sm:space-y-8 print:bg-white print:text-black">
-        
+
         {/* REPORT HEADER */}
         <div className="text-center pb-4 border-b border-slate-200 dark:border-slate-800">
           <h2 className="text-xl sm:text-2xl font-bold dark:text-white">Fimo - Laporan Keuangan</h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Periode: {isMonth 
+            Periode: {isMonth
               ? `${MONTHS.find(m => m.value === String(selectedMonth))?.label} ${selectedYear}`
               : `30 Hari Terakhir (${formatIndonesianDate(startDateStr)} - ${formatIndonesianDate(endDateStr)})`
             }
@@ -313,7 +331,7 @@ export function ReportsClient({
 
         {/* SUMMARY CARDS */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-          <Card className="col-span-1 bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30 relative min-h-[75px] sm:min-h-[105px] overflow-hidden">
+          <Card className="col-span-1 report-card-animate opacity-0 bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30 relative min-h-[75px] sm:min-h-[105px] overflow-hidden">
             <CardContent className="p-2 sm:p-5 flex flex-col justify-between h-full">
               <div className="min-w-0 w-full pr-2 sm:pr-0">
                 <p className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 opacity-80 truncate">Pemasukan</p>
@@ -326,8 +344,8 @@ export function ReportsClient({
               </div>
             </CardContent>
           </Card>
-          
-          <Card className="col-span-1 bg-rose-50 dark:bg-rose-900/10 border-rose-100 dark:border-rose-900/30 relative min-h-[75px] sm:min-h-[105px] overflow-hidden">
+
+          <Card className="col-span-1 report-card-animate opacity-0 bg-rose-50 dark:bg-rose-900/10 border-rose-100 dark:border-rose-900/30 relative min-h-[75px] sm:min-h-[105px] overflow-hidden">
             <CardContent className="p-2 sm:p-5 flex flex-col justify-between h-full">
               <div className="min-w-0 w-full pr-2 sm:pr-0">
                 <p className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 opacity-80 truncate">Pengeluaran</p>
@@ -341,7 +359,7 @@ export function ReportsClient({
             </CardContent>
           </Card>
 
-          <Card className="col-span-2 md:col-span-1 bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30 relative min-h-[75px] sm:min-h-[105px] overflow-hidden">
+          <Card className="col-span-2 md:col-span-1 report-card-animate opacity-0 bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30 relative min-h-[75px] sm:min-h-[105px] overflow-hidden">
             <CardContent className="p-2 sm:p-5 flex flex-col justify-between h-full">
               <div className="min-w-0 w-full pr-2 sm:pr-0">
                 <p className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 opacity-80 truncate">Arus Kas Bersih</p>
@@ -358,13 +376,28 @@ export function ReportsClient({
 
         {/* CHARTS */}
         <div className="grid grid-cols-2 lg:grid-cols-2 gap-3 md:gap-8">
-          <Card className="col-span-1">
+          <Card className="col-span-1 report-card-animate opacity-0">
             <CardHeader className="p-3 md:p-6 pb-0 md:pb-2">
               <CardTitle className="text-xs sm:text-lg font-bold">Distribusi Pengeluaran</CardTitle>
             </CardHeader>
             <CardContent className="p-2 md:p-6 pt-2 md:pt-0">
               {categoryChartData.length > 0 ? (
-                <CategoryPieChart data={categoryChartData} height={isMobile ? 150 : 260} />
+                <>
+                  <CategoryPieChart data={categoryChartData} height={isMobile ? 150 : 260} />
+
+                  {/* Daftar Warna Kategori & Nominal (Amount) */}
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[160px] overflow-y-auto pr-1">
+                    {categoryChartData.map((cat, i) => (
+                      <div key={i} className="flex items-center justify-between text-xs p-2 rounded-xl bg-white/40 dark:bg-black/10 border border-slate-100/50 dark:border-slate-800/50 hover:bg-white dark:hover:bg-neutral-800/80 transition-all duration-200 shadow-2xs hover:shadow-xs">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="w-3 h-3 rounded-full shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: cat.color }} />
+                          <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">{cat.name}</span>
+                        </div>
+                        <span className="font-mono font-bold text-slate-900 dark:text-white shrink-0 ml-1">{formatRupiah(cat.value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
               ) : (
                 <div style={{ height: isMobile ? 150 : 260 }} className="flex items-center justify-center text-slate-400 text-xs sm:text-sm text-center p-2 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
                   Belum ada data pengeluaran periode ini.
@@ -373,7 +406,7 @@ export function ReportsClient({
             </CardContent>
           </Card>
 
-          <Card className="col-span-1">
+          <Card className="col-span-1 report-card-animate opacity-0">
             <CardHeader className="p-3 md:p-6 pb-0 md:pb-2">
               <CardTitle className="text-xs sm:text-lg font-bold">Tren 6 Bulan Terakhir</CardTitle>
             </CardHeader>
@@ -384,7 +417,7 @@ export function ReportsClient({
         </div>
 
         {/* Tip Siklus Gajian */}
-        <div className="bg-blue-50/70 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-4 flex gap-3 text-xs text-blue-700 dark:text-blue-300 shadow-xs">
+        <div className="report-card-animate opacity-0 bg-blue-50/70 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-4 flex gap-3 text-xs text-blue-700 dark:text-blue-300 shadow-xs">
           <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <p className="font-bold">💡 Tip Analisis Siklus Gajian</p>
@@ -395,7 +428,7 @@ export function ReportsClient({
         </div>
 
         {/* FIMO AI MONTHLY INSIGHTS */}
-        <Card className="border-indigo-100 dark:border-indigo-950/30 overflow-hidden relative bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/40 dark:from-indigo-950/10 dark:via-card/40 dark:to-purple-950/10 backdrop-blur-md rounded-2xl shadow-xs">
+        <Card className="report-card-animate opacity-0 border-indigo-100 dark:border-indigo-950/30 overflow-hidden relative bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/40 dark:from-indigo-950/10 dark:via-card/40 dark:to-purple-950/10 backdrop-blur-md rounded-2xl shadow-xs">
           <CardHeader className="pb-3 flex flex-row items-center justify-between">
             <div className="space-y-1">
               <CardTitle className="text-sm sm:text-lg font-bold flex items-center gap-2 text-indigo-700 dark:text-indigo-400">
@@ -418,8 +451,24 @@ export function ReportsClient({
           <CardContent className="pt-2">
             {isLoadingInsight && (
               <div className="py-12 flex flex-col items-center justify-center space-y-4">
-                <Loader2 className="h-8 w-8 text-indigo-600 animate-spin" />
-                <p className="text-xs text-indigo-600 dark:text-indigo-400 font-mono animate-pulse">Fimo sedang menganalisis pola keuangan Anda...</p>
+                <motion.img
+                  src="/mascot.png"
+                  alt="Analyzing Mascot"
+                  className="w-20 h-20 object-contain drop-shadow-md"
+                  animate={{
+                    y: [0, -10, 0],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                  <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                  <p className="text-xs font-mono font-bold animate-pulse">Fimo AI sedang menganalisis keuangan Anda...</p>
+                </div>
               </div>
             )}
 
@@ -432,7 +481,12 @@ export function ReportsClient({
             )}
 
             {insight && !isLoadingInsight && (
-              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="space-y-6"
+              >
                 {/* Upper block: Score and summary */}
                 <div className="flex flex-col md:flex-row gap-4 items-start">
                   {/* Circular Score display */}
@@ -488,11 +542,11 @@ export function ReportsClient({
                     </div>
                   )}
                 </div>
-              </div>
+              </motion.div>
             )}
           </CardContent>
         </Card>
-        
+
       </div>
     </div>
   )
