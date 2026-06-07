@@ -1,11 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+
+interface GoogleCredentialResponse {
+  credential: string;
+  select_by?: string;
+}
 
 declare global {
   interface Window {
@@ -14,7 +19,7 @@ declare global {
         id: {
           initialize: (config: {
             client_id: string;
-            callback: (response: any) => void;
+            callback: (response: GoogleCredentialResponse) => void;
             auto_select?: boolean;
           }) => void;
           renderButton: (
@@ -73,7 +78,7 @@ export function GoogleLoginButton() {
   }, [])
 
   // Callback setelah sukses login di pop-up Google
-  const handleCredentialResponse = async (response: any) => {
+  const handleCredentialResponse = useCallback(async (response: GoogleCredentialResponse) => {
     setIsLoading(true)
     setErrorMsg(null)
     try {
@@ -99,7 +104,7 @@ export function GoogleLoginButton() {
       setErrorMsg(message)
       setIsLoading(false)
     }
-  }
+  }, [router])
 
   // Inisialisasi GSI dan Render Tombol
   useEffect(() => {
@@ -135,7 +140,7 @@ export function GoogleLoginButton() {
     } catch (err) {
       console.error('Error in GSI initialization/rendering:', err)
     }
-  }, [isGoogleLoaded, theme, buttonWidth])
+  }, [isGoogleLoaded, theme, buttonWidth, handleCredentialResponse])
 
   return (
     <div className="w-full space-y-2 flex flex-col items-center justify-center">
