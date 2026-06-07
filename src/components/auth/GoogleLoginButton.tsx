@@ -1,31 +1,98 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
-import { GoogleIcon } from '@/components/auth/GoogleIcon'
 import { Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: any) => void;
+            auto_select?: boolean;
+          }) => void;
+          renderButton: (
+            element: HTMLElement,
+            options: {
+              theme?: 'outline' | 'filled_blue' | 'filled_black';
+              size?: 'large' | 'medium' | 'small';
+              width?: string;
+              text?: 'signin_with' | 'signup_with' | 'continue_with' | 'signin';
+              shape?: 'rectangular' | 'pill' | 'circle' | 'square';
+              logo_alignment?: 'left' | 'center';
+            }
+          ) => void;
+          prompt: () => void;
+          disableAutoSelect: () => void;
+        };
+      };
+    };
+  }
+}
+
 export function GoogleLoginButton() {
+  const router = useRouter()
+  const { theme } = useTheme()
+  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [buttonWidth, setButtonWidth] = useState(320)
 
-  const handleLogin = async () => {
+  // Mengatur lebar tombol agar responsif sesuai layar saat mounting
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const width = Math.min(380, window.innerWidth - 64)
+      setButtonWidth(Math.max(200, width))
+    }
+  }, [])
+
+  // Memantau ketersediaan SDK Google Identity Services
+  useEffect(() => {
+    const checkGoogle = () => {
+      if (window.google?.accounts?.id) {
+        setIsGoogleLoaded(true)
+      }
+    }
+
+    checkGoogle()
+
+    const interval = setInterval(() => {
+      if (window.google?.accounts?.id) {
+        setIsGoogleLoaded(true)
+        clearInterval(interval)
+      }
+    }, 100)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  // Callback setelah sukses login di pop-up Google
+  const handleCredentialResponse = async (response: any) => {
     setIsLoading(true)
     setErrorMsg(null)
     try {
       const supabase = createClient()
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithIdToken({
         provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
+        token: response.credential,
       })
+
       if (error) {
-        console.error('Error signing in with Google:', error.message)
+        console.error('Error signing in with ID token:', error.message)
         setErrorMsg(error.message)
         setIsLoading(false)
+        return
       }
+
+      // Berhasil masuk, arahkan ke dashboard
+      router.push('/dashboard')
+      router.refresh()
     } catch (err) {
       console.error('Unexpected login error:', err)
       const message = err instanceof Error ? err.message : 'Terjadi kesalahan sistem'
@@ -34,21 +101,63 @@ export function GoogleLoginButton() {
     }
   }
 
+  // Inisialisasi GSI dan Render Tombol
+  useEffect(() => {
+    if (!isGoogleLoaded) return
+
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+    if (!clientId) {
+      console.error('NEXT_PUBLIC_GOOGLE_CLIENT_ID tidak ditemukan!')
+      setErrorMsg('Google Client ID belum dikonfigurasi di .env.local')
+      return
+    }
+
+    try {
+      window.google!.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleCredentialResponse,
+      })
+
+      const buttonDiv = document.getElementById('google-signin-btn-container')
+      if (buttonDiv) {
+        window.google!.accounts.id.renderButton(buttonDiv, {
+          theme: theme === 'dark' ? 'filled_black' : 'outline',
+          size: 'large',
+          width: buttonWidth.toString(),
+          text: 'continue_with',
+          shape: 'pill',
+        })
+      }
+
+      // Opsional: Tampilkan Google One Tap
+      window.google!.accounts.id.prompt()
+
+    } catch (err) {
+      console.error('Error in GSI initialization/rendering:', err)
+    }
+  }, [isGoogleLoaded, theme, buttonWidth])
+
   return (
-    <div className="w-full space-y-2">
-      <Button
-        variant="outline"
-        onClick={handleLogin}
-        disabled={isLoading}
-        className="w-full h-12 text-base font-medium bg-slate-900 hover:bg-slate-800 text-white border-none transition-all duration-200"
-      >
-        {isLoading ? (
+    <div className="w-full space-y-2 flex flex-col items-center justify-center">
+      {/* Container tombol resmi Google GSI */}
+      <div 
+        id="google-signin-btn-container" 
+        className={`w-full flex justify-center ${(!isGoogleLoaded || isLoading) ? 'hidden' : 'block'}`}
+        style={{ minHeight: '48px' }}
+      />
+
+      {/* State Loading (fallback UI) */}
+      {(!isGoogleLoaded || isLoading) && (
+        <Button
+          variant="outline"
+          disabled={true}
+          className="w-full h-12 text-base font-medium bg-slate-900 dark:bg-slate-800 text-white border-none transition-all duration-200 flex items-center justify-center rounded-full"
+        >
           <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-        ) : (
-          <GoogleIcon className="mr-2 h-5 w-5" />
-        )}
-        {isLoading ? 'Mengalihkan...' : 'Lanjut dengan Google'}
-      </Button>
+          {isLoading ? 'Mengautentikasi...' : 'Memuat Google Login...'}
+        </Button>
+      )}
+
       {errorMsg && (
         <p className="text-sm text-red-500 text-center font-medium mt-1">
           {errorMsg}
@@ -57,4 +166,3 @@ export function GoogleLoginButton() {
     </div>
   )
 }
-
