@@ -37,11 +37,12 @@ function calculateNextRemind(dueDateStr: string, timeZone: string): string {
     if (tzName === 'GMT') {
       offset = '+00:00'
     } else {
-      const match = tzName.match(/GMT([+-]\d+)(?::(\d+))?/)
+      const match = tzName.match(/GMT([+-])(\d+)(?::(\d+))?/)
       if (match) {
-        const sign = match[1]
-        const hours = match[2] || '00'
-        offset = `${sign}:${hours.padStart(2, '0')}`
+        const sign = match[1] // "+" atau "-"
+        const hours = match[2].padStart(2, '0') // Memastikan 2 digit jam (e.g. "07")
+        const minutes = match[3] || '00'
+        offset = `${sign}${hours}:${minutes.padStart(2, '0')}`
       }
     }
     
@@ -105,7 +106,7 @@ export async function createReminder(data: ReminderInput) {
         user_id: user.id,
         title: parsed.data.title,
         type: parsed.data.type,
-        amount: parsed.data.amount || null,
+        amount: parsed.data.amount ?? null,
         due_date: parsed.data.due_date,
         frequency: parsed.data.frequency || null,
         channels: parsed.data.channels,
@@ -154,7 +155,7 @@ export async function updateReminder(id: string, data: ReminderInput) {
       .update({
         title: parsed.data.title,
         type: parsed.data.type,
-        amount: parsed.data.amount || null,
+        amount: parsed.data.amount ?? null,
         due_date: parsed.data.due_date,
         frequency: parsed.data.frequency || null,
         channels: parsed.data.channels,
