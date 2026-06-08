@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
-export const reminderSchema = z.object({
+const reminderSchema = z.object({
   title: z.string().min(1, 'Judul wajib diisi'),
   type: z.enum(['saving', 'installment', 'subscription', 'bill', 'custom']),
   amount: z.number().nullable().optional(),
@@ -18,7 +18,7 @@ export const reminderSchema = z.object({
   notes: z.string().nullable().optional(),
 })
 
-export type ReminderInput = z.infer<typeof reminderSchema>
+type ReminderInput = z.infer<typeof reminderSchema>
 
 // Helper to calculate next_remind based on due_date and timezone at 07:00 AM
 function calculateNextRemind(dueDateStr: string, timeZone: string): string {
