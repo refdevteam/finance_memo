@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { updateProfile } from '@/actions/profile'
 import { updateFcmToken } from '@/actions/notifications'
+import { getFirebaseToken } from '@/lib/firebase/client'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { 
@@ -147,14 +148,18 @@ export function SettingsClient({ profile }: SettingsClientProps) {
       setPushPermission(permission)
 
       if (permission === 'granted') {
-        // Retrieve or simulate registration token
-        const token = 'mock_fcm_token_' + Math.random().toString(36).substring(2, 12)
+        // Mendapatkan token FCM nyata dari SDK Firebase
+        const token = await getFirebaseToken()
+        
+        if (!token) {
+          throw new Error('Gagal mendapatkan token FCM. Pastikan konfigurasi Firebase dan VAPID Key Anda sudah benar.')
+        }
         
         // Save token to database
         const res = await updateFcmToken(token)
         if (res.success) {
           setHasToken(true)
-          toast.success('Notifikasi push berhasil diaktifkan secara lokal!')
+          toast.success('Notifikasi push berhasil diaktifkan!')
           router.refresh()
         } else {
           toast.error(res.error || 'Gagal menyimpan token notifikasi.')
@@ -164,7 +169,8 @@ export function SettingsClient({ profile }: SettingsClientProps) {
       }
     } catch (error) {
       console.error('Error requesting push permission:', error)
-      toast.error('Gagal meminta izin notifikasi.')
+      const msg = error instanceof Error ? error.message : 'Gagal meminta izin notifikasi.'
+      toast.error(msg)
     } finally {
       setRegisteringPush(false)
     }
