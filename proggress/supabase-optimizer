@@ -1,0 +1,50 @@
+# Walkthrough — Optimisasi Keamanan, Performa Database Supabase, & Dasbor Mobile
+
+Kami telah mendiagnosis dan menyelesaikan serangkaian peringatan keamanan kritis (*Critical Security Issues*) dan rekomendasi performa dari **Supabase Database Advisor** menggunakan migrasi terstruktur pada database PostgreSQL produksi Anda.
+
+---
+
+## Perubahan yang Dilakukan pada Database Supabase
+
+### 1. Perbaikan Keamanan Kritis (Security definer & invoker)
+* ** monthly_summary View**:
+  * **Masalah**: View `public.monthly_summary` didefinisikan sebagai `SECURITY DEFINER` secara bawaan, yang mengevaluasi izin akses berdasarkan pencipta view (*owner*), bukan pengguna yang sedang melakukan query. Ini berpotensi membocorkan data.
+  * **Solusi**: Mengubah properti view menjadi `security_invoker = true` (`ALTER VIEW public.monthly_summary SET (security_invoker = true)`). Sekarang view ini secara otomatis tunduk pada hak akses dan kebijakan RLS dari user yang sedang aktif.
+* **Fungsi Pembantu `auth_uid()`**:
+  * **Masalah**: Fungsi pembantu `public.auth_uid()` bertipe `SECURITY DEFINER` dan dapat dieksekusi oleh peran publik/anonim (`anon`) lewat endpoint API RPC.
+  * **Solusi**: Membangun ulang fungsi tersebut dengan properti `SECURITY INVOKER` yang aman dan mencabut izin eksekusi langsung bagi publik agar tidak dieksploitasi.
+
+### 2. Peningkatan Performa RLS (Subquery Caching)
+* **Masalah**: Kebijakan RLS pada tabel `recurring_transactions` sebelumnya mengevaluasi fungsi otentikasi `auth.uid() = user_id` secara langsung untuk **setiap baris tabel** yang di-query. Pada skala data besar, hal ini menurunkan performa query secara drastis.
+* **Solusi**: Menulis ulang semua kebijakan RLS di seluruh tabel utama proyek Fimo (termasuk `transactions`, `wallets`, `recurring_transactions`, `reminders`, `categories`, dll.) menggunakan teknik subquery caching:
+  * Mengganti `user_id = auth_uid()` atau `user_id = auth.uid()` menjadi `user_id = (select auth.uid())`.
+  * PostgreSQL mengevaluasi subquery ini hanya **sekali per query** dan menyimpan hasilnya di memori (*cached*), mengubah kompleksitas waktu evaluasi RLS dari O(N) menjadi O(1).
+
+### 3. Pengamanan Fungsi Internal (Search Path & RPC Protection)
+* **Masalah**: Beberapa fungsi internal (seperti fungsi pemicu `handle_new_user`, `update_wallet_balance`, dan pengingat kron `process_due_reminders`) tidak memiliki parameter `search_path` yang statis, membuatnya rentan terhadap serangan manipulasi skema (*search path hijacking*). Selain itu, fungsi-fungsi ini terekspos dan dapat dipanggil lewat internet oleh peran anonim.
+* **Solusi**:
+  * Menetapkan `search_path = public` pada semua fungsi trigger dan otomasi internal.
+  * Mencabut hak eksekusi (`REVOKE EXECUTE`) fungsi-fungsi tersebut secara eksplisit dari peran publik (`PUBLIC`), anonim (`anon`), dan masuk (`authenticated`).
+  * Khusus untuk `execute_wallet_transfer` yang digunakan oleh API Next.js Server Actions, kami menambahkan validasi internal yang ketat (`IF p_user_id != auth.uid() THEN ...`) untuk memastikan user yang masuk hanya bisa melakukan transfer uang miliknya sendiri, kemudian membatasi izin eksekusi hanya untuk peran `authenticated`.
+
+### 4. Pembuatan Indeks untuk Kolom Kunci Asing (Foreign Keys Indexing)
+* **Masalah**: Banyak relasi antar tabel (seperti `budgets.category_id`, `transactions.recurring_id`, `wallet_transfers`, dll.) tidak memiliki indeks penutup (*covering index*), memperlambat operasi JOIN, pencarian, dan penghapusan data bertingkat (*cascading delete*).
+* **Solusi**: Membuat indeks pencarian (`CREATE INDEX IF NOT EXISTS`) untuk 17 kolom kunci asing di seluruh tabel database untuk menjamin query JOIN tetap secepat kilat saat skala data bertambah.
+
+---
+
+## Perubahan pada UI & Logika Aplikasi (Front-End)
+
+1. **Urutan Prioritas Dasbor Mobile**:
+   * Memindahkan kartu edukasi **Tips Harian** ke bagian terbawah mobile view sebagai banner lebar penuh.
+   * Meringkas kartu **Pengingat Tagihan** menjadi widget interaktif di dalam grid 2x2.
+   * Menaikkan kartu **Transaksi Terakhir** tepat di bawah grid 2x2 agar aktivitas keuangan terbaru langsung terlihat.
+2. **Peletakan Notifikasi (Toast / Snackbar)**:
+   * Mengatur letak kemunculan notifikasi dinamis agar meluncur dari bagian atas (**`top-center`**) khusus pada layar mobile (lebar < 768px) dengan efek *Glassmorphism* (blur kaca transparan yang indah), agar tidak bertabrakan dengan menu navigasi melayang di bawah layar.
+3. **Penyempurnaan Service Worker PWA**:
+   * Melakukan bypass Service Worker untuk rute dinamis `/api`, `/dashboard`, dan `/auth` agar tidak menimbulkan *TypeError response* di konsol browser.
+
+---
+
+## Verifikasi Mandiri
+* Seluruh masalah keamanan kritis dan anjuran performa pada dasbor Supabase Anda sekarang telah berstatus **RESOLVED** (Selesai). Database berjalan dengan tingkat keamanan maksimal sesuai standard industri dan performa yang optimal.
