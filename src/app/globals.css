@@ -73,6 +73,17 @@
   animation-delay: 2s;
 }
 
+/* Responsive Toast Offset to sit above floating mobile navbar */
+:root {
+  --toast-offset: 16px;
+}
+
+@media (max-w: 767px) {
+  :root {
+    --toast-offset: 100px;
+  }
+}
+
 .animation-delay-4000 {
   animation-delay: 4s;
 }
