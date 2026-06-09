@@ -129,26 +129,26 @@ export function RecurringListClient({ templates: initialTemplates }: RecurringLi
                 )}
                 style={{ borderLeftColor: categoryColor }}
               >
-                <CardContent className="p-5 flex flex-col justify-between h-full space-y-4">
+                <CardContent className="p-4 sm:p-5 flex flex-col justify-between h-full space-y-3 sm:space-y-4">
                   
                   {/* Top Header info */}
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex gap-3 min-w-0 flex-1">
+                    <div className="flex gap-2.5 min-w-0 flex-1">
                       <div 
-                        className="h-10 w-10 rounded-xl flex items-center justify-center text-lg border border-border shrink-0"
+                        className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center text-base sm:text-lg border border-border shrink-0"
                         style={{ backgroundColor: `${categoryColor}15`, color: categoryColor }}
                       >
                         <span>{categoryIcon}</span>
                       </div>
                       <div className="min-w-0 flex-1">
                         <h4 className="font-bold text-foreground line-clamp-1 text-sm">{t.name}</h4>
-                        <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+                        <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 text-xs text-muted-foreground mt-0.5">
                           <span className="flex items-center gap-1 min-w-0">
-                            <Wallet className="h-3.5 w-3.5 shrink-0" />
+                            <Wallet className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
                             <span className="truncate max-w-[80px] sm:max-w-[120px]">{t.wallets?.name}</span>
                           </span>
                           <span>•</span>
-                          <span className="font-mono text-[10px] tracking-wider uppercase bg-secondary px-1.5 py-0.5 rounded shrink-0">
+                          <span className="font-mono text-[9px] sm:text-[10px] tracking-wider uppercase bg-secondary px-1.5 py-0.5 rounded shrink-0">
                             {getFrequencyLabel(t.frequency)}
                           </span>
                         </div>
@@ -161,15 +161,15 @@ export function RecurringListClient({ templates: initialTemplates }: RecurringLi
                       disabled={loadingId === t.id}
                       onClick={() => handleToggleActive(t.id, t.is_active)}
                       className={cn(
-                        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out outline-none select-none",
+                        "relative inline-flex h-5 w-9 sm:h-6 sm:w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out outline-none select-none",
                         t.is_active ? "bg-black dark:bg-white" : "bg-neutral-200 dark:bg-neutral-800"
                       )}
                     >
                       <span
                         className={cn(
-                          "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-black shadow-sm transition duration-200 ease-in-out",
+                          "pointer-events-none inline-block h-4 w-4 sm:h-5 sm:w-5 transform rounded-full bg-white dark:bg-black shadow-sm transition duration-200 ease-in-out",
                           t.is_active 
-                            ? "translate-x-5 bg-white dark:bg-black" 
+                            ? "translate-x-4 sm:translate-x-5 bg-white dark:bg-black" 
                             : "translate-x-0 bg-white dark:bg-neutral-600"
                         )}
                       />
@@ -177,31 +177,31 @@ export function RecurringListClient({ templates: initialTemplates }: RecurringLi
                   </div>
 
                   {/* Body Amount and Dates */}
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 pt-1">
+                  <div className="flex justify-between items-center pt-0.5">
                     <div>
-                      <p className="text-[10px] uppercase font-mono font-bold tracking-widest text-muted-foreground">Jumlah Rencana</p>
+                      <p className="text-[9px] uppercase font-mono font-bold tracking-widest text-muted-foreground sm:block hidden">Jumlah Rencana</p>
                       <p className={cn(
-                        "text-lg font-black tracking-tight mt-0.5",
+                        "text-base sm:text-lg font-black tracking-tight mt-0.5",
                         t.type === 'income' ? "text-emerald-600" : "text-rose-600"
                       )}>
                         {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                       </p>
                     </div>
 
-                    <div className="flex items-center sm:block gap-2 sm:text-right text-xs text-muted-foreground bg-secondary/30 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none">
-                      <span className="flex items-center gap-1 sm:justify-end font-medium shrink-0">
-                        <Calendar className="h-3.5 w-3.5" />
-                        <span>Jatuh Tempo:</span>
-                      </span>
-                      <span className="font-bold text-foreground sm:block mt-0.5">
+                    <div className="text-right text-xs text-muted-foreground">
+                      <p className="flex items-center gap-1 justify-end font-medium text-[9px] sm:text-xs">
+                        <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                        <span className="hidden sm:inline">Jatuh Tempo:</span>
+                      </p>
+                      <p className="font-bold text-foreground text-xs sm:text-sm mt-0.5">
                         {format(new Date(t.next_due_date), 'd MMM yyyy', { locale: localeId })}
-                      </span>
+                      </p>
                     </div>
                   </div>
 
                   {/* Bottom Action Footer */}
-                  <div className="pt-3 border-t border-border flex justify-between items-center gap-4 text-xs">
-                    <div className="text-muted-foreground italic truncate flex-1 min-w-0">
+                  <div className="pt-2 sm:pt-3 border-t border-border flex justify-between items-center gap-4 text-xs">
+                    <div className="text-muted-foreground italic truncate flex-1 min-w-0 text-[11px] sm:text-xs">
                       {t.notes ? `"${t.notes}"` : 'Tidak ada catatan'}
                     </div>
 
@@ -226,8 +226,8 @@ export function RecurringListClient({ templates: initialTemplates }: RecurringLi
                       {/* Delete AlertDialog */}
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="hover:text-rose-600 text-muted-foreground" disabled={loadingId === t.id}>
-                            <Trash2 className="h-4 w-4" />
+                          <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-9 sm:w-9 hover:text-rose-600 text-muted-foreground" disabled={loadingId === t.id}>
+                            <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
