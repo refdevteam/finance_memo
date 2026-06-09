@@ -73,14 +73,7 @@
   animation-delay: 2s;
 }
 
-/* Responsive Toast Offset to sit above floating mobile navbar */
-@media (max-w: 767px) {
-  [data-sonner-toaster] {
-    bottom: 96px !important;
-    --offset: 96px !important;
-    --mobile-offset: 96px !important;
-  }
-}
+
 
 .animation-delay-4000 {
   animation-delay: 4s;
