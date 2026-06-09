@@ -208,16 +208,18 @@ export function HelpGuidance() {
 
   return (
     <Dialog open={open} onOpenChange={(val) => { setOpen(val); if (!val) setStep(1); }}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="w-8 h-8 rounded-lg text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200"
-          aria-label="Panduan Interaktif"
-        >
-          <HelpCircle className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-8 h-8 rounded-lg text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200"
+            aria-label="Panduan Interaktif"
+          >
+            <HelpCircle className="h-4 w-4" />
+          </Button>
+        }
+      />
       <DialogContent className="max-w-[480px] w-[92vw] rounded-3xl p-6 md:p-8 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-neutral-200/50 dark:border-neutral-800/50 shadow-2xl overflow-hidden min-h-[440px] flex flex-col justify-between">
         
         <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80">
