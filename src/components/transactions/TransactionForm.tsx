@@ -148,9 +148,10 @@ export function TransactionForm() {
             </div>
           </div>
         ) : (
-          
-          {/* Tipe Transaksi (Toggle) */}
-          <div className="flex bg-neutral-100 dark:bg-neutral-800 p-1 rounded-xl">
+          <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+            
+            {/* Tipe Transaksi (Toggle) */}
+            <div className="flex bg-neutral-100 dark:bg-neutral-800 p-1 rounded-xl">
             <button
               type="button"
               onClick={() => setType('expense')}
@@ -231,6 +232,7 @@ export function TransactionForm() {
 
           <Button type="submit" className={`w-full text-white rounded-xl ${type === 'expense' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-emerald-600 hover:bg-emerald-700'}`} disabled={loading}>
             {loading ? 'Menyimpan...' : 'Simpan Transaksi'}
+          </Button>
         </form>
         )}
       </DialogContent>
