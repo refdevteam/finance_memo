@@ -39,6 +39,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
+  // Bypass service worker completely for dynamic routes to avoid cache issues and FetchEvent rejections
+  const url = new URL(event.request.url);
+  if (
+    url.pathname.startsWith('/api') || 
+    url.pathname.startsWith('/dashboard') || 
+    url.pathname.startsWith('/auth')
+  ) {
+    return;
+  }
+  
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -48,20 +58,12 @@ self.addEventListener('fetch', (event) => {
         if (!response || response.status !== 200 || response.type !== 'basic') {
           return response;
         }
-        
-        // Don't cache dynamic API routes or dashboard subpaths to avoid stale data
-        const url = new URL(event.request.url);
-        if (url.pathname.startsWith('/api') || url.pathname.startsWith('/dashboard')) {
-          return response;
-        }
 
         const responseToCache = response.clone();
         caches.open(CACHE_NAME).then((cache) => {
           cache.put(event.request, responseToCache);
         });
         return response;
-      }).catch(() => {
-        // Return cached page or fail silently
       });
     })
   );

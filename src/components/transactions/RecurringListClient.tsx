@@ -101,7 +101,7 @@ export function RecurringListClient({ templates: initialTemplates }: RecurringLi
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <h2 className="text-lg font-bold tracking-tight">Rencana Transaksi Aktif ({templates.filter(t => t.is_active).length})</h2>
         <RecurringForm onSuccess={() => window.location.reload()} />
       </div>
@@ -133,20 +133,22 @@ export function RecurringListClient({ templates: initialTemplates }: RecurringLi
                   
                   {/* Top Header info */}
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 min-w-0 flex-1">
                       <div 
                         className="h-10 w-10 rounded-xl flex items-center justify-center text-lg border border-border shrink-0"
                         style={{ backgroundColor: `${categoryColor}15`, color: categoryColor }}
                       >
                         <span>{categoryIcon}</span>
                       </div>
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <h4 className="font-bold text-foreground line-clamp-1 text-sm">{t.name}</h4>
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-                          <Wallet className="h-3.5 w-3.5" />
-                          <span>{t.wallets?.name}</span>
+                        <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+                          <span className="flex items-center gap-1 min-w-0">
+                            <Wallet className="h-3.5 w-3.5 shrink-0" />
+                            <span className="truncate max-w-[80px] sm:max-w-[120px]">{t.wallets?.name}</span>
+                          </span>
                           <span>•</span>
-                          <span className="font-mono text-[10px] tracking-wider uppercase bg-secondary px-1.5 py-0.5 rounded">
+                          <span className="font-mono text-[10px] tracking-wider uppercase bg-secondary px-1.5 py-0.5 rounded shrink-0">
                             {getFrequencyLabel(t.frequency)}
                           </span>
                         </div>
@@ -175,7 +177,7 @@ export function RecurringListClient({ templates: initialTemplates }: RecurringLi
                   </div>
 
                   {/* Body Amount and Dates */}
-                  <div className="flex justify-between items-end">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 pt-1">
                     <div>
                       <p className="text-[10px] uppercase font-mono font-bold tracking-widest text-muted-foreground">Jumlah Rencana</p>
                       <p className={cn(
@@ -186,20 +188,20 @@ export function RecurringListClient({ templates: initialTemplates }: RecurringLi
                       </p>
                     </div>
 
-                    <div className="text-right text-xs text-muted-foreground">
-                      <p className="flex items-center gap-1 justify-end font-medium">
+                    <div className="flex items-center sm:block gap-2 sm:text-right text-xs text-muted-foreground bg-secondary/30 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none">
+                      <span className="flex items-center gap-1 sm:justify-end font-medium shrink-0">
                         <Calendar className="h-3.5 w-3.5" />
                         <span>Jatuh Tempo:</span>
-                      </p>
-                      <p className="font-bold text-foreground mt-0.5">
+                      </span>
+                      <span className="font-bold text-foreground sm:block mt-0.5">
                         {format(new Date(t.next_due_date), 'd MMM yyyy', { locale: localeId })}
-                      </p>
+                      </span>
                     </div>
                   </div>
 
                   {/* Bottom Action Footer */}
-                  <div className="pt-3 border-t border-border flex justify-between items-center text-xs">
-                    <div className="text-muted-foreground truncate max-w-[60%]">
+                  <div className="pt-3 border-t border-border flex justify-between items-center gap-4 text-xs">
+                    <div className="text-muted-foreground italic truncate flex-1 min-w-0">
                       {t.notes ? `"${t.notes}"` : 'Tidak ada catatan'}
                     </div>
 
