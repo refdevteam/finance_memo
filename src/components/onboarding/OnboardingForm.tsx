@@ -21,7 +21,7 @@ const schema = z.object({
   timezone: z.string().min(1, 'Zona waktu wajib dipilih'),
   wallet_name: z.string().min(1, 'Nama dompet wajib diisi'),
   wallet_type: z.enum(['cash', 'bank', 'ewallet', 'investment', 'other']),
-  wallet_balance: z.coerce.number().nonnegative('Saldo awal tidak boleh negatif'),
+  wallet_balance: z.number().nonnegative('Saldo awal tidak boleh negatif'),
 })
 
 type OnboardingData = z.infer<typeof schema>
@@ -253,7 +253,7 @@ export function OnboardingForm({ initialData }: { initialData?: Partial<Onboardi
                       id="wallet_balance"
                       type="number"
                       placeholder="Masukkan saldo awal dompet"
-                      {...register('wallet_balance')}
+                      {...register('wallet_balance', { valueAsNumber: true })}
                       className={cn(
                         "rounded-xl border-slate-200 dark:border-slate-800",
                         errors.wallet_balance ? 'border-destructive' : ''
