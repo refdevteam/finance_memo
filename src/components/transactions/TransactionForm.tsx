@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, AlertTriangle } from 'lucide-react'
 import { 
   Dialog, 
   DialogContent, 
@@ -122,7 +122,32 @@ export function TransactionForm() {
         <DialogHeader>
           <DialogTitle>Catat Transaksi</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+        {wallets.length === 0 ? (
+          <div className="py-8 text-center space-y-4">
+            <div className="p-3 bg-amber-500/10 text-amber-500 rounded-2xl w-fit mx-auto">
+              <AlertTriangle className="h-6 w-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-neutral-800 dark:text-neutral-200">
+                Dompet Tidak Ditemukan
+              </h3>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-[280px] mx-auto">
+                Anda belum memiliki dompet aktif. Silakan buat dompet terlebih dahulu sebelum mencatat transaksi.
+              </p>
+            </div>
+            <div className="pt-2">
+              <Button
+                onClick={() => {
+                  setOpen(false)
+                  window.location.href = '/dashboard/wallets'
+                }}
+                className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold"
+              >
+                Buat Dompet Sekarang
+              </Button>
+            </div>
+          </div>
+        ) : (
           
           {/* Tipe Transaksi (Toggle) */}
           <div className="flex bg-neutral-100 dark:bg-neutral-800 p-1 rounded-xl">
@@ -206,8 +231,8 @@ export function TransactionForm() {
 
           <Button type="submit" className={`w-full text-white rounded-xl ${type === 'expense' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-emerald-600 hover:bg-emerald-700'}`} disabled={loading}>
             {loading ? 'Menyimpan...' : 'Simpan Transaksi'}
-          </Button>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   )

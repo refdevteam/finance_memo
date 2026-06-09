@@ -1,6 +1,7 @@
 import { Sidebar } from '@/components/layout/Sidebar'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { WalletWarningBanner } from '@/components/layout/WalletWarningBanner'
 
 export default async function DashboardLayout({
   children,
@@ -30,6 +31,7 @@ export default async function DashboardLayout({
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
       <Sidebar wallets={wallets} categories={categories} />
       <main className="flex-1 overflow-y-auto h-screen pt-14 md:pt-0 pb-28 md:pb-0">
+        <WalletWarningBanner walletsCount={wallets.length} />
         {children}
       </main>
     </div>

@@ -34,6 +34,8 @@ import { TransactionForm } from '@/components/transactions/TransactionForm'
 import { TransferForm } from '@/components/transactions/TransferForm'
 import { ReceiptScanner } from '@/components/transactions/ReceiptScanner'
 import { NotificationCenter } from '@/components/layout/NotificationCenter'
+import { HelpGuidance } from '@/components/layout/HelpGuidance'
+import { DeveloperUpdates } from '@/components/layout/DeveloperUpdates'
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
@@ -97,6 +99,8 @@ function SidebarContent({ pathname }: { pathname: string }) {
           <span className="text-xl font-bold tracking-tight dark:text-white group-hover:text-indigo-500 transition-colors">fimo</span>
         </Link>
         <div className="hidden md:flex items-center space-x-1">
+          <DeveloperUpdates />
+          <HelpGuidance />
           <NotificationCenter />
           <ThemeToggle />
         </div>
@@ -180,6 +184,8 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
         </Link>
         
         <div className="flex items-center space-x-1">
+          <DeveloperUpdates />
+          <HelpGuidance />
           <NotificationCenter />
           <ThemeToggle />
         </div>

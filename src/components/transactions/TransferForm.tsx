@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowRightLeft } from 'lucide-react'
+import { ArrowRightLeft, AlertTriangle } from 'lucide-react'
 import { 
   Dialog, 
   DialogContent, 
@@ -113,7 +113,35 @@ export function TransferForm() {
         <DialogHeader>
           <DialogTitle>Transfer Saldo</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+        {wallets.length < 2 ? (
+          <div className="py-8 text-center space-y-4">
+            <div className="p-3 bg-amber-500/10 text-amber-500 rounded-2xl w-fit mx-auto">
+              <AlertTriangle className="h-6 w-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-neutral-800 dark:text-neutral-200">
+                {wallets.length === 0 ? 'Dompet Tidak Ditemukan' : 'Dompet Kurang'}
+              </h3>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-[280px] mx-auto">
+                {wallets.length === 0 
+                  ? 'Anda belum memiliki dompet aktif. Silakan buat dompet terlebih dahulu sebelum melakukan transfer saldo.' 
+                  : 'Anda baru memiliki 1 dompet. Anda memerlukan setidaknya 2 dompet aktif untuk melakukan transfer saldo.'}
+              </p>
+            </div>
+            <div className="pt-2">
+              <Button
+                onClick={() => {
+                  setOpen(false)
+                  window.location.href = '/dashboard/wallets'
+                }}
+                className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold"
+              >
+                Buat Dompet Sekarang
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6 pt-4">
           
           <div className="space-y-2">
             <Label htmlFor="amount">Jumlah Transfer</Label>
@@ -189,6 +217,7 @@ export function TransferForm() {
             </p>
           )}
         </form>
+        )}
       </DialogContent>
     </Dialog>
   )
