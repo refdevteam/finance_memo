@@ -74,13 +74,10 @@
 }
 
 /* Responsive Toast Offset to sit above floating mobile navbar */
-[data-sonner-toaster] {
-  --offset: 16px !important;
-}
-
 @media (max-w: 767px) {
   [data-sonner-toaster] {
-    --offset: 100px !important;
+    bottom: 96px !important;
+    --offset: 96px !important;
   }
 }
 
