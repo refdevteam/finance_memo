@@ -85,8 +85,12 @@ export default async function DashboardPage({
     endDateStr = toLocalYYYYMMDD(now)
   }
 
+  const sevenDaysLater = new Date()
+  sevenDaysLater.setDate(now.getDate() + 7)
+  const sevenDaysLaterStr = toLocalYYYYMMDD(sevenDaysLater)
+
   // Fetch all data in parallel
-  const [walletsRes, incomeRes, expenseRes, dailyTransactionsRes, categoryExpensesRes, categoriesRes] = await Promise.all([
+  const [walletsRes, incomeRes, expenseRes, dailyTransactionsRes, categoryExpensesRes, categoriesRes, remindersRes] = await Promise.all([
     // Total balance from all active wallets
     supabase
       .from('wallets')
@@ -135,10 +139,18 @@ export default async function DashboardPage({
       .from('categories')
       .select('id, name, type')
       .or(`user_id.eq.${user.id},user_id.is.null`),
+
+    // Fetch active reminders count due up to 7 days from now (including overdue)
+    supabase
+      .from('reminders')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .lte('due_date', sevenDaysLaterStr),
   ])
 
-  // Fetch budgets for current month
   const budgets = await getBudgets(now.getMonth() + 1, now.getFullYear())
+  const upcomingRemindersCount = remindersRes.count ?? 0
 
   // Stats calculations
   const totalBalance = walletsRes.data?.reduce((sum, w) => sum + Number(w.balance || 0), 0) ?? 0
@@ -260,16 +272,8 @@ export default async function DashboardPage({
         totalExpense={totalExpense}
         savingsRate={savingsRate}
         monthName={chartTitleLabel}
+        upcomingRemindersCount={upcomingRemindersCount}
       />
-
-      {/* Mobile-only Upcoming Reminders */}
-      <div className="block md:hidden">
-        <Card>
-          <CardContent className="pt-6">
-            <UpcomingReminders />
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Desktop-only Charts Grid */}
       <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -331,6 +335,18 @@ export default async function DashboardPage({
             </Link>
           </CardContent>
         </Card>
+
+        {/* Mobile-only Daily Tips at the bottom */}
+        <div className="block md:hidden bg-[#c5b0f4] dark:bg-[#1f1d3d] rounded-2xl p-5 text-black dark:text-white relative mt-3 shadow-xs">
+          <div className="relative z-10">
+            <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 mb-1.5">Tips Harian</p>
+            <h3 className="text-lg font-bold mb-2">Tips Hemat Hari Ini</h3>
+            <p className="text-black/80 dark:text-white/80 text-xs leading-relaxed font-medium">
+              &quot;Jangan menabung apa yang tersisa setelah dibelanjakan, tetapi belanjakanlah apa yang tersisa setelah menabung.&quot; 
+              — Warren Buffett
+            </p>
+          </div>
+        </div>
 
         {/* Right side container for Budget & Tips (Desktop only) */}
         <div className="hidden md:block space-y-8 h-fit">

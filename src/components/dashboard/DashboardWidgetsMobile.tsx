@@ -14,6 +14,7 @@ import { BudgetCategory } from '@/actions/budgets'
 import { SpendingTrendChart, CategoryPieChart, CategoryMiniPieChart, SpendingMiniTrendChart } from '@/components/dashboard/DashboardCharts'
 import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
 import { cn } from '@/lib/utils'
+import { UpcomingReminders } from '@/components/dashboard/UpcomingReminders'
 
 interface DashboardWidgetsMobileProps {
   dailyChartData: { date: string; income: number; expense: number }[]
@@ -23,6 +24,7 @@ interface DashboardWidgetsMobileProps {
   totalExpense: number
   savingsRate: number
   monthName: string
+  upcomingRemindersCount: number
 }
 
 function formatRupiah(amount: number): string {
@@ -41,7 +43,8 @@ export function DashboardWidgetsMobile({
   totalIncome,
   totalExpense,
   savingsRate,
-  monthName
+  monthName,
+  upcomingRemindersCount
 }: DashboardWidgetsMobileProps) {
   const [activeDialog, setActiveDialog] = useState<string | null>(null)
 
@@ -238,40 +241,49 @@ export function DashboardWidgetsMobile({
         </DialogContent>
       </Dialog>
 
-      {/* 4. Tips Harian (Low Priority / Edukasi) */}
-      <Dialog open={activeDialog === 'tips'} onOpenChange={(open) => setActiveDialog(open ? 'tips' : null)}>
+      {/* 4. Pengingat Tagihan (High Priority) */}
+      <Dialog open={activeDialog === 'reminders'} onOpenChange={(open) => setActiveDialog(open ? 'reminders' : null)}>
         <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none bg-[#c5b0f4] dark:bg-[#1f1d3d] border-transparent min-h-[140px] flex flex-col justify-between p-3 text-black dark:text-white">
+          <Card className="cursor-pointer active:scale-98 transition-transform select-none bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800/80 shadow-xs hover:border-slate-200 min-h-[140px] flex flex-col justify-between p-3">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[9px] font-bold font-mono text-black/60 dark:text-white/60 uppercase tracking-wider">
-                  Tips Harian
+                <span className="text-[9px] font-bold font-mono text-slate-400 uppercase tracking-wider">
+                  Pengingat Tagihan
                 </span>
-                <LucideIcons.BookOpen className="h-4 w-4 text-black/60 dark:text-white/60 shrink-0" />
+                <LucideIcons.Bell className={cn("h-4 w-4 shrink-0", upcomingRemindersCount > 0 ? "text-rose-500 animate-bounce" : "text-emerald-500")} />
               </div>
-              <h4 className="text-xs font-bold mt-1.5">Tips Hemat Hari Ini</h4>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-semibold">
+                Siklus 7 Hari Depan
+              </p>
             </div>
 
-            <p className="text-[9px] text-black/80 dark:text-white/80 line-clamp-3 leading-relaxed mt-2">
-              &quot;Jangan menabung apa yang tersisa setelah dibelanjakan, tetapi belanjakanlah apa yang tersisa setelah menabung.&quot;
-            </p>
+            <div className="space-y-1.5 mt-2">
+              {upcomingRemindersCount > 0 ? (
+                <div className="flex items-center gap-1 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 px-2 py-1 rounded-lg border border-rose-100 dark:border-rose-950/40">
+                  <LucideIcons.AlertTriangle className="h-3 w-3 shrink-0" />
+                  <span className="text-[9px] font-bold font-mono">
+                    Ada {upcomingRemindersCount} tagihan dekat
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-lg border border-emerald-100 dark:border-emerald-950/40">
+                  <LucideIcons.CheckCircle2 className="h-3 w-3 shrink-0" />
+                  <span className="text-[9px] font-bold font-mono">
+                    Semua Tagihan Aman!
+                  </span>
+                </div>
+              )}
+            </div>
           </Card>
         } />
-        <DialogContent className="max-w-[95%] rounded-3xl p-5 bg-[#c5b0f4] dark:bg-[#1f1d3d] text-black dark:text-white border-transparent">
+        <DialogContent className="max-w-[95%] rounded-3xl p-5">
           <DialogHeader>
-            <DialogTitle className="text-base font-bold text-black dark:text-white">
-              Tips Hemat Fimo
+            <DialogTitle className="text-base font-bold dark:text-white">
+              Pengingat Mendatang
             </DialogTitle>
           </DialogHeader>
-          <div className="pt-4 space-y-3">
-            <p className="text-sm italic font-semibold leading-relaxed">
-              &quot;Jangan menabung apa yang tersisa setelah dibelanjakan, tetapi belanjakanlah apa yang tersisa setelah menabung.&quot;
-            </p>
-            <p className="text-xs opacity-80 text-right">— Warren Buffett</p>
-            <div className="h-px bg-black/10 dark:bg-white/10 my-2" />
-            <p className="text-xs leading-relaxed">
-              <strong>Penjelasan:</strong> Salah satu kesalahan keuangan terbesar adalah menabung &quot;apa yang tersisa&quot; di akhir bulan. Biasanya tidak ada yang tersisa. Cobalah metode <em>Pay Yourself First</em>: sisihkan persentase tertentu (misal 10%-20%) langsung saat gajian tiba, kemudian hidup dari sisanya.
-            </p>
+          <div className="pt-2">
+            <UpcomingReminders />
           </div>
         </DialogContent>
       </Dialog>
