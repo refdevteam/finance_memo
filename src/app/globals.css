@@ -78,6 +78,7 @@
   [data-sonner-toaster] {
     bottom: 96px !important;
     --offset: 96px !important;
+    --mobile-offset: 96px !important;
   }
 }
 
