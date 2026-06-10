@@ -99,7 +99,6 @@ function SidebarContent({ pathname }: { pathname: string }) {
           <span className="text-xl font-bold tracking-tight dark:text-white group-hover:text-indigo-500 transition-colors">fimo</span>
         </Link>
         <div className="hidden md:flex items-center space-x-1">
-          <DeveloperUpdates />
           <HelpGuidance />
           <NotificationCenter />
           <ThemeToggle />
