@@ -47,7 +47,7 @@ const updates: UpdateItem[] = [
   },
 ]
 
-export function DeveloperUpdates() {
+export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: boolean }) {
   const [open, setOpen] = useState(false)
   const [hasNewUpdate, setHasNewUpdate] = useState(true) // Show indicator by default
 
@@ -84,26 +84,40 @@ export function DeveloperUpdates() {
     }
   }
 
+  const triggerButton = asSidebarItem ? (
+    <Button
+      variant="ghost"
+      className="w-full flex items-center justify-start space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-900 transition-all relative"
+    >
+      <Sparkles className="h-5 w-5 text-amber-500 shrink-0" />
+      <span className="flex-1 text-left">Info Pembaruan</span>
+      {hasNewUpdate && (
+        <span className="absolute top-3 right-3 flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+        </span>
+      )}
+    </Button>
+  ) : (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="w-8 h-8 rounded-lg text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 relative"
+      aria-label="Developer Updates"
+    >
+      <Sparkles className="h-4 w-4 text-amber-500 dark:text-amber-400" />
+      {hasNewUpdate && (
+        <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+        </span>
+      )}
+    </Button>
+  )
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8 rounded-lg text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 relative"
-            aria-label="Developer Updates"
-          >
-            <Sparkles className="h-4 w-4 text-amber-500 dark:text-amber-400" />
-            {hasNewUpdate && (
-              <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-              </span>
-            )}
-          </Button>
-        }
-      />
+      <DialogTrigger render={triggerButton} />
       <DialogContent className="max-w-[480px] w-[92vw] overflow-y-auto max-h-[85vh] rounded-3xl p-6 md:p-8 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-neutral-200/50 dark:border-neutral-800/50 shadow-2xl">
         <DialogHeader className="pb-2 border-b border-neutral-100 dark:border-neutral-800/80">
           <div className="flex items-center space-x-2">

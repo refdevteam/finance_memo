@@ -43,11 +43,18 @@ declare global {
 
 export function GoogleLoginButton() {
   const router = useRouter()
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [buttonWidth, setButtonWidth] = useState(320)
+
+  const [mounted, setMounted] = useState(false)
+
+  // Gunakan mounted state untuk menghindari perbedaan rendering SSR dan Client
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Mengatur lebar tombol agar responsif sesuai layar saat mounting
   useEffect(() => {
@@ -108,7 +115,7 @@ export function GoogleLoginButton() {
 
   // Inisialisasi GSI dan Render Tombol
   useEffect(() => {
-    if (!isGoogleLoaded) return
+    if (!isGoogleLoaded || !mounted) return
 
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
     if (!clientId) {
@@ -125,8 +132,9 @@ export function GoogleLoginButton() {
 
       const buttonDiv = document.getElementById('google-signin-btn-container')
       if (buttonDiv) {
+        buttonDiv.innerHTML = '' // Bersihkan container sebelum render ulang tombol untuk mengikuti perubahan tema
         window.google!.accounts.id.renderButton(buttonDiv, {
-          theme: theme === 'dark' ? 'filled_black' : 'outline',
+          theme: resolvedTheme === 'dark' ? 'filled_black' : 'outline',
           size: 'large',
           width: buttonWidth.toString(),
           text: 'continue_with',
@@ -140,7 +148,7 @@ export function GoogleLoginButton() {
     } catch (err) {
       console.error('Error in GSI initialization/rendering:', err)
     }
-  }, [isGoogleLoaded, theme, buttonWidth, handleCredentialResponse])
+  }, [isGoogleLoaded, resolvedTheme, buttonWidth, handleCredentialResponse, mounted])
 
   return (
     <div className="w-full space-y-2 flex flex-col items-center justify-center">

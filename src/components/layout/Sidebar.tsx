@@ -140,6 +140,7 @@ function SidebarContent({ pathname }: { pathname: string }) {
       </nav>
 
       <div className="px-4 py-6 border-t border-border space-y-1">
+        <DeveloperUpdates asSidebarItem />
         {secondaryItems.map((item) => (
           <Link
             key={item.href}
