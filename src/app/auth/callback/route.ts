@@ -6,7 +6,12 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/dashboard'
+  let next = searchParams.get('next') ?? '/dashboard'
+
+  // Pastikan parameter 'next' adalah relative path yang aman untuk mencegah Open Redirect
+  if (!next.startsWith('/') || next.startsWith('//') || /^[a-zA-Z]+:\/\//.test(next)) {
+    next = '/dashboard'
+  }
 
   if (code) {
     const forwardedHost = request.headers.get('x-forwarded-host') 

@@ -48,12 +48,16 @@ export async function createCategory(formData: {
 
 export async function deleteCategory(id: string) {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) throw new Error('Unauthorized')
   
-  // Only delete if it's a user-specific category (handled by RLS anyway)
+  // Only delete if it's a user-specific category and belongs to the authenticated user
   const { error } = await supabase
     .from('categories')
     .delete()
     .eq('id', id)
+    .eq('user_id', user.id)
 
   if (error) throw error
 

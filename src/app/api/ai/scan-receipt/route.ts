@@ -25,6 +25,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Tidak ada file struk yang diunggah' }, { status: 400 })
     }
 
+    // Validasi Ukuran File (Maksimal 5MB untuk mencegah DoS dan pembengkakan memori)
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: 'Ukuran file terlalu besar. Maksimal adalah 5MB.' }, { status: 400 })
+    }
+
+    // Validasi Tipe File (Hanya gambar dan PDF yang diperbolehkan)
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf']
+    if (!allowedMimeTypes.includes(file.type)) {
+      return NextResponse.json({ error: 'Format file tidak didukung. Silakan unggah gambar (JPEG, PNG, WebP) atau PDF.' }, { status: 400 })
+    }
+
     // Rate Limiting Logic: Cek jumlah scan hari ini dari user (Maks 20 per hari untuk MVP)
     const today = new Date().toISOString().split('T')[0]
     const { count, error: countError } = await supabase
