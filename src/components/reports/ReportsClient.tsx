@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Download, TrendingUp, TrendingDown, Wallet, Sparkles, BrainCircuit, AlertTriangle, CheckCircle2, Loader2, Info } from 'lucide-react'
+import { Download, TrendingUp, TrendingDown, Wallet, Sparkles, AlertTriangle, CheckCircle2, Loader2, Info } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

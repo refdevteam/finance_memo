@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { Sparkles, Activity } from 'lucide-react'
 import { getAICoachInsight } from '@/actions/ai-coach'
 import { cn } from '@/lib/utils'
-import { Skeleton } from '@/components/ui/skeleton'
 
 export function AICoachCard() {
   const [insight, setInsight] = useState<{ tip: string; score?: number } | null>(null)
