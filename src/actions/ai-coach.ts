@@ -194,7 +194,7 @@ export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoa
     } else {
       // Gemini API call
       try {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
         // Daily: Gemini 3.1 Flash-Lite | Weekly: Gemini 3.5 Pro (we fall back to gemini-3.5-flash if names are not fully provisioned)
         const activeModelName = type === 'daily' ? 'gemini-3.5-flash' : 'gemini-3.5-pro'
         
