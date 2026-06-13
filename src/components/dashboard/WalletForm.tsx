@@ -25,7 +25,7 @@ const schema = z.object({
   type: z.string().min(1, 'Tipe dompet wajib dipilih'),
   balance: z.number().min(0, 'Saldo minimal 0'),
   color: z.string().min(1),
-  is_event_wallet: z.boolean().default(false),
+  is_event_wallet: z.boolean(),
 })
 
 type WalletData = z.infer<typeof schema>
