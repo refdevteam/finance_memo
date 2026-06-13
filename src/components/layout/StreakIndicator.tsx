@@ -27,14 +27,14 @@ export function StreakIndicator({ streak = 0 }: StreakIndicatorProps) {
         render={
           <button 
             className={cn(
-              "flex items-center space-x-1.5 px-3 py-1.5 rounded-full border text-xs font-bold transition-all duration-350 select-none cursor-pointer shrink-0 outline-none",
+              "flex items-center space-x-1 px-2 py-1 sm:space-x-1.5 sm:px-3 sm:py-1.5 rounded-full border text-[11px] sm:text-xs font-bold transition-all duration-350 select-none cursor-pointer shrink-0 outline-none",
               hasStreak 
                 ? "bg-orange-500/10 dark:bg-orange-500/5 border-orange-500/30 text-orange-600 dark:text-orange-400 shadow-[0_0_12px_rgba(249,115,22,0.15)] hover:bg-orange-500/20" 
                 : "bg-neutral-100 border-neutral-200 text-neutral-400 dark:bg-neutral-900/50 dark:border-neutral-800 dark:text-neutral-500 hover:bg-neutral-200 dark:hover:bg-neutral-800"
             )}
           >
-            <Flame className={cn("h-4 w-4 transition-transform duration-300 hover:scale-110", hasStreak ? "text-orange-500 fill-orange-500/20" : "")} />
-            <span>{streak} Hari</span>
+            <Flame className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-300 hover:scale-110", hasStreak ? "text-orange-500 fill-orange-500/20" : "")} />
+            <span>{streak}<span className="hidden sm:inline"> Hari</span></span>
           </button>
         }
       />

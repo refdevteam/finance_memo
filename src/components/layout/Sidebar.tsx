@@ -178,8 +178,8 @@ export function Sidebar({ wallets = [], categories = [], recordStreak = 0 }: { w
   return (
     <>
       {/* Mobile Top Header - Retro Neo-Brutalist Floating */}
-      <div className="md:hidden fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] h-14 rounded-full border-2 border-black dark:border-white bg-white/95 dark:bg-zinc-950/95 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] z-40 flex items-center px-5 justify-between backdrop-blur-md">
-        <Link href="/dashboard" className="flex items-center space-x-2 group">
+      <div className="md:hidden fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] h-14 rounded-full border-2 border-black dark:border-white bg-white/95 dark:bg-zinc-950/95 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] z-40 flex items-center px-3 sm:px-5 justify-between backdrop-blur-md">
+        <Link href="/dashboard" className="flex items-center space-x-1.5 sm:space-x-2 group">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo-circle.png"
@@ -189,7 +189,7 @@ export function Sidebar({ wallets = [], categories = [], recordStreak = 0 }: { w
           <span className="font-bold tracking-tight text-neutral-900 dark:text-white text-base">fimo</span>
         </Link>
         
-        <div className="flex items-center space-x-1.5">
+        <div className="flex items-center space-x-1 sm:space-x-1.5">
           <StreakIndicator streak={recordStreak} />
           <DeveloperUpdates />
           <HelpGuidance />

@@ -60,17 +60,17 @@ export function AICoachCard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-3">
         <div className="flex items-center gap-2 text-xs font-mono font-extrabold uppercase tracking-wider opacity-80">
           <Sparkles className="h-4 w-4 text-black animate-spin-slow fill-black/10 shrink-0" />
-          <span>Fimo AI Coach</span>
+          <span>Fimo AI</span>
         </div>
 
         {/* Selection Switcher */}
-        <div className="flex flex-wrap gap-1 bg-black/5 p-1 rounded-xl border border-black/10 self-start sm:self-auto">
+        <div className="grid grid-cols-4 w-full sm:flex sm:w-auto gap-1 bg-black/5 p-1 rounded-xl border border-black/10">
           {options.map((opt) => (
             <button
               key={opt.value}
               onClick={() => setSelectedType(opt.value)}
               className={cn(
-                "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-150 border",
+                "px-1 py-1 sm:px-3 sm:py-1 rounded-lg text-[9px] xs:text-[10px] font-bold uppercase tracking-wider transition-all duration-150 border text-center w-full sm:w-auto",
                 selectedType === opt.value
                   ? "bg-black text-white border-black shadow-[2px_2px_0px_rgba(255,255,255,0.15)]"
                   : "text-black/70 hover:text-black hover:bg-black/5 border-transparent"
