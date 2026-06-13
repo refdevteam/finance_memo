@@ -39,6 +39,9 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [minAmount, setMinAmount] = useState<string>('')
   const [maxAmount, setMaxAmount] = useState<string>('')
+  const [dateRangeFilter, setDateRangeFilter] = useState<'all' | 'today' | '7days' | '30days' | 'custom'>('all')
+  const [startDate, setStartDate] = useState<string>('')
+  const [endDate, setEndDate] = useState<string>('')
   const [showAdvanced, setShowAdvanced] = useState(false)
 
   const currentType = searchParams.get('type') || 'all'
@@ -78,6 +81,9 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
     setSelectedTag(null)
     setMinAmount('')
     setMaxAmount('')
+    setDateRangeFilter('all')
+    setStartDate('')
+    setEndDate('')
     router.push('/dashboard/transactions')
   }
 
@@ -112,6 +118,34 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
       if (amount > Number(maxAmount)) return false
     }
 
+    // 4. Date Range Filter
+    if (dateRangeFilter !== 'all') {
+      const itemDate = new Date(t.transaction_date)
+      const today = new Date()
+      
+      const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+      const itemMidnight = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate())
+      
+      const diffTime = todayMidnight.getTime() - itemMidnight.getTime()
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
+
+      if (dateRangeFilter === 'today') {
+        if (diffDays !== 0) return false
+      } else if (dateRangeFilter === '7days') {
+        if (diffDays < 0 || diffDays > 6) return false
+      } else if (dateRangeFilter === '30days') {
+        if (diffDays < 0 || diffDays > 29) return false
+      } else if (dateRangeFilter === 'custom') {
+        const itemDateStr = t.transaction_date.split('T')[0]
+        if (startDate) {
+          if (itemDateStr < startDate) return false
+        }
+        if (endDate) {
+          if (itemDateStr > endDate) return false
+        }
+      }
+    }
+
     return true
   })
 
@@ -127,13 +161,24 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
     { value: 'transfer', label: 'Transfer' },
   ]
 
+  const dateRangeOptions = [
+    { value: 'all', label: 'Semua Waktu' },
+    { value: 'today', label: 'Hari Ini' },
+    { value: '7days', label: '7 Hari Terakhir' },
+    { value: '30days', label: '30 Hari Terakhir' },
+    { value: 'custom', label: 'Kustom Tanggal...' },
+  ]
+
   const hasActiveFilters = 
     currentType !== 'all' || 
     currentWallet !== 'all' || 
     searchQuery !== '' || 
     selectedTag !== null || 
     minAmount !== '' || 
-    maxAmount !== ''
+    maxAmount !== '' ||
+    dateRangeFilter !== 'all' ||
+    startDate !== '' ||
+    endDate !== ''
 
   return (
     <div className="space-y-6">
@@ -154,18 +199,25 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
 
           {/* Quick Dropdowns */}
           <div className="flex flex-wrap sm:flex-nowrap gap-3">
-            <div className="w-full sm:w-40">
+            <div className="w-full sm:w-36">
               <InlineSelect 
                 options={typeOptions}
                 value={currentType}
                 onChange={(val) => handleFilterChange('type', val)}
               />
             </div>
-            <div className="w-full sm:w-48">
+            <div className="w-full sm:w-44">
               <InlineSelect 
                 options={walletOptions}
                 value={currentWallet}
                 onChange={(val) => handleFilterChange('wallet', val)}
+              />
+            </div>
+            <div className="w-full sm:w-44">
+              <InlineSelect 
+                options={dateRangeOptions}
+                value={dateRangeFilter}
+                onChange={(val) => setDateRangeFilter(val as any)}
               />
             </div>
 
@@ -185,7 +237,7 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
               <Button 
                 variant="ghost" 
                 onClick={handleResetFilters}
-                className="text-muted-foreground hover:text-rose-500 rounded-xl"
+                className="text-muted-foreground hover:text-rose-550 rounded-xl"
               >
                 <FilterX className="w-4 h-4 mr-2" />
                 Reset
@@ -193,6 +245,28 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
             )}
           </div>
         </div>
+
+        {/* Custom Date Picker Inputs */}
+        {dateRangeFilter === 'custom' && (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 bg-neutral-50 dark:bg-zinc-900/40 p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 animate-in fade-in slide-in-from-top-1 duration-150">
+            <span className="text-xs font-bold text-neutral-600 dark:text-neutral-400 shrink-0">Rentang Tanggal Kustom:</span>
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 w-full sm:w-auto">
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="rounded-xl border-neutral-200 dark:border-neutral-800 text-xs w-full sm:w-36 py-1 h-8 bg-white dark:bg-zinc-900 text-center"
+              />
+              <span className="text-muted-foreground text-xs px-1">s/d</span>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="rounded-xl border-neutral-200 dark:border-neutral-800 text-xs w-full sm:w-36 py-1 h-8 bg-white dark:bg-zinc-900 text-center"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Collapsible Advanced Filters Panel */}
         {showAdvanced && (
