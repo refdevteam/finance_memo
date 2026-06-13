@@ -12,7 +12,7 @@ export interface AICoachInsightResult {
   error?: string
 }
 
-export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoachInsightResult> {
+export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'month'): Promise<AICoachInsightResult> {
   const supabase = createClient()
   
   try {
@@ -53,11 +53,20 @@ export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoa
       const twoDaysAgo = new Date()
       twoDaysAgo.setDate(now.getDate() - 1)
       startDate = toYYYYMMDD(twoDaysAgo)
-    } else {
+    } else if (type === 'weekly') {
       // Last 7 days
       const sevenDaysAgo = new Date()
       sevenDaysAgo.setDate(now.getDate() - 6)
       startDate = toYYYYMMDD(sevenDaysAgo)
+    } else if (type === '30days') {
+      // Last 30 days
+      const thirtyDaysAgo = new Date()
+      thirtyDaysAgo.setDate(now.getDate() - 29)
+      startDate = toYYYYMMDD(thirtyDaysAgo)
+    } else { // 'month'
+      // From 1st of this month
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+      startDate = toYYYYMMDD(firstDayOfMonth)
     }
 
     // Fetch transactions
@@ -145,7 +154,7 @@ export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoa
           "score": 80
         }
       `
-    } else {
+    } else if (type === 'weekly') {
       prompt = `
         Kamu adalah Fimo Coach, asisten keuangan pribadi yang analitis, realistis, dan memotivasi.
         Hasilkan ulasan mingguan singkat tentang kebiasaan keuangan ${userName} (maksimal 3-4 kalimat).
@@ -182,6 +191,68 @@ export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoa
           "score": 75
         }
       `
+    } else if (type === '30days') {
+      prompt = `
+        Kamu adalah Fimo Coach, asisten keuangan pribadi yang profesional, realistis, dan berorientasi jangka panjang.
+        Hasilkan evaluasi keuangan 30 hari terakhir untuk ${userName} (maksimal 4 kalimat) yang merangkum kesehatan tabungan dan pola belanja bulanan.
+        
+        Data Keuangan Pengguna (30 Hari Terakhir):
+        - Streak Mencatat: ${userStreak} Hari berturut-turut
+        - Total Pemasukan: ${currency} ${income.toLocaleString('id-ID')}
+        - Total Pengeluaran: ${currency} ${expense.toLocaleString('id-ID')}
+        - Kategori Belanja & Nominal:
+        ${expenseCategories || 'Tidak ada belanja dalam 30 hari terakhir.'}
+
+        Aturan Penilaian & Output:
+        1. Kembalikan format JSON murni.
+        2. Struktur JSON wajib memiliki key "tip" (string) dan "score" (integer 0-100).
+        3. Aturan Skor Kesehatan Keuangan 30 Hari:
+           - Jika tidak ada transaksi sama sekali (Pemasukan = 0 dan Pengeluaran = 0), skor WAJIB bernilai 0. Tips harus mengajak pengguna untuk mulai membiasakan mencatat pengeluaran bulanannya.
+           - Jika Pengeluaran > Pemasukan (defisit bulanan), skor wajib di bawah 45. Berikan saran alokasi darurat.
+           - Jika rasio tabungan (Pemasukan - Pengeluaran) / Pemasukan >= 20%, berikan skor di atas 80.
+        4. Larangan Halusinasi:
+           - Jangan sebutkan kategori belanja atau pengeluaran spesifik apa pun jika kategori tersebut tidak tertera di data atas.
+        
+        Format output:
+        {
+          "tip": "Evaluasi 30 hari Anda...",
+          "score": 85
+        }
+      `
+    } else { // 'month'
+      prompt = `
+        Kamu adalah Fimo Coach, asisten keuangan pribadi yang kritis, detail, dan realistis.
+        Hasilkan analisis kepatuhan anggaran bulanan berjalan (Bulan Ini) untuk ${userName} (maksimal 4 kalimat).
+        
+        Data Keuangan Pengguna (Bulan Ini):
+        - Total Pemasukan: ${currency} ${income.toLocaleString('id-ID')}
+        - Total Pengeluaran: ${currency} ${expense.toLocaleString('id-ID')}
+        - Kategori Belanja & Nominal:
+        ${expenseCategories || 'Tidak ada belanja di bulan ini.'}
+        
+        Anggaran Terdaftar Bulan Ini (Budgets):
+        ${(budgets || []).map(b => {
+          const budgetCategoryObj = Array.isArray(b.categories) ? b.categories[0] : b.categories
+          const budgetCatName = (budgetCategoryObj as { name: string } | null)?.name || 'Kategori'
+          return `- ${budgetCatName}: ${currency} ${Number(b.amount).toLocaleString('id-ID')}`
+        }).join('\n') || 'Belum ada anggaran terdaftar.'}
+
+        Aturan Penilaian & Output:
+        1. Kembalikan format JSON murni.
+        2. Struktur JSON wajib memiliki key "tip" (string) dan "score" (integer 0-100).
+        3. Aturan Skor Kesehatan Keuangan Bulan Ini:
+           - Jika tidak ada transaksi sama sekali (Pemasukan = 0 dan Pengeluaran = 0), skor WAJIB bernilai 0.
+           - Jika total pengeluaran melebihi total anggaran bulan ini, skor harus di bawah 45.
+           - Berikan evaluasi tentang seberapa baik pengguna mematuhi rencana anggaran bulanan mereka.
+        4. Larangan Halusinasi:
+           - Hanya ulas kategori yang ada di daftar pengeluaran atau anggaran di atas.
+        
+        Format output:
+        {
+          "tip": "Analisis anggaran bulan ini...",
+          "score": 75
+        }
+      `
     }
 
     const hasGemini = !!process.env.GEMINI_API_KEY
@@ -196,19 +267,33 @@ export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoa
             : "Ayo catat transaksi pertama Anda hari ini untuk memulai langkah pertama mengelola keuangan!",
           score: (income === 0 && expense === 0) ? 0 : 85
         }
-      } else {
+      } else if (type === 'weekly') {
         parsedData = {
           tip: expense > 0
             ? `Ulasan mingguan: Pengeluaranmu sebesar Rp${expense.toLocaleString('id-ID')} terpantau rapi. Cobalah alokasikan sisa saldo ke dalam tabungan digital agar tidak terpakai secara tidak sengaja.`
             : "Ulasan mingguan: Belum ada transaksi tercatat dalam 7 hari terakhir. Mari mulai catat pengeluaran atau pemasukan pertamamu agar Fimo bisa menganalisis kebiasaan belanjamu secara detail.",
           score: (income === 0 && expense === 0) ? 0 : 75
         }
+      } else if (type === '30days') {
+        parsedData = {
+          tip: expense > 0
+            ? `Analisis 30 hari terakhir: Pengeluaran total sebesar Rp${expense.toLocaleString('id-ID')} dengan pemasukan Rp${income.toLocaleString('id-ID')}. Pertahankan rasio menabungmu di atas 20% agar finansial jangka panjang aman.`
+            : "Analisis 30 hari terakhir: Belum ada transaksi tercatat selama 30 hari terakhir. Silakan catat transaksi harianmu secara rutin agar Fimo dapat memetakan pola keuangan bulananmu secara akurat.",
+          score: (income === 0 && expense === 0) ? 0 : 80
+        }
+      } else { // 'month'
+        parsedData = {
+          tip: expense > 0
+            ? `Analisis bulan ini: Pola belanja bulananmu terpantau terkontrol. Pastikan pengeluaran tiap kategori tidak melebihi alokasi anggaran yang sudah kamu tetapkan demi menjaga kesehatan dompet.`
+            : "Analisis bulan ini: Belum ada transaksi tercatat untuk bulan ini. Mari buat rancangan anggaran dan catat pengeluaran pertamamu bulan ini agar rencana finansialmu tetap terkendali.",
+          score: (income === 0 && expense === 0) ? 0 : 78
+        }
       }
     } else {
       // Gemini API call
       try {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-        const activeModelName = type === 'daily' ? 'gemini-3.5-flash' : 'gemini-3.5-pro'
+        const activeModelName = (type === 'daily' || type === 'weekly') ? 'gemini-3.5-flash' : 'gemini-3.5-pro'
         
         let model
         try {
@@ -225,25 +310,48 @@ export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoa
       } catch (geminiErr) {
         console.error('Gemini API execution error, fallback to simulation:', geminiErr)
         // Hardcoded safety fallback
-        parsedData = {
-          tip: type === 'daily'
-            ? ((income === 0 && expense === 0) 
-                ? "Mulai catat transaksi pertamamu hari ini agar Fimo Coach bisa menganalisis kesehatan keuanganmu."
-                : "Mulai hari ini dengan menyisihkan 10% pendapatanmu untuk dana darurat sebelum berbelanja.")
-            : ((income === 0 && expense === 0)
-                ? "Ulasan mingguan: Belum ada catatan transaksi. Mari buat catatan pertama Anda agar grafik analisis terisi."
-                : "Ulasan mingguan: Pastikan pengeluaran harianmu tercatat rapi agar laporan grafik bulanan tetap akurat."),
-          score: (income === 0 && expense === 0) ? 0 : 70
+        if (type === 'daily') {
+          parsedData = {
+            tip: (income === 0 && expense === 0) 
+              ? "Mulai catat transaksi pertamamu hari ini agar Fimo Coach bisa menganalisis kesehatan keuanganmu."
+              : "Mulai hari ini dengan menyisihkan 10% pendapatanmu untuk dana darurat sebelum berbelanja.",
+            score: (income === 0 && expense === 0) ? 0 : 70
+          }
+        } else if (type === 'weekly') {
+          parsedData = {
+            tip: (income === 0 && expense === 0)
+              ? "Ulasan mingguan: Belum ada catatan transaksi. Mari buat catatan pertama Anda agar grafik analisis terisi."
+              : "Ulasan mingguan: Pastikan pengeluaran harianmu tercatat rapi agar laporan grafik bulanan tetap akurat.",
+            score: (income === 0 && expense === 0) ? 0 : 70
+          }
+        } else if (type === '30days') {
+          parsedData = {
+            tip: (income === 0 && expense === 0)
+              ? "Analisis 30 hari terakhir: Belum ada transaksi tercatat. Mulailah mencatat transaksi pengeluaran dan pemasukan Anda."
+              : "Analisis 30 hari terakhir: Pengeluaran bulananmu terpantau aktif. Jagalah kebiasaan baik mencatat agar arus kas terpetakan dengan baik.",
+            score: (income === 0 && expense === 0) ? 0 : 70
+          }
+        } else { // 'month'
+          parsedData = {
+            tip: (income === 0 && expense === 0)
+              ? "Analisis bulan ini: Belum ada transaksi tercatat. Buat anggaran pertamamu bulan ini agar pengeluaran lebih terarah."
+              : "Analisis bulan ini: Tetap patuhi batas anggaran per kategori agar kondisi finansial akhir bulan tetap stabil.",
+            score: (income === 0 && expense === 0) ? 0 : 70
+          }
         }
       }
     }
 
     // 4. Save to cache in the database
-    // TTL: Daily = 24 hours | Weekly = 7 days
+    // TTL: Daily = 24 hours | Weekly = 3 days | 30days = 7 days | month = 7 days
     const expireTime = new Date()
     if (type === 'daily') {
       expireTime.setHours(expireTime.getHours() + 24)
-    } else {
+    } else if (type === 'weekly') {
+      expireTime.setDate(expireTime.getDate() + 3)
+    } else if (type === '30days') {
+      expireTime.setDate(expireTime.getDate() + 7)
+    } else { // 'month'
       expireTime.setDate(expireTime.getDate() + 7)
     }
 
