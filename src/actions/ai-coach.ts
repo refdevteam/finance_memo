@@ -192,7 +192,6 @@ export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoa
       try {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
         // Daily: Gemini 3.1 Flash-Lite | Weekly: Gemini 3.5 Pro (we fall back to gemini-3.5-flash if names are not fully provisioned)
-        const modelName = type === 'daily' ? 'gemini-1.5-flash' : 'gemini-1.5-pro' // We map code-safe names here that Google SDK supports dynamically, but user is warned we target Flash-Lite/Pro capability.
         const activeModelName = type === 'daily' ? 'gemini-3.5-flash' : 'gemini-3.5-pro'
         
         let model

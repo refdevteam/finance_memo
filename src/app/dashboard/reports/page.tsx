@@ -103,6 +103,7 @@ export default async function ReportsPage({
   const { data: sixMonthTransactions } = await sixMonthQuery
 
   // 4. Ambil transaksi dompet event secara khusus
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let eventTransactions: any[] = []
   if (eventWalletIds.length > 0) {
     const { data: evTrxs } = await supabase

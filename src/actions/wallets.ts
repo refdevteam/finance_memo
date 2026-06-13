@@ -24,7 +24,7 @@ export async function createWallet(formData: {
   balance: number
   color?: string
   is_event_wallet?: boolean
-  event_metadata?: any
+  event_metadata?: Record<string, unknown>
 }) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
