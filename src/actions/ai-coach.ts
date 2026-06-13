@@ -118,20 +118,26 @@ export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoa
     let prompt = ''
     if (type === 'daily') {
       prompt = `
-        Kamu adalah Fimo Coach, asisten keuangan pribadi yang ramah, ringkas, dan memotivasi.
-        Hasilkan 1 tips keuangan harian yang sangat ringkas (maksimal 2 kalimat) untuk ${userName}.
+        Kamu adalah Fimo Coach, asisten keuangan pribadi yang ramah, realistis, dan memotivasi.
+        Hasilkan 1 tips keuangan harian yang sangat ringkas (maksimal 2 kalimat) untuk ${userName} berdasarkan data nyata di bawah.
         
         Data Keuangan Pengguna (2 Hari Terakhir):
         - Streak Mencatat: ${userStreak} Hari berturut-turut
         - Total Pemasukan: ${currency} ${income.toLocaleString('id-ID')}
         - Total Pengeluaran: ${currency} ${expense.toLocaleString('id-ID')}
-        - Kategori Belanja:
+        - Kategori Belanja & Nominal:
         ${expenseCategories || 'Tidak ada belanja dalam 2 hari terakhir.'}
 
-        Aturan:
+        Aturan Penilaian & Output:
         1. Kembalikan format JSON murni.
-        2. Struktur JSON wajib memiliki key "tip" (string) dan "score" (integer 1-100, mencerminkan skor kesehatan keuangan harian).
-        3. Teks tips harus bersahabat, hindari penjelasan yang kaku, langsung berikan ide praktis/peringatan kecil.
+        2. Struktur JSON wajib memiliki key "tip" (string) dan "score" (integer 0-100).
+        3. Aturan Skor Kesehatan Keuangan Harian (Tingkat Realistis Tinggi):
+           - Jika tidak ada transaksi sama sekali (Pemasukan = 0 dan Pengeluaran = 0), skor WAJIB bernilai 0. Tips harus memotivasi user dengan ramah untuk mulai mencatat transaksi pertamanya agar AI bisa menganalisis.
+           - Jika Pengeluaran > Pemasukan (defisit), skor harus di bawah 50.
+           - Jika Pengeluaran <= Pemasukan, tentukan skor (50-100) berdasarkan persentase tabungan. Berikan sedikit bonus skor jika streak mencatat bertambah banyak.
+        4. Larangan Halusinasi:
+           - Jangan sebutkan kategori belanja apa pun (seperti Makanan, Kopi, Transport) jika kategori tersebut tidak tercatat di dalam "Kategori Belanja" di atas.
+           - Hanya berikan saran taktis berdasarkan data nominal pengeluaran dan pemasukan riil di atas.
         
         Format output:
         {
@@ -141,14 +147,14 @@ export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoa
       `
     } else {
       prompt = `
-        Kamu adalah Fimo Coach, asisten keuangan pribadi yang analitis, ramah, dan memotivasi.
-        Hasilkan ulasan mingguan singkat tentang kebiasaan keuangan ${userName} (maksimal 4 kalimat).
+        Kamu adalah Fimo Coach, asisten keuangan pribadi yang analitis, realistis, dan memotivasi.
+        Hasilkan ulasan mingguan singkat tentang kebiasaan keuangan ${userName} (maksimal 3-4 kalimat).
         
         Data Keuangan Pengguna (7 Hari Terakhir):
         - Streak Mencatat: ${userStreak} Hari berturut-turut
         - Total Pemasukan: ${currency} ${income.toLocaleString('id-ID')}
         - Total Pengeluaran: ${currency} ${expense.toLocaleString('id-ID')}
-        - Kategori Belanja:
+        - Kategori Belanja & Nominal:
         ${expenseCategories || 'Tidak ada belanja dalam 7 hari terakhir.'}
         
         Anggaran Bulan Ini (Budgets):
@@ -158,10 +164,17 @@ export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoa
           return `- ${budgetCatName}: ${currency} ${Number(b.amount).toLocaleString('id-ID')}`
         }).join('\n') || 'Belum ada anggaran terdaftar.'}
 
-        Aturan:
+        Aturan Penilaian & Output:
         1. Kembalikan format JSON murni tanpa markdown blocks.
-        2. Struktur JSON wajib memiliki key "tip" (string, ulasan mingguan lengkap) dan "score" (integer 1-100, skor kesehatan keuangan mingguan).
-        3. Berikan saran taktis tentang kategori yang paling banyak memakan budget atau tips mengoptimalkan tabungan.
+        2. Struktur JSON wajib memiliki key "tip" (string) dan "score" (integer 0-100).
+        3. Aturan Skor Kesehatan Keuangan Mingguan:
+           - Jika tidak ada transaksi sama sekali (Pemasukan = 0 dan Pengeluaran = 0), skor WAJIB bernilai 0. Tips harus memotivasi untuk mulai mencatat keuangan agar analisis berjalan.
+           - Jika Pengeluaran melebihi anggaran yang ditentukan untuk kategori tersebut, skor harus di bawah 40.
+           - Jika Pengeluaran > Pemasukan secara keseluruhan (defisit mingguan), skor harus di bawah 50.
+           - Jika pengeluaran terkontrol dengan baik di bawah batas anggaran, berikan skor 70-100 yang proporsional.
+        4. Larangan Halusinasi:
+           - Jangan berasumsi pengguna membeli barang, berlangganan, atau berbelanja di luar data nyata yang disediakan di atas.
+           - Berikan analisis logis dan kritis mengenai batas anggaran bulanan versus total pengeluaran 7 hari terakhir.
         
         Format output:
         {
@@ -179,23 +192,22 @@ export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoa
       if (type === 'daily') {
         parsedData = {
           tip: userStreak > 0 
-            ? `Hebat! Kamu sudah mencatat ${userStreak} hari berturut-turut. Pertahankan streak-mu hari ini dengan mencatat transaksi sekecil apa pun!`
-            : "Ayo catat transaksi pertamamu hari ini untuk memulai streak baru di Fimo!",
-          score: 85
+            ? `Hebat! Kamu sudah menjaga streak mencatat selama ${userStreak} hari berturut-turut. Yuk pertahankan kebiasaan ini dengan mencatat pengeluaranmu hari ini!`
+            : "Ayo catat transaksi pertama Anda hari ini untuk memulai langkah pertama mengelola keuangan!",
+          score: (income === 0 && expense === 0) ? 0 : 85
         }
       } else {
         parsedData = {
           tip: expense > 0
-            ? `Ulasan mingguan: Pengeluaranmu sebesar Rp${expense.toLocaleString('id-ID')} terlihat teratur. Tips dari Fimo: Coba alokasikan sisa saldo ke saving envelopes virtual agar tidak terpakai secara tidak sengaja.`
-            : "Ulasan mingguan: Belum ada transaksi tercatat dalam 7 hari terakhir. Mulailah mencatat pemasukan atau pengeluaranmu hari ini agar Fimo dapat memantau kesehatan keuanganmu.",
-          score: 75
+            ? `Ulasan mingguan: Pengeluaranmu sebesar Rp${expense.toLocaleString('id-ID')} terpantau rapi. Cobalah alokasikan sisa saldo ke dalam tabungan digital agar tidak terpakai secara tidak sengaja.`
+            : "Ulasan mingguan: Belum ada transaksi tercatat dalam 7 hari terakhir. Mari mulai catat pengeluaran atau pemasukan pertamamu agar Fimo bisa menganalisis kebiasaan belanjamu secara detail.",
+          score: (income === 0 && expense === 0) ? 0 : 75
         }
       }
     } else {
       // Gemini API call
       try {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-        // Daily: Gemini 3.1 Flash-Lite | Weekly: Gemini 3.5 Pro (we fall back to gemini-3.5-flash if names are not fully provisioned)
         const activeModelName = type === 'daily' ? 'gemini-3.5-flash' : 'gemini-3.5-pro'
         
         let model
@@ -215,9 +227,13 @@ export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoa
         // Hardcoded safety fallback
         parsedData = {
           tip: type === 'daily'
-            ? "Mulai hari ini dengan menyisihkan 10% pendapatanmu untuk dana darurat sebelum berbelanja."
-            : "Ulasan mingguan: Pastikan pengeluaran harianmu tercatat rapi agar laporan grafik bulanan tetap akurat.",
-          score: 70
+            ? ((income === 0 && expense === 0) 
+                ? "Mulai catat transaksi pertamamu hari ini agar Fimo Coach bisa menganalisis kesehatan keuanganmu."
+                : "Mulai hari ini dengan menyisihkan 10% pendapatanmu untuk dana darurat sebelum berbelanja.")
+            : ((income === 0 && expense === 0)
+                ? "Ulasan mingguan: Belum ada catatan transaksi. Mari buat catatan pertama Anda agar grafik analisis terisi."
+                : "Ulasan mingguan: Pastikan pengeluaran harianmu tercatat rapi agar laporan grafik bulanan tetap akurat."),
+          score: (income === 0 && expense === 0) ? 0 : 70
         }
       }
     }
