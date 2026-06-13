@@ -127,8 +127,8 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
     let prompt = ''
     if (type === 'daily') {
       prompt = `
-        Kamu adalah Fimo Coach, asisten keuangan pribadi yang ramah, realistis, dan memotivasi.
-        Hasilkan 1 tips keuangan harian yang sangat ringkas (maksimal 2 kalimat) untuk ${userName} berdasarkan data nyata di bawah.
+        Kamu adalah Fimo Coach, asisten keuangan pribadi yang ramah, realistis, dan analitis.
+        Berikan ulasan analisis keuangan singkat berdasarkan data riil 2 hari terakhir di bawah (1 kalimat), lalu ikuti dengan 1 tips keuangan taktis harian (1 kalimat) untuk ${userName}. Total output maksimal 2 kalimat.
         
         Data Keuangan Pengguna (2 Hari Terakhir):
         - Streak Mencatat: ${userStreak} Hari berturut-turut
@@ -157,7 +157,7 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
     } else if (type === 'weekly') {
       prompt = `
         Kamu adalah Fimo Coach, asisten keuangan pribadi yang analitis, realistis, dan memotivasi.
-        Hasilkan ulasan mingguan singkat tentang kebiasaan keuangan ${userName} (maksimal 3-4 kalimat).
+        Berikan ulasan analisis keuangan mingguan terperinci berdasarkan data 7 hari terakhir (2 kalimat) dan evaluasi kepatuhan anggaran (1-2 kalimat) untuk ${userName}. Total output maksimal 4 kalimat.
         
         Data Keuangan Pengguna (7 Hari Terakhir):
         - Streak Mencatat: ${userStreak} Hari berturut-turut
@@ -194,7 +194,7 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
     } else if (type === '30days') {
       prompt = `
         Kamu adalah Fimo Coach, asisten keuangan pribadi yang profesional, realistis, dan berorientasi jangka panjang.
-        Hasilkan evaluasi keuangan 30 hari terakhir untuk ${userName} (maksimal 4 kalimat) yang merangkum kesehatan tabungan dan pola belanja bulanan.
+        Hasilkan ulasan analisis keuangan mendalam mengenai total pemasukan dan pengeluaran 30 hari terakhir, analisis rasio tabungan riil (2 kalimat), serta rekomendasi alokasi taktis jangka panjang (1-2 kalimat) untuk ${userName}. Total output maksimal 4 kalimat.
         
         Data Keuangan Pengguna (30 Hari Terakhir):
         - Streak Mencatat: ${userStreak} Hari berturut-turut
@@ -222,7 +222,7 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
     } else { // 'month'
       prompt = `
         Kamu adalah Fimo Coach, asisten keuangan pribadi yang kritis, detail, dan realistis.
-        Hasilkan analisis kepatuhan anggaran bulanan berjalan (Bulan Ini) untuk ${userName} (maksimal 4 kalimat).
+        Hasilkan ulasan analisis kepatuhan anggaran bulan berjalan (Bulan Ini) dengan membandingkan total pengeluaran per kategori belanja dengan batas anggaran bulanan yang ditentukan (2 kalimat), diikuti rekomendasi penyesuaian arus kas (1-2 kalimat) untuk ${userName}. Total output maksimal 4 kalimat.
         
         Data Keuangan Pengguna (Bulan Ini):
         - Total Pemasukan: ${currency} ${income.toLocaleString('id-ID')}
