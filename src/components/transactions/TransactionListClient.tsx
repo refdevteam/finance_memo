@@ -217,7 +217,7 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
               <InlineSelect 
                 options={dateRangeOptions}
                 value={dateRangeFilter}
-                onChange={(val) => setDateRangeFilter(val as any)}
+                onChange={(val) => setDateRangeFilter(val as 'all' | 'today' | '7days' | '30days' | 'custom')}
               />
             </div>
 
