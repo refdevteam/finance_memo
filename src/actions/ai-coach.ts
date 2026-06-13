@@ -152,7 +152,11 @@ export async function getAICoachInsight(type: 'daily' | 'weekly'): Promise<AICoa
         ${expenseCategories || 'Tidak ada belanja dalam 7 hari terakhir.'}
         
         Anggaran Bulan Ini (Budgets):
-        ${(budgets || []).map(b => `- ${b.categories?.name || 'Kategori'}: ${currency} ${Number(b.amount).toLocaleString('id-ID')}`).join('\n') || 'Belum ada anggaran terdaftar.'}
+        ${(budgets || []).map(b => {
+          const budgetCategoryObj = Array.isArray(b.categories) ? b.categories[0] : b.categories
+          const budgetCatName = (budgetCategoryObj as { name: string } | null)?.name || 'Kategori'
+          return `- ${budgetCatName}: ${currency} ${Number(b.amount).toLocaleString('id-ID')}`
+        }).join('\n') || 'Belum ada anggaran terdaftar.'}
 
         Aturan:
         1. Kembalikan format JSON murni tanpa markdown blocks.
