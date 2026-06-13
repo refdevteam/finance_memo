@@ -1,0 +1,22 @@
+{
+  "version": "v1.3.0",
+  "date": "13 Juni 2026",
+  "items": [
+    {
+      "category": "baru",
+      "text": "Optimalisasi tampilan loading skeleton kustom per halaman"
+    },
+    {
+      "category": "baru",
+      "text": "Penyesuaian warna gelap netral arang/hitam tanpa navy"
+    },
+    {
+      "category": "peningkatan",
+      "text": "Perbaikan responsivitas pop-up dialog grafik di layar HP"
+    },
+    {
+      "category": "peningkatan",
+      "text": "Integrasi sistem streak catatan harian dengan dialog brutalist"
+    }
+  ]
+}

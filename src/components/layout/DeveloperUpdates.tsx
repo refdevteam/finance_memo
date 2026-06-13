@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import updatesData from '@/data/updates-auto.json'
 
 interface UpdateItem {
   category: 'baru' | 'peningkatan'
@@ -21,32 +22,18 @@ interface UpdateItem {
 
 export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: boolean }) {
   const [open, setOpen] = useState(false)
-  const [updates, setUpdates] = useState<UpdateItem[]>([])
-  const [version, setVersion] = useState('v1.3.0')
-  const [dateStr, setDateStr] = useState('13 Juni 2026')
   const [hasNewUpdate, setHasNewUpdate] = useState(false)
 
+  const updates = (updatesData.items || []) as UpdateItem[]
+  const version = updatesData.version || 'v1.3.0'
+  const dateStr = updatesData.date || ''
+
   useEffect(() => {
-    async function fetchUpdates() {
-      try {
-        const res = await fetch('/updates.json')
-        if (res.ok) {
-          const data = await res.json()
-          setUpdates(data.items || [])
-          setVersion(data.version || 'v1.3.0')
-          setDateStr(data.date || '')
-          
-          const viewedVersion = localStorage.getItem('fimo_viewed_version')
-          if (viewedVersion !== data.version) {
-            setHasNewUpdate(true)
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch fallback updates:', err)
-      }
+    const viewedVersion = localStorage.getItem('fimo_viewed_version')
+    if (viewedVersion !== version) {
+      setHasNewUpdate(true)
     }
-    fetchUpdates()
-  }, [])
+  }, [version])
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen)

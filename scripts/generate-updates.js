@@ -2,7 +2,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const OUTPUT_PATH = path.join(__dirname, '../public/updates.json');
+const OUTPUT_PATH = path.join(__dirname, '../src/data/updates-auto.json');
 const PACKAGE_PATH = path.join(__dirname, '../package.json');
 
 // Helper to translate and clean commit messages
@@ -82,7 +82,12 @@ function generateUpdates() {
   console.log('Generating updates.json dynamically from git log...');
   
   let version = 'v1.3.0';
-  let dateStr = '13 Juni 2026';
+  
+  // Use today's date formatted in Indonesian locale as default fallback
+  const today = new Date();
+  const defaultOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+  let dateStr = today.toLocaleDateString('id-ID', defaultOptions);
+  
   const items = [];
 
   // Read version from package.json
