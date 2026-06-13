@@ -31,7 +31,7 @@ export function LoginCardClient() {
         />
       </div>
 
-      <Card className="border-none shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md bg-white/85 dark:bg-slate-900/80 rounded-3xl overflow-hidden mt-8">
+      <Card className="border-none shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md bg-white/85 dark:bg-zinc-900/80 rounded-3xl overflow-hidden mt-8">
         <CardHeader className="text-center space-y-2 pt-10">
           <div className="flex justify-center mb-2">
             <div className="flex items-center space-x-2">

@@ -25,8 +25,8 @@ export function BudgetProgress({ budgets }: BudgetProgressProps) {
 
   if (activeBudgets.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 text-center bg-slate-50/50 dark:bg-slate-900/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
-        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+      <div className="flex flex-col items-center justify-center p-6 text-center bg-slate-50/50 dark:bg-zinc-900/30 rounded-2xl border border-dashed border-slate-200 dark:border-zinc-800">
+        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mb-3">
           <LucideIcons.PiggyBank className="h-5 w-5 text-slate-400" />
         </div>
         <h4 className="font-semibold text-slate-700 dark:text-slate-300 text-xs">Belum Ada Anggaran</h4>
@@ -80,7 +80,7 @@ export function BudgetProgress({ budgets }: BudgetProgressProps) {
             {overallPercentage}%
           </span>
         </div>
-        <div className="h-2.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+        <div className="h-2.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
           <div 
             className={cn(
               "h-full rounded-full transition-all duration-500",
@@ -95,7 +95,7 @@ export function BudgetProgress({ budgets }: BudgetProgressProps) {
         </div>
       </div>
 
-      <div className="h-px bg-slate-100 dark:bg-slate-800" />
+      <div className="h-px bg-slate-100 dark:bg-zinc-800" />
 
       {/* Critical Budgets list */}
       <div className="space-y-3.5">
@@ -147,7 +147,7 @@ export function BudgetProgress({ budgets }: BudgetProgressProps) {
                     </span>
                   </div>
                 </div>
-                <div className="h-1.5 w-full bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-1.5 w-full bg-slate-50 dark:bg-zinc-800 rounded-full overflow-hidden">
                   <div 
                     className={cn("h-full rounded-full transition-all duration-300", barColor)}
                     style={{ width: `${Math.min(b.percentage, 100)}%` }}

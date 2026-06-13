@@ -142,7 +142,7 @@ export function BudgetForm({
                   const val = e.target.value.replace(/[^0-9]/g, '')
                   setAmount(val ? Number(val).toLocaleString('id-ID') : '')
                 }}
-                className="pl-10 pr-4 py-5 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 font-semibold focus-visible:ring-emerald-500"
+                className="pl-10 pr-4 py-5 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 font-semibold focus-visible:ring-emerald-500"
                 required
               />
             </div>
@@ -158,7 +158,7 @@ export function BudgetForm({
               placeholder="Contoh: Batas maksimal jajan kopi"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="py-5 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus-visible:ring-emerald-500"
+              className="py-5 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 focus-visible:ring-emerald-500"
             />
           </div>
 

@@ -146,7 +146,7 @@ export function DashboardWidgetsMobile({
                     <span>{formatRupiah(totalSpent)}</span>
                     <span className="font-extrabold">{budgetPercentage}%</span>
                   </div>
-                  <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-1.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                     <div 
                       className={cn("h-full rounded-full transition-all duration-300", budgetColorClass)}
                       style={{ width: `${Math.min(budgetPercentage, 100)}%` }}
@@ -154,7 +154,7 @@ export function DashboardWidgetsMobile({
                   </div>
                 </>
               ) : (
-                <div className="text-[10px] text-slate-400 italic py-1 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
+                <div className="text-[10px] text-slate-400 italic py-1 text-center border border-dashed border-slate-200 dark:border-zinc-800 rounded-lg">
                   Set Anggaran
                 </div>
               )}
@@ -226,7 +226,7 @@ export function DashboardWidgetsMobile({
             {/* Daftar Kategori & Nominal (Amount) */}
             <div className="w-full mt-6 space-y-2 max-h-[200px] overflow-y-auto pr-1">
               {categoryChartData.map((c) => (
-                <div key={c.name} className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200">
+                <div key={c.name} className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-50 dark:bg-zinc-900/40 border border-slate-100 dark:border-zinc-800/60 hover:bg-slate-100 dark:hover:bg-zinc-800/80 transition-all duration-200">
                   <div className="flex items-center min-w-0">
                     <span className="w-3.5 h-3.5 rounded-full mr-2 shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: c.color }} />
                     <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">{c.name}</span>

@@ -115,7 +115,7 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
         {searchQuery && (
           <button 
             onClick={() => setSearchQuery('')}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 hover:bg-slate-100 dark:hover:bg-slate-800 p-1 rounded-full text-slate-400 transition-colors"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 hover:bg-slate-100 dark:hover:bg-zinc-800 p-1 rounded-full text-slate-400 transition-colors"
           >
             <LucideIcons.X className="h-3.5 w-3.5" />
           </button>
@@ -124,8 +124,8 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
 
       {/* Empty State */}
       {filteredCategories.length === 0 && (
-        <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center bg-slate-50/50 dark:bg-slate-900/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 transition-all">
-          <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+        <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center bg-slate-50/50 dark:bg-zinc-900/30 rounded-3xl border border-dashed border-slate-200 dark:border-zinc-800 transition-all">
+          <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mb-3">
             <LucideIcons.Inbox className="h-6 w-6 text-slate-400" />
           </div>
           <h3 className="font-semibold text-slate-700 dark:text-slate-300 text-sm">Tidak Ada Kategori</h3>
@@ -202,7 +202,7 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
                 "text-[8px] px-2 py-0.5 rounded-full uppercase tracking-wider font-extrabold mt-0.5 sm:mt-1 scale-90",
                 isCustom 
                   ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400" 
-                  : "bg-slate-50 text-slate-500 dark:bg-slate-800/40 dark:text-slate-400"
+                  : "bg-slate-50 text-slate-500 dark:bg-zinc-900/40 dark:text-slate-400"
               )}>
                 {isCustom ? 'Kustom' : 'Sistem'}
               </span>

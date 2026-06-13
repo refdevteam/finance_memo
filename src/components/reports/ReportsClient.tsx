@@ -464,7 +464,7 @@ export function ReportsClient({
       </div>
 
       {/* REPORT CONTENT TO BE CAPTURED */}
-      <div ref={reportRef} className="bg-slate-50 dark:bg-slate-900 p-4 sm:p-6 rounded-3xl space-y-6 sm:space-y-8 print:bg-white print:text-black">
+      <div ref={reportRef} className="bg-slate-50 dark:bg-zinc-900 p-4 sm:p-6 rounded-3xl space-y-6 sm:space-y-8 print:bg-white print:text-black">
 
         {/* REPORT HEADER */}
         <div className="text-center pb-4 border-b border-slate-200 dark:border-slate-800">
@@ -508,7 +508,7 @@ export function ReportsClient({
             </CardContent>
           </Card>
 
-          <Card className="col-span-2 md:col-span-1 report-card-animate opacity-0 bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30 relative min-h-[75px] sm:min-h-[105px] overflow-hidden">
+          <Card className="col-span-2 md:col-span-1 report-card-animate opacity-0 bg-blue-50 dark:bg-zinc-900/40 border-blue-100 dark:border-zinc-800/80 relative min-h-[75px] sm:min-h-[105px] overflow-hidden">
             <CardContent className="p-2 sm:p-5 flex flex-col justify-between h-full">
               <div className="min-w-0 w-full pr-2 sm:pr-0">
                 <p className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 opacity-80 truncate">Arus Kas Bersih</p>
@@ -516,7 +516,7 @@ export function ReportsClient({
                   {formatRupiah(netSavings)}
                 </h3>
               </div>
-              <div className="absolute bottom-1.5 right-1.5 sm:bottom-4 sm:right-4 bg-blue-100 dark:bg-blue-900/40 p-1.5 sm:p-2.5 rounded-full flex items-center justify-center shadow-xs">
+              <div className="absolute bottom-1.5 right-1.5 sm:bottom-4 sm:right-4 bg-blue-100 dark:bg-zinc-850 p-1.5 sm:p-2.5 rounded-full flex items-center justify-center shadow-xs">
                 <Wallet className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
               </div>
             </CardContent>
@@ -662,7 +662,7 @@ export function ReportsClient({
                 <motion.div 
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
-                  className="mt-2 text-xs text-muted-foreground leading-relaxed bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/30 rounded-xl p-3"
+                  className="mt-2 text-xs text-muted-foreground leading-relaxed bg-indigo-50/50 dark:bg-zinc-900/40 border border-indigo-100/50 dark:border-zinc-800/80 rounded-xl p-3"
                 >
                   Jika hari gajian Anda tidak jatuh di awal bulan (misalnya tanggal 25 atau 30), disarankan untuk memilih penyaringan rentang waktu <strong>&ldquo;30 Hari Terakhir&rdquo;</strong> pada opsi di atas. Ini membantu Fimo menganalisis pemasukan dan pengeluaran Anda pasca-gajian secara lebih presisi, alih-alih terbagi dalam dua bulan kalender yang berbeda.
                 </motion.div>
@@ -706,7 +706,7 @@ export function ReportsClient({
                   </div>
                 </>
               ) : (
-                <div style={{ height: isMobile ? 150 : 260 }} className="flex items-center justify-center text-slate-400 text-xs sm:text-sm text-center p-2 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                <div style={{ height: isMobile ? 150 : 260 }} className="flex items-center justify-center text-slate-400 text-xs sm:text-sm text-center p-2 border border-dashed border-slate-200 dark:border-zinc-800 rounded-xl">
                   Belum ada data pengeluaran periode ini.
                 </div>
               )}
@@ -727,7 +727,7 @@ export function ReportsClient({
                   </Card>
                 }
               />
-              <DialogContent className="max-w-[640px] w-[92vw] rounded-2xl p-6 md:p-8 bg-white dark:bg-slate-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)] overflow-y-auto max-h-[90vh]">
+              <DialogContent className="sm:max-w-[640px] w-[92vw] rounded-2xl p-4 sm:p-6 md:p-8 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)] overflow-y-auto max-h-[90vh]">
                 <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80">
                   <DialogTitle className="text-lg font-bold tracking-tight text-neutral-900 dark:text-white flex items-center gap-2">
                     <TrendingUp className="h-5 w-5 text-indigo-500" />
@@ -738,23 +738,23 @@ export function ReportsClient({
                   </DialogDescription>
                 </DialogHeader>
 
-                <div className="py-4 space-y-6">
+                <div className="py-2 sm:py-4 space-y-4 sm:space-y-6">
                   {/* Large Chart */}
-                  <div className="bg-slate-50 dark:bg-neutral-900/40 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800">
-                    <SixMonthTrendChart data={trendChartData} height={320} />
+                  <div className="bg-slate-50 dark:bg-neutral-900/40 p-2 sm:p-4 rounded-xl border border-neutral-100 dark:border-neutral-800">
+                    <SixMonthTrendChart data={trendChartData} height={isMobile ? 180 : 320} />
                   </div>
 
                   {/* Detailed Table */}
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500">Tabel Arus Kas Bulanan:</h4>
                     <div className="overflow-x-auto border border-neutral-200 dark:border-neutral-800 rounded-xl">
-                      <table className="w-full text-left border-collapse text-xs">
+                      <table className="w-full text-left border-collapse text-[10px] sm:text-xs">
                         <thead>
                           <tr className="bg-slate-50 dark:bg-zinc-900/50 text-neutral-500 font-bold border-b border-neutral-200 dark:border-neutral-800">
-                            <th className="p-3">Periode</th>
-                            <th className="p-3 text-right">Pemasukan</th>
-                            <th className="p-3 text-right">Pengeluaran</th>
-                            <th className="p-3 text-right">Bersih</th>
+                            <th className="p-2 sm:p-3">Periode</th>
+                            <th className="p-2 sm:p-3 text-right">Pemasukan</th>
+                            <th className="p-2 sm:p-3 text-right">Pengeluaran</th>
+                            <th className="p-2 sm:p-3 text-right">Bersih</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-neutral-150 dark:divide-neutral-800">
@@ -762,11 +762,11 @@ export function ReportsClient({
                             const net = row.income - row.expense
                             return (
                               <tr key={i} className="hover:bg-neutral-50 dark:hover:bg-neutral-900/40 transition-colors">
-                                <td className="p-3 font-semibold text-neutral-800 dark:text-neutral-200">{row.date}</td>
-                                <td className="p-3 text-right text-emerald-600 font-mono font-bold">{formatRupiah(row.income)}</td>
-                                <td className="p-3 text-right text-rose-600 font-mono font-bold">{formatRupiah(row.expense)}</td>
+                                <td className="p-2 sm:p-3 font-semibold text-neutral-800 dark:text-neutral-200">{row.date}</td>
+                                <td className="p-2 sm:p-3 text-right text-emerald-600 font-mono font-bold">{formatRupiah(row.income)}</td>
+                                <td className="p-2 sm:p-3 text-right text-rose-600 font-mono font-bold">{formatRupiah(row.expense)}</td>
                                 <td className={cn(
-                                  "p-3 text-right font-mono font-bold",
+                                  "p-2 sm:p-3 text-right font-mono font-bold",
                                   net >= 0 ? "text-blue-600 dark:text-blue-400" : "text-amber-600"
                                 )}>{formatRupiah(net)}</td>
                               </tr>
@@ -797,8 +797,8 @@ export function ReportsClient({
               const balance = income - expense
 
               return (
-                <Card key={w.id} className="border-2 border-black dark:border-slate-800 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.05)] rounded-2xl overflow-hidden">
-                  <CardHeader className="bg-slate-100/60 dark:bg-slate-900/50 pb-3 flex flex-row items-center justify-between border-b border-border/60">
+                <Card key={w.id} className="border-2 border-black dark:border-zinc-800 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.05)] rounded-2xl overflow-hidden">
+                  <CardHeader className="bg-slate-100/60 dark:bg-zinc-900/50 pb-3 flex flex-row items-center justify-between border-b border-border/60">
                     <div>
                       <CardTitle className="text-base font-bold">{w.name}</CardTitle>
                       <p className="text-[10px] text-muted-foreground mt-0.5">Dompet Khusus Event / Perjalanan</p>
@@ -830,7 +830,7 @@ export function ReportsClient({
                       {trxs.length > 0 ? (
                         <div className="space-y-1.5 max-h-[150px] overflow-y-auto pr-1">
                           {trxs.map((t, idx) => (
-                            <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-xl bg-white dark:bg-black/10 border border-slate-100 dark:border-slate-800 shadow-3xs">
+                            <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-xl bg-white dark:bg-black/10 border border-slate-100 dark:border-zinc-800 shadow-3xs">
                               <div className="min-w-0 flex-1">
                                 <p className="font-bold text-slate-850 dark:text-slate-200 truncate">{t.description || 'Tanpa deskripsi'}</p>
                                 <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -847,7 +847,7 @@ export function ReportsClient({
                           ))}
                         </div>
                       ) : (
-                        <p className="text-[10px] text-slate-400 text-center py-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                        <p className="text-[10px] text-slate-400 text-center py-4 border border-dashed border-slate-200 dark:border-zinc-800 rounded-xl">
                           Belum ada transaksi di dompet ini untuk periode ini.
                         </p>
                       )}

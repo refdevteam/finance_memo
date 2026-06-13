@@ -20,7 +20,7 @@ export default async function WalletsPage() {
 
       {wallets.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl space-y-4">
-          <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-full">
+          <div className="p-4 bg-slate-50 dark:bg-zinc-900 rounded-full">
             <WalletIcon className="h-10 w-10 text-slate-300" />
           </div>
           <div className="text-center">

@@ -24,7 +24,7 @@ export function DashboardRangeToggle() {
   }
 
   return (
-    <div className="inline-flex items-center bg-slate-100 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-800/50 p-1 rounded-full shadow-xs">
+    <div className="inline-flex items-center bg-slate-100 dark:bg-zinc-900/80 border border-slate-200/60 dark:border-zinc-800/50 p-1 rounded-full shadow-xs">
       <button
         onClick={() => handleRangeChange('30days')}
         className={cn(

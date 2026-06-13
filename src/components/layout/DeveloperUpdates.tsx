@@ -19,6 +19,109 @@ interface UpdateItem {
   details?: string
 }
 
+// Helper to filter out development/sensitive updates and translate technical jargon to friendly Indonesian
+const cleanAndFormatText = (text: string): { category: 'baru' | 'peningkatan'; text: string } | null => {
+  let cleaned = text.trim()
+  
+  if (!cleaned) return null
+
+  // 1. Filter out development or sensitive details
+  const filterKeywords = [
+    'vercel', 'build', 'ci', 'cd', 'config', 'ignore', 'lint', 'env', 'secret',
+    'key', 'db migration', 'migration', 'deployment', 'deploy', 'test', 'setup',
+    'npm', 'package', 'dependency', 'webpack', 'hotfix', 'pipeline', 'credentials',
+    'token', 'auth config', 'api key', 'password', 'supabase trigger', 'schema',
+    'github workflow', 'eslint', 'compile error', 'syntax error'
+  ]
+  const lowerText = cleaned.toLowerCase()
+  if (filterKeywords.some(keyword => lowerText.includes(keyword))) {
+    return null
+  }
+
+  // 2. Detect and strip prefixes (feat:, fix:, chore:, refactor:, etc.)
+  let category: 'baru' | 'peningkatan' = 'baru'
+  
+  if (/^(feat|feature|baru):/i.test(cleaned)) {
+    category = 'baru'
+    cleaned = cleaned.replace(/^(feat|feature|baru):/i, '')
+  } else if (/^(fix|bug|perbaikan|peningkatan):/i.test(cleaned)) {
+    category = 'peningkatan'
+    cleaned = cleaned.replace(/^(fix|bug|perbaikan|peningkatan):/i, '')
+  } else if (/^(refactor|style|perf|chore):/i.test(cleaned)) {
+    category = 'peningkatan'
+    cleaned = cleaned.replace(/^(refactor|style|perf|chore):/i, '')
+  }
+
+  cleaned = cleaned.trim()
+
+  // 3. Translate technical terms into friendly Indonesian
+  const translations: [RegExp, string][] = [
+    [/mobile/gi, 'HP'],
+    [/wallet/gi, 'dompet'],
+    [/budget/gi, 'anggaran'],
+    [/transaction/gi, 'transaksi'],
+    [/chart|graph/gi, 'grafik'],
+    [/auth|login/gi, 'masuk akun'],
+    [/streak/gi, 'streak catatan'],
+    [/UI|design/gi, 'tampilan'],
+    [/button/gi, 'tombol'],
+    [/error|crash/gi, 'kendala'],
+    [/optimize|optimization/gi, 'optimalisasi'],
+    [/caching|cache/gi, 'penyimpanan sementara'],
+    [/mascot/gi, 'maskot Fimo']
+  ]
+
+  translations.forEach(([regex, replacer]) => {
+    cleaned = cleaned.replace(regex, replacer)
+  })
+
+  // Capitalize first letter
+  cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
+
+  return {
+    category,
+    text: cleaned
+  }
+}
+
+// Helper to parse GitHub release body into styled items
+const parseReleaseBody = (body: string) => {
+  if (!body) return []
+  const lines = body.split('\n')
+  let currentCategory: 'baru' | 'peningkatan' = 'baru'
+  const items: { category: 'baru' | 'peningkatan'; text: string; details?: string }[] = []
+  
+  lines.forEach(line => {
+    const trimmed = line.trim()
+    if (!trimmed) return
+    
+    // Detect section headers (including 'feat' and 'fix')
+    const lower = trimmed.toLowerCase()
+    if (lower.includes('baru') || lower.includes('added') || lower.includes('features') || lower.includes('feat')) {
+      currentCategory = 'baru'
+      return
+    }
+    if (lower.includes('peningkatan') || lower.includes('improved') || lower.includes('fixed') || lower.includes('perbaikan') || lower.includes('fix')) {
+      currentCategory = 'peningkatan'
+      return
+    }
+    
+    // Match bullet points: - item, * item, or 1. item
+    if (trimmed.startsWith('-') || trimmed.startsWith('*') || /^\d+\./.test(trimmed)) {
+      const textOnly = trimmed.replace(/^[-*\s]+|^\d+\.\s*/, '')
+      const cleanedObj = cleanAndFormatText(textOnly)
+      if (cleanedObj) {
+        items.push({
+          category: cleanedObj.category || currentCategory,
+          text: cleanedObj.text
+        })
+      }
+    }
+  })
+  
+  return items
+}
+
 export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: boolean }) {
   const [open, setOpen] = useState(false)
   const [updates, setUpdates] = useState<UpdateItem[]>([])
@@ -28,6 +131,49 @@ export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: bo
 
   useEffect(() => {
     async function fetchUpdates() {
+      try {
+        // Try fetching from GitHub releases first
+        const gitRes = await fetch('https://api.github.com/repos/refdevteam/finance_memo/releases')
+        if (gitRes.ok) {
+          const gitData = await gitRes.json()
+          if (Array.isArray(gitData) && gitData.length > 0) {
+            const latestRelease = gitData[0]
+            const items = parseReleaseBody(latestRelease.body || '')
+            
+            if (items.length > 0) {
+              setUpdates(items)
+            } else {
+              // fallback if body has no bullet points
+              const cleanedObj = cleanAndFormatText(latestRelease.name || 'Pembaruan Fimo Baru')
+              setUpdates([
+                { 
+                  category: cleanedObj?.category || 'baru', 
+                  text: cleanedObj?.text || latestRelease.name || 'Pembaruan Fimo Baru', 
+                  details: latestRelease.body ? cleanAndFormatText(latestRelease.body)?.text : undefined 
+                }
+              ])
+            }
+            
+            setVersion(latestRelease.tag_name || 'v1.3.0')
+            
+            if (latestRelease.published_at) {
+              const date = new Date(latestRelease.published_at)
+              const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' }
+              setDateStr(date.toLocaleDateString('id-ID', options))
+            }
+            
+            const viewedVersion = localStorage.getItem('fimo_viewed_version')
+            if (viewedVersion !== latestRelease.tag_name) {
+              setHasNewUpdate(true)
+            }
+            return
+          }
+        }
+      } catch (err) {
+        console.warn('GitHub releases fetch failed, falling back to updates.json:', err)
+      }
+
+      // Fallback to local updates.json
       try {
         const res = await fetch('/updates.json')
         if (res.ok) {
@@ -42,7 +188,7 @@ export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: bo
           }
         }
       } catch (err) {
-        console.error('Failed to fetch developer updates:', err)
+        console.error('Failed to fetch fallback updates:', err)
       }
     }
     fetchUpdates()
@@ -114,7 +260,7 @@ export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: bo
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger render={triggerButton} />
-      <DialogContent className="max-w-[480px] w-[92vw] overflow-y-auto max-h-[85vh] rounded-2xl p-6 md:p-8 bg-white dark:bg-slate-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)]">
+      <DialogContent className="sm:max-w-[480px] w-[92vw] overflow-y-auto max-h-[85vh] rounded-2xl p-4 sm:p-6 md:p-8 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)]">
         <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80">
           <div className="flex items-center space-x-2">
             <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
@@ -133,7 +279,7 @@ export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: bo
 
         <div className="py-4 space-y-5">
           {/* Release version & timestamp */}
-          <div className="flex flex-wrap items-center justify-between gap-2 bg-neutral-50 dark:bg-slate-800/30 p-3 rounded-xl border-2 border-black dark:border-neutral-700">
+          <div className="flex flex-wrap items-center justify-between gap-2 bg-neutral-50 dark:bg-zinc-900/30 p-3 rounded-xl border-2 border-black dark:border-neutral-700">
             <div className="flex items-center space-x-2 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
               <Badge variant="outline" className="bg-[#f3c9b6]/30 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border-amber-500/20 font-bold px-2 py-0.5 font-mono text-[10px] tracking-wider uppercase">
                 {version}
@@ -147,32 +293,50 @@ export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: bo
           </div>
 
           {/* List of updates */}
-          <div className="space-y-3.5 max-h-[40vh] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-slate-800">
-            {updates.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-start space-x-3 p-3.5 rounded-xl bg-white dark:bg-slate-900 border-2 border-black dark:border-neutral-700 shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_rgba(0,0,0,1)] transition-all duration-150"
-              >
-                <div className="mt-0.5 shrink-0">
-                  <CheckCircle className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                    <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200 leading-tight">
-                      {item.text}
-                    </span>
-                    <Badge variant="outline" className={`text-[9px] px-1.5 py-0 border font-semibold rounded-md ${getBadgeColor(item.category)}`}>
-                      {getBadgeLabel(item.category)}
-                    </Badge>
+          {updates.length > 0 ? (
+            <div className="space-y-3.5 max-h-[40vh] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-zinc-800">
+              {updates.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-start space-x-3 p-3.5 rounded-xl bg-white dark:bg-zinc-900 border-2 border-black dark:border-neutral-700 shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_rgba(0,0,0,1)] transition-all duration-150"
+                >
+                  <div className="mt-0.5 shrink-0">
+                    <CheckCircle className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
                   </div>
-                  {item.details && (
-                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
-                      {item.details}
-                    </p>
-                  )}
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                      <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200 leading-tight">
+                        {item.text}
+                      </span>
+                      <Badge variant="outline" className={`text-[9px] px-1.5 py-0 border font-semibold rounded-md ${getBadgeColor(item.category)}`}>
+                        {getBadgeLabel(item.category)}
+                      </Badge>
+                    </div>
+                    {item.details && (
+                      <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                        {item.details}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 text-center py-6">
+              Tidak ada detail pembaruan ramah-pengguna untuk versi ini.
+            </p>
+          )}
+
+          {/* Link to GitHub Releases */}
+          <div className="pt-3 text-center border-t border-neutral-100 dark:border-neutral-800/80">
+            <a 
+              href="https://github.com/refdevteam/finance_memo/releases" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[10px] font-bold text-indigo-650 dark:text-indigo-400 hover:underline inline-flex items-center gap-1"
+            >
+              Lihat Riwayat Pembaruan di GitHub →
+            </a>
           </div>
         </div>
 

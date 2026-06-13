@@ -30,9 +30,9 @@ export default async function DashboardLayout({
   const recordStreak = profileRes.data?.record_streak || 0
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-background">
       <Sidebar wallets={wallets} categories={categories} recordStreak={recordStreak} />
-      <main className="flex-1 overflow-y-auto h-screen pt-14 md:pt-0 pb-28 md:pb-0">
+      <main className="flex-1 overflow-y-auto h-screen pt-20 md:pt-0 pb-28 md:pb-0">
         <WalletWarningBanner walletsCount={wallets.length} />
         {children}
       </main>

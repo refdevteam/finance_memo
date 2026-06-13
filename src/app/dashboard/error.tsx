@@ -18,7 +18,7 @@ export default function DashboardError({
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center p-4">
-      <div className="bg-white dark:bg-slate-900 border border-rose-100 dark:border-rose-900/50 rounded-3xl p-8 max-w-md w-full text-center shadow-sm relative overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 border border-rose-100 dark:border-rose-900/50 rounded-3xl p-8 max-w-md w-full text-center shadow-sm relative overflow-hidden">
         {/* Background blobs for aesthetic */}
         <div className="absolute -top-12 -right-12 w-32 h-32 bg-rose-100/50 dark:bg-rose-900/20 rounded-full blur-2xl" />
         <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-rose-50 dark:bg-rose-900/10 rounded-full blur-xl" />
@@ -45,7 +45,7 @@ export default function DashboardError({
           </Button>
           
           {error.message && (
-            <p className="mt-4 text-xs text-slate-400 dark:text-slate-500 break-all bg-slate-50 dark:bg-slate-950 p-2 rounded-lg">
+            <p className="mt-4 text-xs text-slate-400 dark:text-slate-500 break-all bg-slate-50 dark:bg-background p-2 rounded-lg">
               {error.message}
             </p>
           )}

@@ -58,18 +58,18 @@ export function FloatingMascot() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 10 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="mb-2 max-w-[200px] md:max-w-[240px] bg-white dark:bg-slate-900 border border-indigo-100 dark:border-indigo-950 p-3 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-slate-700 dark:text-slate-200 text-[11px] leading-relaxed relative pointer-events-auto"
+            className="mb-2 max-w-[200px] md:max-w-[240px] bg-white dark:bg-zinc-900 border border-indigo-100 dark:border-zinc-800 p-3 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-slate-700 dark:text-slate-200 text-[11px] leading-relaxed relative pointer-events-auto"
           >
             {/* Close Button */}
             <button 
               onClick={() => setShowBubble(false)}
-              className="absolute top-1.5 right-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="absolute top-1.5 right-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <X className="h-3 w-3" />
             </button>
             <p className="pr-3 font-medium">{bubbleText}</p>
             {/* Bubble Tail */}
-            <div className="absolute bottom-[-6px] right-6 w-3 h-3 bg-white dark:bg-slate-900 border-r border-b border-indigo-100 dark:border-indigo-950 rotate-45" />
+            <div className="absolute bottom-[-6px] right-6 w-3 h-3 bg-white dark:bg-zinc-900 border-r border-b border-indigo-100 dark:border-zinc-800 rotate-45" />
           </motion.div>
         )}
       </AnimatePresence>

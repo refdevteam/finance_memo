@@ -74,7 +74,7 @@ export function HelpGuidance() {
       iconBg: 'bg-[#c5b0f4]/20 dark:bg-indigo-500/20',
       iconColor: 'text-[#c5b0f4] dark:text-indigo-400',
       visual: (
-        <div className="flex flex-col items-center justify-center p-4 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-neutral-100 dark:border-neutral-800/80 space-y-2">
+        <div className="flex flex-col items-center justify-center p-4 bg-slate-50 dark:bg-zinc-900/40 rounded-xl border border-neutral-100 dark:border-neutral-800/80 space-y-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/mascot.png" alt="Mascot Welcome" className="w-16 h-16 object-contain drop-shadow-sm animate-bounce" />
           <span className="text-[10px] font-mono text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Asisten Fimo</span>
@@ -90,7 +90,7 @@ export function HelpGuidance() {
       iconColor: 'text-emerald-600 dark:text-emerald-400',
       visual: (
         <div className="flex flex-col items-center p-4 bg-[#c8e6cd]/10 dark:bg-emerald-950/10 rounded-xl border border-neutral-100 dark:border-neutral-800/80 space-y-3 w-full">
-          <div className="flex items-center justify-between w-full bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-neutral-200/50 dark:border-neutral-800/60 shadow-xs">
+          <div className="flex items-center justify-between w-full bg-white dark:bg-zinc-900 p-2.5 rounded-lg border border-neutral-200/50 dark:border-neutral-800/60 shadow-xs">
             <div className="flex items-center space-x-2">
               <span className="text-xl">💳</span>
               <div className="text-left">
@@ -119,15 +119,15 @@ export function HelpGuidance() {
       iconColor: 'text-rose-600 dark:text-rose-400',
       visual: (
         <div className="flex items-center justify-around p-3 bg-[#efd4d4]/10 dark:bg-rose-950/10 rounded-xl border border-neutral-100 dark:border-neutral-800/80 w-full gap-2">
-          <div className="flex flex-col items-center p-2 bg-white dark:bg-slate-900 rounded-lg border border-neutral-200/50 dark:border-neutral-800/60 shadow-xs w-16">
+          <div className="flex flex-col items-center p-2 bg-white dark:bg-zinc-900 rounded-lg border border-neutral-200/50 dark:border-neutral-800/60 shadow-xs w-16">
             <span className="text-lg">🍔</span>
             <span className="text-[9px] font-bold text-neutral-500 mt-1">Makanan</span>
           </div>
-          <div className="flex flex-col items-center p-2 bg-white dark:bg-slate-900 rounded-lg border border-neutral-200/50 dark:border-neutral-800/60 shadow-xs w-16">
+          <div className="flex flex-col items-center p-2 bg-white dark:bg-zinc-900 rounded-lg border border-neutral-200/50 dark:border-neutral-800/60 shadow-xs w-16">
             <span className="text-lg">🚗</span>
             <span className="text-[9px] font-bold text-neutral-500 mt-1">Transport</span>
           </div>
-          <div className="flex flex-col items-center p-2 bg-white dark:bg-slate-900 rounded-lg border border-neutral-200/50 dark:border-neutral-800/60 shadow-xs w-16">
+          <div className="flex flex-col items-center p-2 bg-white dark:bg-zinc-900 rounded-lg border border-neutral-200/50 dark:border-neutral-800/60 shadow-xs w-16">
             <span className="text-lg">💵</span>
             <span className="text-[9px] font-bold text-neutral-500 mt-1">Gaji</span>
           </div>
@@ -147,7 +147,7 @@ export function HelpGuidance() {
             <Sparkles className="h-3.5 w-3.5 animate-pulse" />
             <span className="font-mono uppercase tracking-wide">Kamera Scan Struk AI Aktif</span>
           </div>
-          <div className="w-full bg-white dark:bg-slate-900 h-10 rounded-lg border border-neutral-200/50 dark:border-neutral-800/60 flex items-center justify-center text-[10px] text-neutral-400">
+          <div className="w-full bg-white dark:bg-zinc-900 h-10 rounded-lg border border-neutral-200/50 dark:border-neutral-800/60 flex items-center justify-center text-[10px] text-neutral-400">
             [ Foto Nota Belanja Anda ]
           </div>
         </div>
@@ -166,7 +166,7 @@ export function HelpGuidance() {
             <span className="text-neutral-700 dark:text-neutral-300">Batas Jajan Kopi</span>
             <span className="text-sky-600 dark:text-sky-400 font-mono">75% terpakai</span>
           </div>
-          <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+          <div className="w-full bg-slate-200 dark:bg-zinc-800 h-2 rounded-full overflow-hidden">
             <div className="bg-sky-500 h-full rounded-full w-3/4" />
           </div>
         </div>
@@ -180,7 +180,7 @@ export function HelpGuidance() {
       iconBg: 'bg-[#c5b0f4]/20 dark:bg-blue-500/20',
       iconColor: 'text-blue-600 dark:text-blue-400',
       visual: (
-        <div className="flex items-center justify-between p-3 bg-[#c5b0f4]/10 dark:bg-blue-950/10 rounded-xl border border-neutral-100 dark:border-neutral-800/80 w-full text-xs font-bold text-neutral-600 dark:text-neutral-300">
+        <div className="flex items-center justify-between p-3 bg-[#c5b0f4]/10 dark:bg-zinc-900/30 rounded-xl border border-neutral-100 dark:border-neutral-800/80 w-full text-xs font-bold text-neutral-600 dark:text-neutral-300">
           <span>🏦 Rekening Bank</span>
           <ArrowLeftRight className="h-4 w-4 text-indigo-500 animate-pulse" />
           <span>📱 Dompet Digital</span>
@@ -211,7 +211,7 @@ export function HelpGuidance() {
       iconBg: 'bg-indigo-500/10 dark:bg-indigo-500/20',
       iconColor: 'text-indigo-650 dark:text-indigo-400',
       visual: (
-        <div className="flex items-center justify-between p-3 bg-indigo-500/5 dark:bg-indigo-950/10 rounded-xl border-2 border-black dark:border-neutral-800 w-full text-xs font-mono">
+        <div className="flex items-center justify-between p-3 bg-indigo-500/5 dark:bg-zinc-900/30 rounded-xl border-2 border-black dark:border-neutral-800 w-full text-xs font-mono">
           <div className="flex items-center gap-2">
             <span>📅</span>
             <div className="text-left">
@@ -231,7 +231,7 @@ export function HelpGuidance() {
       iconBg: 'bg-orange-500/10 dark:bg-orange-500/20',
       iconColor: 'text-orange-500 dark:text-orange-400',
       visual: (
-        <div className="flex flex-col items-center p-3 bg-orange-500/5 dark:bg-orange-950/10 rounded-xl border-2 border-black dark:border-neutral-800 w-full space-y-1">
+        <div className="flex flex-col items-center p-3 bg-orange-500/5 dark:bg-zinc-900/30 rounded-xl border-2 border-black dark:border-neutral-800 w-full space-y-1">
           <div className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400 font-bold">
             <Flame className="h-5 w-5 animate-pulse text-orange-500 fill-orange-500/20" />
             <span className="text-sm font-mono tracking-wider">5 Hari Berturut-turut!</span>
@@ -259,7 +259,7 @@ export function HelpGuidance() {
           </Button>
         }
       />
-      <DialogContent className="max-w-[480px] w-[92vw] rounded-2xl p-6 md:p-8 bg-white dark:bg-slate-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)] overflow-hidden min-h-[440px] flex flex-col justify-between">
+      <DialogContent className="sm:max-w-[480px] w-[92vw] rounded-2xl p-4 sm:p-6 md:p-8 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)] overflow-hidden min-h-[440px] flex flex-col justify-between">
         
         <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80">
           <DialogTitle className="text-[10px] font-mono font-medium text-neutral-500 dark:text-neutral-500 uppercase tracking-wider">
@@ -327,7 +327,7 @@ export function HelpGuidance() {
             variant="ghost"
             onClick={handlePrev}
             disabled={step === 1}
-            className="rounded-full text-xs font-semibold px-4 py-2 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-slate-900/50 transition-all"
+            className="rounded-full text-xs font-semibold px-4 py-2 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-zinc-900/50 transition-all"
           >
             <ChevronLeft className="mr-1.5 h-4 w-4" /> Sebelumnya
           </Button>
