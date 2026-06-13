@@ -518,7 +518,8 @@ export function ReportsClient({
                 <Wallet className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
               </div>
             </CardContent>
-          </Card        </div>
+          </Card>
+        </div>
 
         {/* FIMO AI MONTHLY INSIGHTS */}
         <Card className={cn(
