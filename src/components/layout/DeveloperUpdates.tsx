@@ -19,161 +19,15 @@ interface UpdateItem {
   details?: string
 }
 
-// Helper to filter out development/sensitive updates and translate technical jargon to friendly Indonesian
-const cleanAndFormatText = (text: string): { category: 'baru' | 'peningkatan'; text: string } | null => {
-  let cleaned = text.trim()
-  
-  if (!cleaned) return null
-
-  // 1. Filter out development or sensitive details
-  const filterKeywords = [
-    'vercel', 'build', 'ci', 'cd', 'config', 'ignore', 'lint', 'env', 'secret',
-    'key', 'db migration', 'migration', 'deployment', 'deploy', 'test', 'setup',
-    'npm', 'package', 'dependency', 'webpack', 'hotfix', 'pipeline', 'credentials',
-    'token', 'auth config', 'api key', 'password', 'supabase trigger', 'schema',
-    'github workflow', 'eslint', 'compile error', 'syntax error'
-  ]
-  const lowerText = cleaned.toLowerCase()
-  if (filterKeywords.some(keyword => lowerText.includes(keyword))) {
-    return null
-  }
-
-  // 2. Detect and strip prefixes (feat:, fix:, chore:, refactor:, etc.)
-  let category: 'baru' | 'peningkatan' = 'baru'
-  
-  if (/^(feat|feature|baru):/i.test(cleaned)) {
-    category = 'baru'
-    cleaned = cleaned.replace(/^(feat|feature|baru):/i, '')
-  } else if (/^(fix|bug|perbaikan|peningkatan):/i.test(cleaned)) {
-    category = 'peningkatan'
-    cleaned = cleaned.replace(/^(fix|bug|perbaikan|peningkatan):/i, '')
-  } else if (/^(refactor|style|perf|chore):/i.test(cleaned)) {
-    category = 'peningkatan'
-    cleaned = cleaned.replace(/^(refactor|style|perf|chore):/i, '')
-  }
-
-  cleaned = cleaned.trim()
-
-  // 3. Translate technical terms into friendly Indonesian
-  const translations: [RegExp, string][] = [
-    [/mobile/gi, 'HP'],
-    [/wallet/gi, 'dompet'],
-    [/budget/gi, 'anggaran'],
-    [/transaction/gi, 'transaksi'],
-    [/chart|graph/gi, 'grafik'],
-    [/auth|login/gi, 'masuk akun'],
-    [/streak/gi, 'streak catatan'],
-    [/UI|design/gi, 'tampilan'],
-    [/button/gi, 'tombol'],
-    [/error|crash/gi, 'kendala'],
-    [/optimize|optimization/gi, 'optimalisasi'],
-    [/caching|cache/gi, 'penyimpanan sementara'],
-    [/mascot/gi, 'maskot Fimo']
-  ]
-
-  translations.forEach(([regex, replacer]) => {
-    cleaned = cleaned.replace(regex, replacer)
-  })
-
-  // Capitalize first letter
-  cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
-
-  return {
-    category,
-    text: cleaned
-  }
-}
-
-// Helper to parse GitHub release body into styled items
-const parseReleaseBody = (body: string) => {
-  if (!body) return []
-  const lines = body.split('\n')
-  let currentCategory: 'baru' | 'peningkatan' = 'baru'
-  const items: { category: 'baru' | 'peningkatan'; text: string; details?: string }[] = []
-  
-  lines.forEach(line => {
-    const trimmed = line.trim()
-    if (!trimmed) return
-    
-    // Detect section headers (including 'feat' and 'fix')
-    const lower = trimmed.toLowerCase()
-    if (lower.includes('baru') || lower.includes('added') || lower.includes('features') || lower.includes('feat')) {
-      currentCategory = 'baru'
-      return
-    }
-    if (lower.includes('peningkatan') || lower.includes('improved') || lower.includes('fixed') || lower.includes('perbaikan') || lower.includes('fix')) {
-      currentCategory = 'peningkatan'
-      return
-    }
-    
-    // Match bullet points: - item, * item, or 1. item
-    if (trimmed.startsWith('-') || trimmed.startsWith('*') || /^\d+\./.test(trimmed)) {
-      const textOnly = trimmed.replace(/^[-*\s]+|^\d+\.\s*/, '')
-      const cleanedObj = cleanAndFormatText(textOnly)
-      if (cleanedObj) {
-        items.push({
-          category: cleanedObj.category || currentCategory,
-          text: cleanedObj.text
-        })
-      }
-    }
-  })
-  
-  return items
-}
-
 export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: boolean }) {
   const [open, setOpen] = useState(false)
   const [updates, setUpdates] = useState<UpdateItem[]>([])
   const [version, setVersion] = useState('v1.3.0')
-  const [dateStr, setDateStr] = useState('9 Juni 2026')
+  const [dateStr, setDateStr] = useState('13 Juni 2026')
   const [hasNewUpdate, setHasNewUpdate] = useState(false)
 
   useEffect(() => {
     async function fetchUpdates() {
-      try {
-        // Try fetching from GitHub releases first
-        const gitRes = await fetch('https://api.github.com/repos/refdevteam/finance_memo/releases')
-        if (gitRes.ok) {
-          const gitData = await gitRes.json()
-          if (Array.isArray(gitData) && gitData.length > 0) {
-            const latestRelease = gitData[0]
-            const items = parseReleaseBody(latestRelease.body || '')
-            
-            if (items.length > 0) {
-              setUpdates(items)
-            } else {
-              // fallback if body has no bullet points
-              const cleanedObj = cleanAndFormatText(latestRelease.name || 'Pembaruan Fimo Baru')
-              setUpdates([
-                { 
-                  category: cleanedObj?.category || 'baru', 
-                  text: cleanedObj?.text || latestRelease.name || 'Pembaruan Fimo Baru', 
-                  details: latestRelease.body ? cleanAndFormatText(latestRelease.body)?.text : undefined 
-                }
-              ])
-            }
-            
-            setVersion(latestRelease.tag_name || 'v1.3.0')
-            
-            if (latestRelease.published_at) {
-              const date = new Date(latestRelease.published_at)
-              const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' }
-              setDateStr(date.toLocaleDateString('id-ID', options))
-            }
-            
-            const viewedVersion = localStorage.getItem('fimo_viewed_version')
-            if (viewedVersion !== latestRelease.tag_name) {
-              setHasNewUpdate(true)
-            }
-            return
-          }
-        }
-      } catch (err) {
-        console.warn('GitHub releases fetch failed, falling back to updates.json:', err)
-      }
-
-      // Fallback to local updates.json
       try {
         const res = await fetch('/updates.json')
         if (res.ok) {
@@ -294,7 +148,7 @@ export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: bo
 
           {/* List of updates */}
           {updates.length > 0 ? (
-            <div className="space-y-3.5 max-h-[40vh] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-zinc-800">
+            <div className="space-y-3.5 max-h-[45vh] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-zinc-800">
               {updates.map((item, index) => (
                 <div
                   key={index}
@@ -326,18 +180,6 @@ export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: bo
               Tidak ada detail pembaruan ramah-pengguna untuk versi ini.
             </p>
           )}
-
-          {/* Link to GitHub Releases */}
-          <div className="pt-3 text-center border-t border-neutral-100 dark:border-neutral-800/80">
-            <a 
-              href="https://github.com/refdevteam/finance_memo/releases" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-[10px] font-bold text-indigo-650 dark:text-indigo-400 hover:underline inline-flex items-center gap-1"
-            >
-              Lihat Riwayat Pembaruan di GitHub →
-            </a>
-          </div>
         </div>
 
         <div className="pt-4 border-t border-neutral-100 dark:border-neutral-800/80 flex justify-end">
