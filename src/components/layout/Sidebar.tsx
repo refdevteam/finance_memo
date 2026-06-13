@@ -36,6 +36,7 @@ import { ReceiptScanner } from '@/components/transactions/ReceiptScanner'
 import { NotificationCenter } from '@/components/layout/NotificationCenter'
 import { HelpGuidance } from '@/components/layout/HelpGuidance'
 import { DeveloperUpdates } from '@/components/layout/DeveloperUpdates'
+import { StreakIndicator } from '@/components/layout/StreakIndicator'
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
@@ -85,7 +86,7 @@ function ThemeToggle() {
   )
 }
 
-function SidebarContent({ pathname }: { pathname: string }) {
+function SidebarContent({ pathname, recordStreak }: { pathname: string; recordStreak?: number }) {
   return (
     <div className="flex flex-col h-full">
       <div className="p-6 flex items-center justify-between">
@@ -98,7 +99,8 @@ function SidebarContent({ pathname }: { pathname: string }) {
           />
           <span className="text-xl font-bold tracking-tight dark:text-white group-hover:text-indigo-500 transition-colors">fimo</span>
         </Link>
-        <div className="hidden md:flex items-center space-x-1">
+        <div className="hidden md:flex items-center space-x-2.5">
+          <StreakIndicator streak={recordStreak} />
           <HelpGuidance />
           <NotificationCenter />
           <ThemeToggle />
@@ -166,7 +168,7 @@ function SidebarContent({ pathname }: { pathname: string }) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], categories?: any[] }) {
+export function Sidebar({ wallets = [], categories = [], recordStreak = 0 }: { wallets?: any[], categories?: any[], recordStreak?: number }) {
   const pathname = usePathname()
 
   return (
@@ -183,7 +185,8 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
           <span className="font-bold tracking-tight text-neutral-900 dark:text-white text-base">fimo</span>
         </Link>
         
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-1.5">
+          <StreakIndicator streak={recordStreak} />
           <DeveloperUpdates />
           <HelpGuidance />
           <NotificationCenter />
@@ -344,7 +347,7 @@ export function Sidebar({ wallets = [], categories = [] }: { wallets?: any[], ca
 
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 border-r border-border bg-white dark:bg-background flex-col h-screen sticky top-0">
-        <SidebarContent pathname={pathname} />
+        <SidebarContent pathname={pathname} recordStreak={recordStreak} />
       </aside>
     </>
   )

@@ -23,6 +23,8 @@ export async function createWallet(formData: {
   type: string
   balance: number
   color?: string
+  is_event_wallet?: boolean
+  event_metadata?: any
 }) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -37,6 +39,8 @@ export async function createWallet(formData: {
       type: formData.type,
       balance: formData.balance,
       color: formData.color || '#10b981', // Default emerald
+      is_event_wallet: formData.is_event_wallet || false,
+      event_metadata: formData.event_metadata || null,
     })
 
   if (error) throw error

@@ -19,17 +19,19 @@ export default async function DashboardLayout({
   // Except onboarding itself to avoid loop
   // Actually, we can check path here if needed, but the page itself handles it too.
 
-  const [walletsRes, categoriesRes] = await Promise.all([
+  const [walletsRes, categoriesRes, profileRes] = await Promise.all([
     supabase.from('wallets').select('id, name, balance').eq('user_id', user.id).eq('is_active', true),
-    supabase.from('categories').select('id, name, type').or(`user_id.eq.${user.id},user_id.is.null`)
+    supabase.from('categories').select('id, name, type').or(`user_id.eq.${user.id},user_id.is.null`),
+    supabase.from('profiles').select('record_streak').eq('id', user.id).single()
   ])
 
   const wallets = walletsRes.data || []
   const categories = categoriesRes.data || []
+  const recordStreak = profileRes.data?.record_streak || 0
 
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
-      <Sidebar wallets={wallets} categories={categories} />
+      <Sidebar wallets={wallets} categories={categories} recordStreak={recordStreak} />
       <main className="flex-1 overflow-y-auto h-screen pt-14 md:pt-0 pb-28 md:pb-0">
         <WalletWarningBanner walletsCount={wallets.length} />
         {children}

@@ -48,6 +48,7 @@ export function ReportsClient({
   wallets,
   monthTransactions,
   sixMonthTransactions,
+  eventTransactions = [],
   selectedMonth,
   selectedYear,
   selectedWallet,
@@ -61,6 +62,8 @@ export function ReportsClient({
   monthTransactions: any[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sixMonthTransactions: any[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  eventTransactions?: any[]
   selectedMonth: number
   selectedYear: number
   selectedWallet: string | null
@@ -367,9 +370,12 @@ export function ReportsClient({
     return { value: String(y), label: String(y) }
   })
 
+  const nonEventWallets = wallets.filter(w => !w.is_event_wallet)
+  const eventWallets = wallets.filter(w => w.is_event_wallet)
+
   const walletOptions = [
     { value: 'all', label: 'Semua Dompet' },
-    ...wallets.map(w => ({ value: w.id, label: w.name }))
+    ...nonEventWallets.map(w => ({ value: w.id, label: w.name }))
   ]
 
   const isMonth = range === 'month'
@@ -701,7 +707,86 @@ export function ReportsClient({
           </CardContent>
         </Card>
 
-      </div>
+      {/* EVENT WALLETS REPORTS SECTION */}
+      {eventWallets.length > 0 && (
+        <div className="space-y-6 pt-6 border-t border-slate-200 dark:border-slate-800 report-card-animate opacity-0">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            <h3 className="text-lg font-bold dark:text-white">Analisis Dompet Event & Liburan</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {eventWallets.map(w => {
+              const trxs = eventTransactions.filter(t => t.wallet_id === w.id)
+              const income = trxs.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
+              const expense = trxs.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
+              const balance = income - expense
+
+              return (
+                <Card key={w.id} className="border-2 border-black dark:border-slate-800 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.05)] rounded-2xl overflow-hidden">
+                  <CardHeader className="bg-slate-100/60 dark:bg-slate-900/50 pb-3 flex flex-row items-center justify-between border-b border-border/60">
+                    <div>
+                      <CardTitle className="text-base font-bold">{w.name}</CardTitle>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">Dompet Khusus Event / Perjalanan</p>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-2.5 py-1 rounded-full border border-indigo-500/20">
+                      Event
+                    </span>
+                  </CardHeader>
+                  <CardContent className="p-4 sm:p-5 space-y-4">
+                    {/* Mini Summary Grid */}
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-2">
+                        <p className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Masuk</p>
+                        <p className="text-xs font-mono font-bold text-emerald-650 dark:text-emerald-300 mt-0.5">{formatRupiah(income)}</p>
+                      </div>
+                      <div className="bg-rose-500/5 border border-rose-500/10 rounded-xl p-2">
+                        <p className="text-[9px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wide">Keluar</p>
+                        <p className="text-xs font-mono font-bold text-rose-655 dark:text-rose-300 mt-0.5">{formatRupiah(expense)}</p>
+                      </div>
+                      <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-2">
+                        <p className="text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Bersih</p>
+                        <p className="text-xs font-mono font-bold text-blue-650 dark:text-blue-300 mt-0.5">{formatRupiah(balance)}</p>
+                      </div>
+                    </div>
+
+                    {/* Transaction List */}
+                    <div className="space-y-2">
+                      <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Daftar Transaksi:</h4>
+                      {trxs.length > 0 ? (
+                        <div className="space-y-1.5 max-h-[150px] overflow-y-auto pr-1">
+                          {trxs.map((t, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-xl bg-white dark:bg-black/10 border border-slate-100 dark:border-slate-800 shadow-3xs">
+                              <div className="min-w-0 flex-1">
+                                <p className="font-bold text-slate-850 dark:text-slate-200 truncate">{t.description || 'Tanpa deskripsi'}</p>
+                                <p className="text-[10px] text-muted-foreground mt-0.5">
+                                  {t.categories?.name || 'Kategori'} • {formatIndonesianDate(t.transaction_date)}
+                                </p>
+                              </div>
+                              <span className={cn(
+                                "font-mono font-bold ml-3 shrink-0",
+                                t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'
+                              )}>
+                                {t.type === 'income' ? '+' : '-'}{formatRupiah(Number(t.amount))}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[10px] text-slate-400 text-center py-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                          Belum ada transaksi di dompet ini untuk periode ini.
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+    </div>
     </div>
   )
 }

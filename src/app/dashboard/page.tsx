@@ -21,6 +21,7 @@ import { SpendingTrendChart, CategoryPieChart } from '@/components/dashboard/Das
 import { getBudgets } from '@/actions/budgets'
 import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
 import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
+import { AICoachCard } from '@/components/dashboard/AICoachCard'
 import { DashboardWidgetsMobile } from '@/components/dashboard/DashboardWidgetsMobile'
 import { UpcomingReminders } from '@/components/dashboard/UpcomingReminders'
 
@@ -262,6 +263,8 @@ export default async function DashboardPage({
           </div>
         ))}
       </div>
+
+      <AICoachCard />
 
       {/* Mobile-only 2x2 widgets grid */}
       <DashboardWidgetsMobile

@@ -61,9 +61,13 @@ export default async function ReportsPage({
   // 1. Ambil daftar dompet untuk filter
   const { data: wallets } = await supabase
     .from('wallets')
-    .select('id, name')
+    .select('id, name, is_event_wallet')
     .eq('user_id', user.id)
     .order('name')
+
+  const eventWalletIds = (wallets || [])
+    .filter(w => w.is_event_wallet)
+    .map(w => w.id)
 
   // 2. Ambil transaksi (untuk summary dan pie chart)
   let monthQuery = supabase
@@ -75,6 +79,9 @@ export default async function ReportsPage({
 
   if (selectedWallet) {
     monthQuery = monthQuery.eq('wallet_id', selectedWallet)
+  } else if (eventWalletIds.length > 0) {
+    // Saring agar dompet event tidak merusak laporan utama bulanan
+    monthQuery = monthQuery.not('wallet_id', 'in', `(${eventWalletIds.join(',')})`)
   }
 
   const { data: monthTransactions } = await monthQuery
@@ -82,16 +89,31 @@ export default async function ReportsPage({
   // 3. Ambil transaksi 6 bulan (untuk trend bar chart)
   let sixMonthQuery = supabase
     .from('transactions')
-    .select('amount, type, transaction_date')
+    .select('amount, type, transaction_date, wallet_id')
     .eq('user_id', user.id)
     .gte('transaction_date', startOfSixMonthsAgo)
     .lte('transaction_date', endDateStr)
 
   if (selectedWallet) {
     sixMonthQuery = sixMonthQuery.eq('wallet_id', selectedWallet)
+  } else if (eventWalletIds.length > 0) {
+    sixMonthQuery = sixMonthQuery.not('wallet_id', 'in', `(${eventWalletIds.join(',')})`)
   }
 
   const { data: sixMonthTransactions } = await sixMonthQuery
+
+  // 4. Ambil transaksi dompet event secara khusus
+  let eventTransactions: any[] = []
+  if (eventWalletIds.length > 0) {
+    const { data: evTrxs } = await supabase
+      .from('transactions')
+      .select('amount, type, transaction_date, wallet_id, description, category_id, categories(name, color)')
+      .eq('user_id', user.id)
+      .in('wallet_id', eventWalletIds)
+      .gte('transaction_date', startDateStr)
+      .lte('transaction_date', endDateStr)
+    eventTransactions = evTrxs || []
+  }
 
   return (
     <div className="p-4 md:p-8">
@@ -99,6 +121,7 @@ export default async function ReportsPage({
         wallets={wallets || []}
         monthTransactions={monthTransactions || []}
         sixMonthTransactions={sixMonthTransactions || []}
+        eventTransactions={eventTransactions}
         selectedMonth={selectedMonth}
         selectedYear={selectedYear}
         selectedWallet={selectedWallet}

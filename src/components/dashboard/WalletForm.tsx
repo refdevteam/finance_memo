@@ -25,6 +25,7 @@ const schema = z.object({
   type: z.string().min(1, 'Tipe dompet wajib dipilih'),
   balance: z.number().min(0, 'Saldo minimal 0'),
   color: z.string().min(1),
+  is_event_wallet: z.boolean().default(false),
 })
 
 type WalletData = z.infer<typeof schema>
@@ -46,6 +47,7 @@ export function WalletForm() {
       type: 'cash',
       balance: 0,
       color: '#10b981',
+      is_event_wallet: false,
     }
   })
 
@@ -133,7 +135,24 @@ export function WalletForm() {
             <Input id="color" type="color" className="h-10 p-1" {...register('color')} />
           </div>
 
-          <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" disabled={loading}>
+          <div className="flex items-start space-x-2 py-2 border-t border-border mt-2 pt-4">
+            <input 
+              id="is_event_wallet" 
+              type="checkbox" 
+              {...register('is_event_wallet')}
+              className="h-4 w-4 rounded border-neutral-300 dark:border-neutral-700 text-emerald-600 focus:ring-emerald-500 mt-0.5 cursor-pointer"
+            />
+            <div className="grid gap-1 leading-tight">
+              <Label htmlFor="is_event_wallet" className="cursor-pointer select-none text-sm font-bold text-neutral-800 dark:text-neutral-250">
+                Jadikan Dompet Acara/Liburan (Event Wallet)
+              </Label>
+              <p className="text-[10px] text-neutral-500 dark:text-neutral-450 leading-normal">
+                Pencatatan di dompet ini akan dikhususkan untuk event/liburan tertentu dan dieksklusi dari laporan bulanan utama.
+              </p>
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white mt-4" disabled={loading}>
             {loading ? 'Menyimpan...' : 'Simpan Dompet'}
           </Button>
         </form>
