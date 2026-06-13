@@ -14,7 +14,9 @@ import {
   TrendingUp,
   Sparkles,
   BookOpen,
-  Check
+  Check,
+  Flame,
+  Calendar
 } from 'lucide-react'
 import {
   Dialog,
@@ -43,7 +45,7 @@ export function HelpGuidance() {
   const router = useRouter()
 
   const handleNext = () => {
-    if (step < 7) {
+    if (step < 9) {
       setStep((s) => s + 1)
     } else {
       setOpen(false)
@@ -200,6 +202,43 @@ export function HelpGuidance() {
           <div className="w-4 bg-black dark:bg-white h-12 rounded-t-xs border border-neutral-200" />
         </div>
       )
+    },
+    {
+      title: '7. Rencana Transaksi Berulang',
+      subtitle: 'OTOMATISASI TAGIHAN & LANGGANAN',
+      description: 'Catat transaksi berulang seperti tagihan bulanan, langganan Netflix, atau gaji rutin secara otomatis. Fimo akan membuat transaksinya untukmu secara instan saat tanggal jatuh tempo tiba!',
+      icon: Calendar,
+      iconBg: 'bg-indigo-500/10 dark:bg-indigo-500/20',
+      iconColor: 'text-indigo-650 dark:text-indigo-400',
+      visual: (
+        <div className="flex items-center justify-between p-3 bg-indigo-500/5 dark:bg-indigo-950/10 rounded-xl border-2 border-black dark:border-neutral-800 w-full text-xs font-mono">
+          <div className="flex items-center gap-2">
+            <span>📅</span>
+            <div className="text-left">
+              <p className="font-bold text-neutral-800 dark:text-neutral-200">Netflix Premium</p>
+              <p className="text-[10px] text-neutral-400">Bulanan</p>
+            </div>
+          </div>
+          <span className="font-bold text-rose-600">-Rp 186.000</span>
+        </div>
+      )
+    },
+    {
+      title: '8. Sistem Streak Finansial',
+      subtitle: 'TANTANGAN KEDISIPLINAN MENCATAT',
+      description: 'Tantang dirimu untuk rajin mencatat keuangan setiap hari! Setiap hari kamu menambahkan transaksi atau scan struk belanja, streak harianmu akan bertambah. Jaga apinya tetap menyala!',
+      icon: Flame,
+      iconBg: 'bg-orange-500/10 dark:bg-orange-500/20',
+      iconColor: 'text-orange-500 dark:text-orange-400',
+      visual: (
+        <div className="flex flex-col items-center p-3 bg-orange-500/5 dark:bg-orange-950/10 rounded-xl border-2 border-black dark:border-neutral-800 w-full space-y-1">
+          <div className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400 font-bold">
+            <Flame className="h-5 w-5 animate-pulse text-orange-500 fill-orange-500/20" />
+            <span className="text-sm font-mono tracking-wider">5 Hari Berturut-turut!</span>
+          </div>
+          <p className="text-[10px] text-neutral-400 text-center font-mono">Hebat! Kamu disiplin menjaga catatanmu.</p>
+        </div>
+      )
     }
   ]
 
@@ -220,20 +259,20 @@ export function HelpGuidance() {
           </Button>
         }
       />
-      <DialogContent className="max-w-[480px] w-[92vw] rounded-[24px] p-6 md:p-8 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-neutral-200/50 dark:border-neutral-800/50 shadow-2xl overflow-hidden min-h-[440px] flex flex-col justify-between">
+      <DialogContent className="max-w-[480px] w-[92vw] rounded-2xl p-6 md:p-8 bg-white dark:bg-slate-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)] overflow-hidden min-h-[440px] flex flex-col justify-between">
         
         <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80">
           <DialogTitle className="text-[10px] font-mono font-medium text-neutral-500 dark:text-neutral-500 uppercase tracking-wider">
-            Panduan Fitur ({step} dari 7)
+            Panduan Fitur ({step} dari 9)
           </DialogTitle>
           <DialogDescription className="sr-only">
             Interactive user guide tour steps to master Fimo application workflows.
           </DialogDescription>
         </DialogHeader>
-
+ 
         {/* Stepper Progress bar */}
         <div className="flex justify-between items-center gap-1.5 my-2">
-          {Array.from({ length: 7 }).map((_, i) => (
+          {Array.from({ length: 9 }).map((_, i) => (
             <div
               key={i}
               className={`h-1 flex-1 rounded-full transition-all duration-300 ${
@@ -293,7 +332,7 @@ export function HelpGuidance() {
             <ChevronLeft className="mr-1.5 h-4 w-4" /> Sebelumnya
           </Button>
 
-          {step < 7 ? (
+          {step < 9 ? (
             <Button
               onClick={handleNext}
               className="rounded-full bg-black hover:bg-neutral-900 text-white dark:bg-white dark:hover:bg-neutral-100 dark:text-black text-xs font-bold px-5 py-2 flex items-center transition-all"

@@ -14,6 +14,7 @@ import { CategoryPieChart, SixMonthTrendChart } from '@/components/dashboard/Das
 import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
 import { cn } from '@/lib/utils'
 import { generateMonthlyInsights } from '@/actions/ai-insights'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
 
 function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', {
@@ -85,6 +86,7 @@ export function ReportsClient({
     warnings: string[]
   } | null>(null)
   const [isLoadingInsight, setIsLoadingInsight] = useState(false)
+  const [showGajianTip, setShowGajianTip] = useState(false)
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768)
@@ -640,6 +642,32 @@ export function ReportsClient({
                 </div>
               </motion.div>
             )}
+
+            {/* Collapsible Gajian Tip */}
+            <div className="mt-4 pt-3 border-t border-slate-200 dark:border-neutral-800">
+              <button
+                onClick={() => setShowGajianTip(!showGajianTip)}
+                className="flex items-center justify-between w-full text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+              >
+                <span className="flex items-center gap-1.5">
+                  <Info className="h-3.5 w-3.5 shrink-0" />
+                  💡 Tip Analisis Siklus Gajian
+                </span>
+                <span className="text-[10px] font-mono uppercase bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20">
+                  {showGajianTip ? 'Sembunyikan' : 'Lihat'}
+                </span>
+              </button>
+              
+              {showGajianTip && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-2 text-xs text-muted-foreground leading-relaxed bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/30 rounded-xl p-3"
+                >
+                  Jika hari gajian Anda tidak jatuh di awal bulan (misalnya tanggal 25 atau 30), disarankan untuk memilih penyaringan rentang waktu <strong>&ldquo;30 Hari Terakhir&rdquo;</strong> pada opsi di atas. Ini membantu Fimo menganalisis pemasukan dan pengeluaran Anda pasca-gajian secara lebih presisi, alih-alih terbagi dalam dua bulan kalender yang berbeda.
+                </motion.div>
+              )}
+            </div>
           </CardContent>
         </Card>
 
@@ -685,26 +713,73 @@ export function ReportsClient({
             </CardContent>
           </Card>
 
-          <Card className="col-span-1 report-card-animate opacity-0">
-            <CardHeader className="p-3 md:p-6 pb-0 md:pb-2">
-              <CardTitle className="text-xs sm:text-lg font-bold">Tren 6 Bulan Terakhir</CardTitle>
-            </CardHeader>
-            <CardContent className="p-2 md:p-6 pt-2 md:pt-0">
-              <SixMonthTrendChart data={trendChartData} height={isMobile ? 150 : 300} />
-            </CardContent>
-          </Card>
-        </div>
+            <Dialog>
+              <DialogTrigger
+                render={
+                  <Card className="col-span-1 report-card-animate opacity-0 cursor-pointer hover:border-black dark:hover:border-white transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:hover:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] duration-200">
+                    <CardHeader className="p-3 md:p-6 pb-0 md:pb-2 flex flex-row items-center justify-between">
+                      <CardTitle className="text-xs sm:text-lg font-bold">Tren 6 Bulan Terakhir</CardTitle>
+                      <span className="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded">Detail</span>
+                    </CardHeader>
+                    <CardContent className="p-2 md:p-6 pt-2 md:pt-0">
+                      <SixMonthTrendChart data={trendChartData} height={isMobile ? 200 : 300} />
+                    </CardContent>
+                  </Card>
+                }
+              />
+              <DialogContent className="max-w-[640px] w-[92vw] rounded-2xl p-6 md:p-8 bg-white dark:bg-slate-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)] overflow-y-auto max-h-[90vh]">
+                <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80">
+                  <DialogTitle className="text-lg font-bold tracking-tight text-neutral-900 dark:text-white flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-indigo-500" />
+                    Analisis Tren 6 Bulan Terakhir
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-neutral-500 dark:text-neutral-400">
+                    Detail perkembangan arus kas (pemasukan & pengeluaran) setengah tahun ke belakang.
+                  </DialogDescription>
+                </DialogHeader>
 
-        {/* Tip Siklus Gajian */}
-        <div className="report-card-animate opacity-0 bg-blue-50/70 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-4 flex gap-3 text-xs text-blue-700 dark:text-blue-300 shadow-xs">
-          <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <p className="font-bold">💡 Tip Analisis Siklus Gajian</p>
-            <p className="leading-relaxed">
-              Jika hari gajian Anda tidak jatuh di awal bulan (misalnya tanggal 25 atau 30), disarankan untuk memilih penyaringan rentang waktu <strong>&ldquo;30 Hari Terakhir&rdquo;</strong> pada opsi di atas. Ini membantu Fimo menganalisis pemasukan dan pengeluaran Anda pasca-gajian secara lebih presisi, alih-alih terbagi dalam dua bulan kalender yang berbeda.
-            </p>
+                <div className="py-4 space-y-6">
+                  {/* Large Chart */}
+                  <div className="bg-slate-50 dark:bg-neutral-900/40 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800">
+                    <SixMonthTrendChart data={trendChartData} height={320} />
+                  </div>
+
+                  {/* Detailed Table */}
+                  <div className="space-y-2.5">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500">Tabel Arus Kas Bulanan:</h4>
+                    <div className="overflow-x-auto border border-neutral-200 dark:border-neutral-800 rounded-xl">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="bg-slate-50 dark:bg-zinc-900/50 text-neutral-500 font-bold border-b border-neutral-200 dark:border-neutral-800">
+                            <th className="p-3">Periode</th>
+                            <th className="p-3 text-right">Pemasukan</th>
+                            <th className="p-3 text-right">Pengeluaran</th>
+                            <th className="p-3 text-right">Bersih</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-neutral-150 dark:divide-neutral-800">
+                          {trendChartData.map((row, i) => {
+                            const net = row.income - row.expense
+                            return (
+                              <tr key={i} className="hover:bg-neutral-50 dark:hover:bg-neutral-900/40 transition-colors">
+                                <td className="p-3 font-semibold text-neutral-800 dark:text-neutral-200">{row.date}</td>
+                                <td className="p-3 text-right text-emerald-600 font-mono font-bold">{formatRupiah(row.income)}</td>
+                                <td className="p-3 text-right text-rose-600 font-mono font-bold">{formatRupiah(row.expense)}</td>
+                                <td className={cn(
+                                  "p-3 text-right font-mono font-bold",
+                                  net >= 0 ? "text-blue-600 dark:text-blue-400" : "text-amber-600"
+                                )}>{formatRupiah(net)}</td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
-        </div>
 
       {/* EVENT WALLETS REPORTS SECTION */}
       {eventWallets.length > 0 && (

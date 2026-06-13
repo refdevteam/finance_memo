@@ -233,7 +233,7 @@ export function SixMonthTrendChart({ data, height = 300 }: { data: DailyData[]; 
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={data} margin={{ top: 5, right: 5, left: height > 180 ? -15 : -25, bottom: 0 }}>
+      <BarChart data={data} margin={{ top: 5, right: 5, left: height > 180 ? -15 : -12, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.4} vertical={false} />
         <XAxis 
           dataKey="date" 
@@ -248,9 +248,9 @@ export function SixMonthTrendChart({ data, height = 300 }: { data: DailyData[]; 
           tickLine={false}
         />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
-        {height > 180 && <Legend wrapperStyle={{ fontSize: '12px' }} />}
-        <Bar dataKey="income" name="Pemasukan" fill="#3b82f6" radius={[2, 2, 0, 0]} barSize={height > 180 ? 20 : 8} />
-        <Bar dataKey="expense" name="Pengeluaran" fill="#f43f5e" radius={[2, 2, 0, 0]} barSize={height > 180 ? 20 : 8} />
+        <Legend wrapperStyle={{ fontSize: height > 180 ? '12px' : '10px', paddingTop: '4px' }} />
+        <Bar dataKey="income" name="Pemasukan" fill="#3b82f6" radius={[2, 2, 0, 0]} barSize={height > 180 ? 20 : 12} />
+        <Bar dataKey="expense" name="Pengeluaran" fill="#f43f5e" radius={[2, 2, 0, 0]} barSize={height > 180 ? 20 : 12} />
       </BarChart>
     </ResponsiveContainer>
   )

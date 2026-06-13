@@ -241,7 +241,7 @@ export function Sidebar({ wallets = [], categories = [], recordStreak = 0 }: { w
               <Plus className="h-6 w-6 font-bold" />
             </button>
           } />
-          <SheetContent side="bottom" className="rounded-t-3xl p-6 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-2xl border-t border-border max-h-[85vh] overflow-y-auto">
+          <SheetContent side="bottom" className="rounded-t-3xl p-6 bg-white dark:bg-neutral-950 border-t-2 border-l-2 border-r-2 border-black dark:border-white shadow-[0_-6px_0px_rgba(0,0,0,1)] dark:shadow-[0_-6px_0px_rgba(255,255,255,0.15)] max-h-[85vh] overflow-y-auto">
             <SheetHeader className="text-center pb-4">
               <SheetTitle className="text-lg font-bold">Catat Keuangan Baru</SheetTitle>
               <SheetDescription className="text-xs text-neutral-500 dark:text-neutral-400">
@@ -281,7 +281,7 @@ export function Sidebar({ wallets = [], categories = [], recordStreak = 0 }: { w
               <span className="text-[10px] font-semibold mt-0.5">Menu</span>
             </button>
           } />
-          <SheetContent side="bottom" className="rounded-t-3xl p-6 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-2xl border-t border-border">
+          <SheetContent side="bottom" className="rounded-t-3xl p-6 bg-white dark:bg-neutral-950 border-t-2 border-l-2 border-r-2 border-black dark:border-white shadow-[0_-6px_0px_rgba(0,0,0,1)] dark:shadow-[0_-6px_0px_rgba(255,255,255,0.15)]">
             <SheetHeader className="text-left pb-4">
               <SheetTitle className="text-lg font-bold">Fimo Menu</SheetTitle>
             </SheetHeader>

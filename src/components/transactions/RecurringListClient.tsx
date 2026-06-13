@@ -124,7 +124,7 @@ export function RecurringListClient({ templates: initialTemplates }: RecurringLi
               <Card 
                 key={t.id} 
                 className={cn(
-                  "transition-all duration-300 relative border-l-4",
+                  "transition-all duration-300 relative border-l-4 border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]",
                   t.is_active ? "opacity-100" : "opacity-60 grayscale-[30%]"
                 )}
                 style={{ borderLeftColor: categoryColor }}

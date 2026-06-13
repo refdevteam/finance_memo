@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sparkles, Calendar, CheckCircle, ArrowRight } from 'lucide-react'
 import {
   Dialog,
@@ -19,37 +19,42 @@ interface UpdateItem {
   details?: string
 }
 
-const updates: UpdateItem[] = [
-  {
-    category: 'baru',
-    text: 'Panduan Interaktif Fimo',
-    details: 'Pelajari alur kerja keuangan cerdas Fimo lewat panduan visual langkah-demi-langkah baru.',
-  },
-  {
-    category: 'baru',
-    text: 'Pembuatan Dompet Saat Daftar',
-    details: 'Kamu sekarang bisa langsung membuat dompet pertamamu saat pertama kali mendaftar agar dasbor langsung siap dipakai.',
-  },
-  {
-    category: 'peningkatan',
-    text: 'Pencegahan Transaksi Kosong',
-    details: 'Fimo sekarang otomatis mendeteksi jika kamu belum punya dompet dan membantumu membuatnya sebelum mencatat pengeluaran.',
-  },
-  {
-    category: 'peningkatan',
-    text: 'Tata Letak Notifikasi Ponsel',
-    details: 'Notifikasi toast di ponsel kini dipindahkan ke bagian atas layar agar tidak menutupi menu navigasi bawah.',
-  },
-]
-
 export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: boolean }) {
   const [open, setOpen] = useState(false)
-  const [hasNewUpdate, setHasNewUpdate] = useState(true) // Show indicator by default
+  const [updates, setUpdates] = useState<UpdateItem[]>([])
+  const [version, setVersion] = useState('v1.3.0')
+  const [dateStr, setDateStr] = useState('9 Juni 2026')
+  const [hasNewUpdate, setHasNewUpdate] = useState(false)
+
+  useEffect(() => {
+    async function fetchUpdates() {
+      try {
+        const res = await fetch('/updates.json')
+        if (res.ok) {
+          const data = await res.json()
+          setUpdates(data.items || [])
+          setVersion(data.version || 'v1.3.0')
+          setDateStr(data.date || '')
+          
+          const viewedVersion = localStorage.getItem('fimo_viewed_version')
+          if (viewedVersion !== data.version) {
+            setHasNewUpdate(true)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch developer updates:', err)
+      }
+    }
+    fetchUpdates()
+  }, [])
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen)
     if (isOpen) {
-      setHasNewUpdate(false) // Clear indicator once viewed
+      setHasNewUpdate(false)
+      if (version) {
+        localStorage.setItem('fimo_viewed_version', version)
+      }
     }
   }
 
@@ -109,7 +114,7 @@ export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: bo
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger render={triggerButton} />
-      <DialogContent className="max-w-[480px] w-[92vw] overflow-y-auto max-h-[85vh] rounded-[24px] p-6 md:p-8 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-neutral-200/50 dark:border-neutral-800/50 shadow-2xl">
+      <DialogContent className="max-w-[480px] w-[92vw] overflow-y-auto max-h-[85vh] rounded-2xl p-6 md:p-8 bg-white dark:bg-slate-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)]">
         <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80">
           <div className="flex items-center space-x-2">
             <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
@@ -128,16 +133,16 @@ export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: bo
 
         <div className="py-4 space-y-5">
           {/* Release version & timestamp */}
-          <div className="flex flex-wrap items-center justify-between gap-2 bg-neutral-50 dark:bg-slate-800/30 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800/50">
+          <div className="flex flex-wrap items-center justify-between gap-2 bg-neutral-50 dark:bg-slate-800/30 p-3 rounded-xl border-2 border-black dark:border-neutral-700">
             <div className="flex items-center space-x-2 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
               <Badge variant="outline" className="bg-[#f3c9b6]/30 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border-amber-500/20 font-bold px-2 py-0.5 font-mono text-[10px] tracking-wider uppercase">
-                v1.3.0
+                {version}
               </Badge>
               <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">Versi Terbaru</span>
             </div>
             <div className="flex items-center space-x-1 text-[10px] font-mono text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
               <Calendar className="h-3.5 w-3.5 mr-0.5" />
-              <span>9 Juni 2026</span>
+              <span>{dateStr}</span>
             </div>
           </div>
 
@@ -146,7 +151,7 @@ export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: bo
             {updates.map((item, index) => (
               <div
                 key={index}
-                className="flex items-start space-x-3 p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-neutral-100 dark:border-neutral-800/60 shadow-xs hover:border-neutral-200 dark:hover:border-neutral-700 transition-all duration-200"
+                className="flex items-start space-x-3 p-3.5 rounded-xl bg-white dark:bg-slate-900 border-2 border-black dark:border-neutral-700 shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_rgba(0,0,0,1)] transition-all duration-150"
               >
                 <div className="mt-0.5 shrink-0">
                   <CheckCircle className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
