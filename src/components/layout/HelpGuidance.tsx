@@ -332,7 +332,7 @@ export function HelpGuidance() {
       <DialogContent className="sm:max-w-[480px] w-[92vw] rounded-2xl p-4 sm:p-6 md:p-8 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)] overflow-hidden min-h-[460px] max-h-[90vh] flex flex-col justify-between">
         {step === 0 ? (
           <>
-            <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80 flex flex-row items-center justify-between">
+            <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80 flex flex-row items-center justify-between pr-8">
               <div>
                 <DialogTitle className="text-lg font-bold tracking-tight text-neutral-900 dark:text-white">
                   Panduan Fitur Fimo
@@ -378,7 +378,7 @@ export function HelpGuidance() {
           </>
         ) : (
           <>
-            <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80 flex flex-row items-center justify-between">
+            <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80 flex flex-row items-center justify-between pr-8">
               <div>
                 <DialogTitle className="text-[10px] font-mono font-medium text-neutral-500 dark:text-neutral-500 uppercase tracking-wider">
                   Panduan Fitur ({step} dari {steps.length})
