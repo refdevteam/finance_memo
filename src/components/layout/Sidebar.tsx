@@ -89,7 +89,7 @@ function ThemeToggle() {
 function SidebarContent({ pathname, recordStreak }: { pathname: string; recordStreak?: number }) {
   return (
     <div className="flex flex-col h-full">
-      <div className="p-6 flex items-center justify-between">
+      <div className="p-6 flex items-center justify-between border-b border-border/50 pb-4">
         <Link href="/dashboard" className="flex items-center space-x-2 group">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -99,11 +99,15 @@ function SidebarContent({ pathname, recordStreak }: { pathname: string; recordSt
           />
           <span className="text-xl font-bold tracking-tight dark:text-white group-hover:text-indigo-500 transition-colors">fimo</span>
         </Link>
-        <div className="hidden md:flex items-center space-x-2.5">
-          <StreakIndicator streak={recordStreak} />
+        <ThemeToggle />
+      </div>
+
+      {/* User / Streak & Utility Actions Section */}
+      <div className="px-6 py-3.5 flex items-center justify-between border-b border-border/50 bg-slate-50/40 dark:bg-zinc-900/10 mb-4">
+        <StreakIndicator streak={recordStreak} />
+        <div className="flex items-center space-x-2">
           <HelpGuidance />
           <NotificationCenter />
-          <ThemeToggle />
         </div>
       </div>
 
@@ -173,8 +177,8 @@ export function Sidebar({ wallets = [], categories = [], recordStreak = 0 }: { w
 
   return (
     <>
-      {/* Mobile Top Header - iOS Style Glass */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-border dark:border-slate-900 bg-white/70 dark:bg-slate-950/85 backdrop-blur-xl z-40 flex items-center px-4 justify-between">
+      {/* Mobile Top Header - Retro Neo-Brutalist */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b-2 border-black dark:border-white bg-white dark:bg-zinc-950 z-40 flex items-center px-4 justify-between">
         <Link href="/dashboard" className="flex items-center space-x-2 group">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

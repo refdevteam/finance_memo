@@ -151,12 +151,12 @@ export function GoogleLoginButton() {
   }, [isGoogleLoaded, resolvedTheme, buttonWidth, handleCredentialResponse, mounted])
 
   return (
-    <div className="w-full space-y-2 flex flex-col items-center justify-center">
+    <div className="w-full space-y-2 flex flex-col items-center justify-center" style={{ colorScheme: 'light' }}>
       {/* Container tombol resmi Google GSI */}
       <div 
         id="google-signin-btn-container" 
         className={`w-full flex justify-center ${(!isGoogleLoaded || isLoading) ? 'hidden' : 'block'}`}
-        style={{ minHeight: '48px' }}
+        style={{ minHeight: '48px', colorScheme: 'light' }}
       />
 
       {/* State Loading (fallback UI) */}

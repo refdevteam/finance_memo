@@ -28,13 +28,22 @@ export function AICoachCard() {
 
   if (loading) {
     return (
-      <div className="w-full bg-[#c5b0f4]/10 dark:bg-[#c5b0f4]/5 border-2 border-[#c5b0f4]/30 rounded-xl p-4 sm:p-5 flex flex-col gap-3">
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-5 w-5 rounded-full bg-[#c5b0f4]/30" />
-          <Skeleton className="h-4 w-32 bg-[#c5b0f4]/20" />
+      <div className="w-full bg-[#c5b0f4] text-black border-2 border-black dark:border-white rounded-xl p-4 sm:p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] flex items-center justify-center py-6 min-h-[96px]">
+        <div className="flex items-center gap-4">
+          <div className="relative shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/mascot.png"
+              alt="Mascot Loading"
+              className="w-12 h-12 object-contain animate-bounce"
+            />
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1.5 bg-black/15 rounded-full blur-[1px] animate-pulse" />
+          </div>
+          <div className="space-y-1">
+            <h4 className="text-xs font-mono font-extrabold uppercase tracking-wider text-black/60">Fimo AI</h4>
+            <p className="text-sm font-bold animate-pulse text-black/80">Fimo lagi bantuin kamu menganalisis catatan keuanganmu...</p>
+          </div>
         </div>
-        <Skeleton className="h-4 w-full bg-[#c5b0f4]/20" />
-        <Skeleton className="h-4 w-[75%] bg-[#c5b0f4]/20" />
       </div>
     )
   }
@@ -43,7 +52,7 @@ export function AICoachCard() {
   const scoreVal = insight?.score ?? 70
 
   return (
-    <div 
+    <div
       className={cn(
         "w-full bg-[#c5b0f4] text-black border-2 border-black dark:border-white rounded-xl p-4 sm:p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] duration-200"
       )}
@@ -57,7 +66,7 @@ export function AICoachCard() {
           {tipText}
         </p>
       </div>
-      
+
       {insight?.score !== undefined && (
         <div className="flex items-center gap-2.5 bg-black text-white px-3 py-1.5 rounded-full shrink-0 border border-black/10 self-start md:self-auto shadow-sm">
           <Activity className="h-3.5 w-3.5 text-indigo-300 fill-indigo-300/10 shrink-0" />

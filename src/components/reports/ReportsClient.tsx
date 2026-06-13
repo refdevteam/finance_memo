@@ -518,8 +518,129 @@ export function ReportsClient({
                 <Wallet className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
               </div>
             </CardContent>
-          </Card>
-        </div>
+          </Card        </div>
+
+        {/* FIMO AI MONTHLY INSIGHTS */}
+        <Card className={cn(
+          "report-card-animate opacity-0 border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] rounded-xl bg-card text-foreground overflow-hidden relative",
+          !insight && "no-print-if-empty"
+        )}>
+          <CardHeader className="pb-3 flex flex-row items-center justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-sm sm:text-lg font-extrabold flex items-center gap-2 text-foreground">
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+                Ulasan Finansial AI
+              </CardTitle>
+              <p className="text-[11px] text-muted-foreground">Analisis pola spending bulanan dan tips efisiensi otomatis.</p>
+            </div>
+            {!insight && !isLoadingInsight && (
+              <Button
+                onClick={handleGenerateInsight}
+                size="sm"
+                className="bg-black hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-black rounded-full text-xs font-bold px-4 border border-black dark:border-white"
+              >
+                Mulai Analisis
+              </Button>
+            )}
+          </CardHeader>
+          <CardContent className="pt-2">
+            {isLoadingInsight && (
+              <div className="py-12 flex flex-col items-center justify-center space-y-4">
+                <motion.img
+                  src="/mascot.png"
+                  alt="Analyzing Mascot"
+                  className="w-20 h-20 object-contain drop-shadow-md"
+                  animate={{
+                    y: [0, -10, 0],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                <div className="flex items-center gap-2 text-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                  <p className="text-xs font-mono font-bold animate-pulse">Fimo AI sedang menganalisis keuangan Anda...</p>
+                </div>
+              </div>
+            )}
+
+            {!insight && !isLoadingInsight && (
+              <div className="py-6 text-center border border-dashed border-border rounded-xl bg-slate-50/40 dark:bg-black/10">
+                <p className="text-xs text-muted-foreground px-4">
+                  Klik tombol <strong>Mulai Analisis</strong> di atas untuk memproses data keuangan periode ini menggunakan model AI Gemini.
+                </p>
+              </div>
+            )}
+
+            {insight && !isLoadingInsight && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="space-y-6"
+              >
+                {/* Upper block: Score and summary */}
+                <div className="flex flex-col md:flex-row gap-4 items-start ai-upper-block">
+                  {/* Circular Score display */}
+                  <div className={cn(
+                    "flex flex-col items-center justify-center h-20 w-20 sm:h-24 sm:w-24 rounded-full border-4 font-black flex-shrink-0 mx-auto md:mx-0 shadow-xs ai-score-circle",
+                    getScoreColor(insight.financial_score)
+                  )}>
+                    <span className="text-2xl sm:text-3xl font-extrabold">{insight.financial_score}</span>
+                    <span className="text-[9px] uppercase tracking-wider font-mono opacity-80 mt-0.5">Skor</span>
+                  </div>
+
+                  {/* Summary Text */}
+                  <div className="flex-1">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-1 font-mono">Analisis Fimo:</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed font-medium">
+                      {insight.summary}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 ai-details-grid">
+                  {/* Tips list */}
+                  <div className="bg-slate-50 dark:bg-neutral-900/60 p-4 rounded-xl border-2 border-black dark:border-white space-y-2.5">
+                    <h5 className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 uppercase tracking-wide">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Rekomendasi Hemat
+                    </h5>
+                    <ul className="space-y-2">
+                      {insight.tips.map((tip, i) => (
+                        <li key={i} className="text-xs text-muted-foreground flex items-start gap-2 leading-relaxed">
+                          <span className="text-emerald-500 font-bold mt-0.5">•</span>
+                          <span>{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Warnings list */}
+                  {insight.warnings && insight.warnings.length > 0 && (
+                    <div className="bg-slate-50 dark:bg-neutral-900/60 p-4 rounded-xl border-2 border-black dark:border-white space-y-2.5">
+                      <h5 className="text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1.5 uppercase tracking-wide">
+                        <AlertTriangle className="h-4 w-4" />
+                        Peringatan Pengeluaran
+                      </h5>
+                      <ul className="space-y-2">
+                        {insight.warnings.map((warn, i) => (
+                          <li key={i} className="text-xs text-muted-foreground flex items-start gap-2 leading-relaxed">
+                            <span className="text-rose-500 font-bold mt-0.5">•</span>
+                            <span>{warn}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* CHARTS */}
         <div className="grid grid-cols-2 gap-3 md:gap-8 charts-grid">
@@ -547,7 +668,7 @@ export function ReportsClient({
                         )}
                       >
                         <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                          <span className="w-1.5 h-1.5 rounded-full shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: cat.color }} />
+                          <span className="w-1.5 h-1.5 rounded-full mr-2 shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: cat.color }} />
                           <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">{cat.name}</span>
                         </div>
                         <span className="font-mono font-bold text-slate-800 dark:text-slate-100 shrink-0 ml-1.5">{formatRupiah(cat.value)}</span>
@@ -583,129 +704,6 @@ export function ReportsClient({
             </p>
           </div>
         </div>
-
-        {/* FIMO AI MONTHLY INSIGHTS */}
-        <Card className={cn(
-          "report-card-animate opacity-0 border-indigo-100 dark:border-indigo-950/30 overflow-hidden relative bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/40 dark:from-indigo-950/10 dark:via-card/40 dark:to-purple-950/10 backdrop-blur-md rounded-2xl shadow-xs",
-          !insight && "no-print-if-empty"
-        )}>
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <div className="space-y-1">
-              <CardTitle className="text-sm sm:text-lg font-bold flex items-center gap-2 text-indigo-700 dark:text-indigo-400">
-                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 animate-pulse" />
-                Analisis Finansial AI Fimo
-              </CardTitle>
-              <p className="text-[11px] text-muted-foreground">Analisis pola spending bulanan dan tips efisiensi otomatis.</p>
-            </div>
-            {!insight && !isLoadingInsight && (
-              <Button
-                onClick={handleGenerateInsight}
-                size="sm"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-xs font-semibold px-4"
-              >
-                <BrainCircuit className="h-4 w-4 mr-2" />
-                Analisis
-              </Button>
-            )}
-          </CardHeader>
-          <CardContent className="pt-2">
-            {isLoadingInsight && (
-              <div className="py-12 flex flex-col items-center justify-center space-y-4">
-                <motion.img
-                  src="/mascot.png"
-                  alt="Analyzing Mascot"
-                  className="w-20 h-20 object-contain drop-shadow-md"
-                  animate={{
-                    y: [0, -10, 0],
-                    rotate: [0, 5, -5, 0]
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                />
-                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-                  <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                  <p className="text-xs font-mono font-bold animate-pulse">Fimo AI sedang menganalisis keuangan Anda...</p>
-                </div>
-              </div>
-            )}
-
-            {!insight && !isLoadingInsight && (
-              <div className="py-6 text-center border border-dashed border-indigo-100 dark:border-indigo-950/40 rounded-xl bg-white/40 dark:bg-black/10">
-                <p className="text-xs text-muted-foreground px-4">
-                  Klik tombol <strong>Analisis</strong> di atas untuk memproses data keuangan periode ini menggunakan model AI Gemini.
-                </p>
-              </div>
-            )}
-
-            {insight && !isLoadingInsight && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.98, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="space-y-6"
-              >
-                {/* Upper block: Score and summary */}
-                <div className="flex flex-col md:flex-row gap-4 items-start ai-upper-block">
-                  {/* Circular Score display */}
-                  <div className={cn(
-                    "flex flex-col items-center justify-center h-20 w-20 sm:h-24 sm:w-24 rounded-full border-4 font-black flex-shrink-0 mx-auto md:mx-0 shadow-xs ai-score-circle",
-                    getScoreColor(insight.financial_score)
-                  )}>
-                    <span className="text-2xl sm:text-3xl font-extrabold">{insight.financial_score}</span>
-                    <span className="text-[9px] uppercase tracking-wider font-mono opacity-80 mt-0.5">Skor</span>
-                  </div>
-
-                  {/* Summary Text */}
-                  <div className="flex-1">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 mb-1">Analisis Fimo:</h4>
-                    <p className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed font-medium">
-                      {insight.summary}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 ai-details-grid">
-                  {/* Tips list */}
-                  <div className="bg-white/60 dark:bg-neutral-900/40 p-4 rounded-xl border border-indigo-50 dark:border-indigo-950/20 space-y-2.5">
-                    <h5 className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 uppercase tracking-wide">
-                      <CheckCircle2 className="h-4 w-4" />
-                      Rekomendasi Hemat Fimo
-                    </h5>
-                    <ul className="space-y-2">
-                      {insight.tips.map((tip, i) => (
-                        <li key={i} className="text-xs text-neutral-600 dark:text-neutral-400 flex items-start gap-2 leading-relaxed">
-                          <span className="text-emerald-500 font-bold mt-0.5">•</span>
-                          <span>{tip}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Warnings list */}
-                  {insight.warnings && insight.warnings.length > 0 && (
-                    <div className="bg-white/60 dark:bg-neutral-900/40 p-4 rounded-xl border border-indigo-50 dark:border-indigo-950/20 space-y-2.5">
-                      <h5 className="text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1.5 uppercase tracking-wide">
-                        <AlertTriangle className="h-4 w-4" />
-                        Peringatan Pengeluaran
-                      </h5>
-                      <ul className="space-y-2">
-                        {insight.warnings.map((warn, i) => (
-                          <li key={i} className="text-xs text-neutral-600 dark:text-neutral-400 flex items-start gap-2 leading-relaxed">
-                            <span className="text-rose-500 font-bold mt-0.5">•</span>
-                            <span>{warn}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </CardContent>
-        </Card>
 
       {/* EVENT WALLETS REPORTS SECTION */}
       {eventWallets.length > 0 && (

@@ -338,20 +338,7 @@ export default async function DashboardPage({
             </Link>
           </CardContent>
         </Card>
-
-        {/* Mobile-only Daily Tips at the bottom */}
-        <div className="block md:hidden bg-[#c5b0f4] dark:bg-[#1f1d3d] rounded-2xl p-5 text-black dark:text-white relative mt-3 shadow-xs">
-          <div className="relative z-10">
-            <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 mb-1.5">Tips Harian</p>
-            <h3 className="text-lg font-bold mb-2">Tips Hemat Hari Ini</h3>
-            <p className="text-black/80 dark:text-white/80 text-xs leading-relaxed font-medium">
-              &quot;Jangan menabung apa yang tersisa setelah dibelanjakan, tetapi belanjakanlah apa yang tersisa setelah menabung.&quot; 
-              — Warren Buffett
-            </p>
-          </div>
-        </div>
-
-        {/* Right side container for Budget & Tips (Desktop only) */}
+        {/* Right side container for Budget (Desktop only) */}
         <div className="hidden md:block space-y-8 h-fit">
           {/* Upcoming Reminders Card */}
           <Card>
@@ -369,18 +356,6 @@ export default async function DashboardPage({
               <BudgetProgress budgets={budgets} />
             </CardContent>
           </Card>
-
-          {/* Quick Tips - Figma Lilac/Navy Block */}
-          <div className="bg-[#c5b0f4] dark:bg-[#1f1d3d] rounded-lg p-6 text-black dark:text-white relative">
-            <div className="relative z-10">
-              <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 mb-2">Tips Harian</p>
-              <h3 className="text-xl font-bold mb-3">Tips Hemat Hari Ini</h3>
-              <p className="text-black/80 dark:text-white/80 text-sm leading-relaxed">
-                &quot;Jangan menabung apa yang tersisa setelah dibelanjakan, tetapi belanjakanlah apa yang tersisa setelah menabung.&quot; 
-                — Warren Buffett
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
