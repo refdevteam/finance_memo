@@ -39,19 +39,19 @@ export function AICoachCard() {
     )
   }
 
-  const tipText = insight?.tip || "Mulai catat keuanganmu hari ini untuk melihat analisis harian dari Fimo AI Coach!"
+  const tipText = insight?.tip || "Mulai catat keuanganmu hari ini untuk melihat analisis harian dari Fimo AI!"
   const scoreVal = insight?.score ?? 70
 
   return (
     <div 
       className={cn(
-        "w-full bg-[#c5b0f4] text-black border-2 border-black rounded-xl p-4 sm:p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] duration-200"
+        "w-full bg-[#c5b0f4] text-black border-2 border-black dark:border-white rounded-xl p-4 sm:p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] duration-200"
       )}
     >
       <div className="space-y-1.5 flex-1">
         <div className="flex items-center gap-2 text-xs font-mono font-extrabold uppercase tracking-wider opacity-80">
           <Sparkles className="h-4 w-4 text-black animate-spin-slow fill-black/10 shrink-0" />
-          <span>Fimo AI Coach</span>
+          <span>Fimo AI</span>
         </div>
         <p className="text-sm font-semibold leading-relaxed text-black/90 antialiased">
           {tipText}

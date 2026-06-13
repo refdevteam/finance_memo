@@ -74,7 +74,7 @@ export function DashboardWidgetsMobile({
       {/* 1. Tren Keuangan (High Priority) */}
       <Dialog open={activeDialog === 'trend'} onOpenChange={(open) => setActiveDialog(open ? 'trend' : null)}>
         <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800/80 shadow-xs hover:border-slate-200 min-h-[140px] flex flex-col justify-between p-3">
+          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] min-h-[140px] flex flex-col justify-between p-3">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[9px] font-bold font-mono text-slate-400 uppercase tracking-wider">
@@ -120,7 +120,7 @@ export function DashboardWidgetsMobile({
       {/* 2. Anggaran Kategori (High Priority) */}
       <Dialog open={activeDialog === 'budget'} onOpenChange={(open) => setActiveDialog(open ? 'budget' : null)}>
         <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800/80 shadow-xs hover:border-slate-200 min-h-[140px] flex flex-col justify-between p-3">
+          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] min-h-[140px] flex flex-col justify-between p-3">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[9px] font-bold font-mono text-slate-400 uppercase tracking-wider">
@@ -176,7 +176,7 @@ export function DashboardWidgetsMobile({
       {/* 3. Breakdown Kategori (Medium Priority) */}
       <Dialog open={activeDialog === 'breakdown'} onOpenChange={(open) => setActiveDialog(open ? 'breakdown' : null)}>
         <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800/80 shadow-xs hover:border-slate-200 min-h-[140px] flex flex-col justify-between p-3">
+          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] min-h-[140px] flex flex-col justify-between p-3">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[9px] font-bold font-mono text-slate-400 uppercase tracking-wider">
@@ -244,7 +244,7 @@ export function DashboardWidgetsMobile({
       {/* 4. Pengingat Tagihan (High Priority) */}
       <Dialog open={activeDialog === 'reminders'} onOpenChange={(open) => setActiveDialog(open ? 'reminders' : null)}>
         <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800/80 shadow-xs hover:border-slate-200 min-h-[140px] flex flex-col justify-between p-3">
+          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] min-h-[140px] flex flex-col justify-between p-3">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[9px] font-bold font-mono text-slate-400 uppercase tracking-wider">

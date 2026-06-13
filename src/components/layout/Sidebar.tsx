@@ -194,8 +194,8 @@ export function Sidebar({ wallets = [], categories = [], recordStreak = 0 }: { w
         </div>
       </div>
 
-      {/* Mobile Floating Bottom Bar - iOS Glassmorphism */}
-      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[400px] h-16 rounded-full border border-border bg-white/70 dark:bg-card/70 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-40 flex items-center justify-around px-2">
+      {/* Mobile Floating Bottom Bar - Retro Neo-Brutalist */}
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[400px] h-16 rounded-full border-2 border-black dark:border-white bg-white dark:bg-zinc-950 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] z-40 flex items-center justify-around px-2">
         {/* Beranda */}
         <Link
           href="/dashboard"

@@ -247,7 +247,7 @@ export default async function DashboardPage({
           <div 
             key={stat.label} 
             className={cn(
-              "p-3.5 sm:p-6 rounded-lg border border-transparent flex flex-col justify-between min-h-[85px] sm:min-h-[110px] transition-all hover:scale-[1.01] shadow-none",
+              "p-3.5 sm:p-6 rounded-xl border-2 border-black dark:border-white flex flex-col justify-between min-h-[85px] sm:min-h-[110px] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] duration-200",
               stat.bgClass
             )}
           >

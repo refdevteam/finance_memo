@@ -98,7 +98,7 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
       </div>
 
       {/* Month Navigation & Action Buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-950 p-4 rounded-xl border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
         <div className="flex items-center space-x-4">
           <Button
             variant="outline"
@@ -138,31 +138,31 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
 
       {/* Stats Summary Card */}
       {totalBudgeted > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100/60 dark:border-emerald-950/50 p-6 rounded-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#c8e6cd] text-black border-2 border-black dark:border-white p-6 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
           <div className="space-y-1">
-            <span className="text-[10px] font-bold font-mono text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">
+            <span className="text-[10px] font-bold font-mono text-emerald-900 uppercase tracking-wider">
               Total Dianggarkan
             </span>
-            <h3 className="text-xl md:text-2xl font-extrabold text-emerald-900 dark:text-emerald-300">
+            <h3 className="text-xl md:text-2xl font-extrabold text-black">
               {formatRupiah(totalBudgeted)}
             </h3>
           </div>
           <div className="space-y-1">
-            <span className="text-[10px] font-bold font-mono text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">
+            <span className="text-[10px] font-bold font-mono text-emerald-900 uppercase tracking-wider">
               Total Terpakai (Pada Anggaran)
             </span>
-            <h3 className="text-xl md:text-2xl font-extrabold text-emerald-900 dark:text-emerald-300">
+            <h3 className="text-xl md:text-2xl font-extrabold text-black">
               {formatRupiah(totalSpent)}
             </h3>
           </div>
           <div className="space-y-2 flex flex-col justify-center">
-            <div className="flex items-center justify-between text-xs font-bold text-emerald-800 dark:text-emerald-400">
+            <div className="flex items-center justify-between text-xs font-bold text-emerald-950">
               <span>Rasio Pemakaian</span>
               <span>{overallPercentage}%</span>
             </div>
-            <div className="h-2 w-full bg-emerald-100 dark:bg-emerald-900 rounded-full overflow-hidden">
+            <div className="h-2.5 w-full bg-black/10 rounded-full overflow-hidden border border-black/10">
               <div 
-                className="h-full bg-emerald-600 dark:bg-emerald-500 rounded-full transition-all duration-500" 
+                className="h-full bg-emerald-700 rounded-full transition-all duration-500" 
                 style={{ width: `${overallPercentage}%` }}
               />
             </div>
@@ -178,7 +178,7 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
           placeholder="Cari kategori anggaran..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 pr-10 py-5 rounded-2xl bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 focus-visible:ring-emerald-500 transition-all shadow-xs text-sm"
+          className="pl-10 pr-10 py-5 rounded-xl bg-white dark:bg-zinc-950 border-2 border-black dark:border-white focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-all shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] text-sm"
         />
         {searchQuery && (
           <button 
@@ -204,7 +204,7 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {filteredBudgets.map((b) => {
             const hasBudget = b.budget_limit > 0
             const percentage = hasBudget ? Math.round((b.spent / b.budget_limit) * 100) : 0
@@ -231,8 +231,8 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
               <div 
                 key={b.category_id}
                 className={cn(
-                  "p-3 sm:p-5 bg-white dark:bg-slate-900 rounded-2xl border transition-all duration-300 flex flex-col justify-between min-h-[125px] sm:min-h-[140px] shadow-xs hover:shadow-md",
-                  hasBudget ? "border-slate-100 dark:border-slate-800/80" : "border-slate-100 dark:border-slate-800/80 opacity-75 hover:opacity-100"
+                  "p-4 sm:p-5 bg-white dark:bg-zinc-950 rounded-xl border-2 border-black dark:border-white transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] duration-200 flex flex-col justify-between min-h-[125px] sm:min-h-[140px]",
+                  !hasBudget && "opacity-75 hover:opacity-100"
                 )}
               >
                 {/* Upper row: Icon, Category Name, Action Trigger */}
