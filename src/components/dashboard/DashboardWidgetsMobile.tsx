@@ -57,7 +57,7 @@ export function DashboardWidgetsMobile({
       {/* 1. Anggaran Kategori */}
       <Dialog open={activeDialog === 'budget'} onOpenChange={(open) => setActiveDialog(open ? 'budget' : null)}>
         <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_rgba(0,0,0,1)] dark:hover:shadow-[1px_1px_0px_rgba(255,255,255,0.15)] min-h-[92px] flex flex-col justify-between p-3 border-2 border-black dark:border-white bg-[#f4ecd6] dark:bg-zinc-900 text-black dark:text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_rgba(255,255,255,0.15)] rounded-xl">
+          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_rgba(0,0,0,1)] dark:hover:shadow-[1px_1px_0px_rgba(255,255,255,0.15)] min-h-[92px] flex flex-col justify-between p-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_rgba(255,255,255,0.15)] rounded-xl">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black font-mono uppercase tracking-wider">
@@ -78,7 +78,7 @@ export function DashboardWidgetsMobile({
 
             <div className="mt-2">
               {totalBudgeted > 0 ? (
-                <div className="h-2 w-full bg-white dark:bg-zinc-800 border border-black dark:border-white rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-slate-100 dark:bg-zinc-800 border border-black dark:border-white rounded-full overflow-hidden">
                   <div 
                     className={cn("h-full transition-all duration-300 border-r border-black dark:border-white", budgetColorClass)}
                     style={{ width: `${Math.min(budgetPercentage, 100)}%` }}
@@ -107,7 +107,7 @@ export function DashboardWidgetsMobile({
       {/* 2. Pengingat Tagihan */}
       <Dialog open={activeDialog === 'reminders'} onOpenChange={(open) => setActiveDialog(open ? 'reminders' : null)}>
         <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_rgba(0,0,0,1)] dark:hover:shadow-[1px_1px_0px_rgba(255,255,255,0.15)] min-h-[92px] flex flex-col justify-between p-3 border-2 border-black dark:border-white bg-[#efd4d4] dark:bg-zinc-900 text-black dark:text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_rgba(255,255,255,0.15)] rounded-xl">
+          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_rgba(0,0,0,1)] dark:hover:shadow-[1px_1px_0px_rgba(255,255,255,0.15)] min-h-[92px] flex flex-col justify-between p-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_rgba(255,255,255,0.15)] rounded-xl">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black font-mono uppercase tracking-wider">
@@ -119,12 +119,12 @@ export function DashboardWidgetsMobile({
 
             <div className="mt-2">
               {upcomingRemindersCount > 0 ? (
-                <div className="flex items-center justify-center gap-1.5 bg-[#ff3d8b]/15 text-black dark:text-white py-1 px-2.5 rounded-lg border border-black dark:border-white text-[10px] font-black">
+                <div className="flex items-center justify-center gap-1.5 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 py-1 px-2.5 rounded-lg border border-black dark:border-white text-[10px] font-black">
                   <LucideIcons.AlertTriangle className="h-3.5 w-3.5 shrink-0 text-rose-600 dark:text-rose-400" />
                   <span>{upcomingRemindersCount} Tagihan</span>
                 </div>
               ) : (
-                <div className="flex items-center justify-center gap-1.5 bg-[#c8e6cd]/60 text-black dark:text-white py-1 px-2.5 rounded-lg border border-black dark:border-white text-[10px] font-black">
+                <div className="flex items-center justify-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 py-1 px-2.5 rounded-lg border border-black dark:border-white text-[10px] font-black">
                   <LucideIcons.CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
                   <span>Aman</span>
                 </div>
