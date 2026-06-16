@@ -28,7 +28,7 @@ interface CategoryData {
   color: string
 }
 
-import { COLORS, getPastelColor } from '@/lib/colors'
+import { getPastelColor } from '@/lib/colors'
 
 function formatCompact(value: number): string {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}jt`
