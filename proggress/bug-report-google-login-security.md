@@ -1,3 +1,64 @@
+# Bug Report: Kegagalan Login Google One Tap & Celah Keamanan Bot (Login Security)
+
+**Project:** Finance Memo  
+**Files:** `GoogleLoginButton.tsx`, `LoginCardClient.tsx`  
+**Status:** 🔴 Critical — Masalah pada proses autentikasi One Tap & Ketiadaan proteksi bot  
+**Reporter:** Code Review / Security Auditor
+
+---
+
+## Ringkasan Masalah
+
+1. **Gagal Login Google One Tap:** Ketika aplikasi Fimo memunculkan *bottom sheet* Google One Tap yang berisi daftar akun Google pengguna, mengklik salah satu akun tersebut menyebabkan error/kegagalan masuk. Hal ini memaksa pengguna untuk dialihkan ke halaman persetujuan login Google eksternal secara terpisah (redirect OAuth).
+2. **Ketiadaan Proteksi Bot:** Halaman login belum memiliki proteksi untuk menyaring bot/crawlers otomatis yang dapat memicu serangan spam autentikasi atau brute force melalui API OAuth.
+
+---
+
+## Root Cause
+
+### 1. Masalah Kuki Pihak Ketiga & Ketidakhadiran FedCM
+Pada peramban Chrome versi terbaru, akses kuki pihak ketiga secara default mulai dibatasi. Google One Tap menggunakan kuki pihak ketiga untuk mendeteksi sesi Google aktif pengguna.
+Ketika kuki ini diblokir, One Tap gagal beroperasi secara aman di dalam *iframe* popup GSI, kecuali fitur **FedCM (Federated Credential Management API)** diaktifkan secara eksplisit.
+Saat ini, inisialisasi GSI di `GoogleLoginButton.tsx` belum menyertakan konfigurasi `use_fedcm_for_prompt: true`.
+
+```typescript
+// ❌ BERMASALAH — Belum mengaktifkan FedCM untuk kompatibilitas Chrome
+window.google!.accounts.id.initialize({
+  client_id: clientId,
+  callback: handleCredentialResponse,
+})
+```
+
+### 2. Pemuatan One Tap Otomatis Tanpa Interaksi (Kerentanan Bot)
+Metode `window.google!.accounts.id.prompt()` dipanggil secara otomatis saat komponen dimuat (*mount*), tanpa memeriksa apakah pengguna adalah bot atau manusia. Hal ini memungkinkan bot pencari lubang keamanan (crawlers) untuk langsung memicu proses autentikasi atau spamming API Google.
+
+---
+
+## Proposed Fix (Solusi)
+
+### Fix 1 — Aktifkan FedCM pada GSI
+Menambahkan properti `use_fedcm_for_prompt: true` pada inisialisasi Google Accounts untuk mematuhi standar Google Identity Services terbaru.
+
+```typescript
+// ✅ SOLUSI — FedCM Aktif, kompatibel dengan pemblokiran kuki Chrome terbaru
+window.google!.accounts.id.initialize({
+  client_id: clientId,
+  callback: handleCredentialResponse,
+  use_fedcm_for_prompt: true, // Bypass pembatasan third-party cookies secara aman via API browser
+})
+```
+
+### Fix 2 — Proteksi Anti-Bot (Honeypot & Kotak Centang Manusia)
+Untuk mematuhi aturan keamanan Fimo dan standard pengkodean:
+1. **Honeypot Field:** Kolom input tersembunyi (`website_api_bypass`) yang tidak terlihat oleh manusia tetapi biasanya otomatis diisi oleh bot pengisi form. Jika kolom ini terdeteksi memiliki isi, proses login langsung ditolak.
+2. **Saya Bukan Robot Checkbox:** Menambahkan kotak centang neo-brutalist interaktif. SDK Google GSI dan prompt Google One Tap **hanya akan diinisialisasi dan ditampilkan** setelah pengguna mencentang kotak ini. Hal ini secara efektif menghentikan bot otomatis dari memicu login Google secara instan.
+
+---
+
+## Implementasi Kode (Rencana Perubahan)
+
+### `GoogleLoginButton.tsx`
+```tsx
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
@@ -38,7 +99,6 @@ declare global {
             isNotDisplayed: () => boolean;
             getNotDisplayedReason: () => string;
           }) => void) => void;
-          disableAutoSelect: () => void;
         };
       };
     };
@@ -58,12 +118,10 @@ export function GoogleLoginButton() {
   const [isVerified, setIsVerified] = useState(false)
   const [honeypot, setHoneypot] = useState('')
 
-  // Gunakan mounted state untuk menghindari perbedaan rendering SSR dan Client
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Mengatur lebar tombol agar responsif sesuai layar saat mounting
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const width = Math.min(380, window.innerWidth - 64)
@@ -71,27 +129,23 @@ export function GoogleLoginButton() {
     }
   }, [])
 
-  // Memantau ketersediaan SDK Google Identity Services
+  // Memantau ketersediaan SDK Google
   useEffect(() => {
     const checkGoogle = () => {
       if (window.google?.accounts?.id) {
         setIsGoogleLoaded(true)
       }
     }
-
     checkGoogle()
-
     const interval = setInterval(() => {
       if (window.google?.accounts?.id) {
         setIsGoogleLoaded(true)
         clearInterval(interval)
       }
     }, 100)
-
     return () => clearInterval(interval)
   }, [])
 
-  // Callback setelah sukses login di pop-up Google
   const handleCredentialResponse = useCallback(async (response: GoogleCredentialResponse) => {
     // PROTEKSI BOT 1: Cek Honeypot
     if (honeypot.trim() !== '') {
@@ -116,7 +170,6 @@ export function GoogleLoginButton() {
         return
       }
 
-      // Berhasil masuk, arahkan ke dashboard
       router.push('/dashboard')
       router.refresh()
     } catch (err) {
@@ -134,7 +187,7 @@ export function GoogleLoginButton() {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
     if (!clientId) {
       console.error('NEXT_PUBLIC_GOOGLE_CLIENT_ID tidak ditemukan!')
-      setErrorMsg('Google Client ID belum dikonfigurasi di .env.local')
+      setErrorMsg('Google Client ID belum dikonfigurasi')
       return
     }
 
@@ -147,7 +200,7 @@ export function GoogleLoginButton() {
 
       const buttonDiv = document.getElementById('google-signin-btn-container')
       if (buttonDiv) {
-        buttonDiv.innerHTML = '' // Bersihkan container sebelum render ulang tombol untuk mengikuti perubahan tema
+        buttonDiv.innerHTML = ''
         window.google!.accounts.id.renderButton(buttonDiv, {
           theme: resolvedTheme === 'dark' ? 'filled_black' : 'outline',
           size: 'large',
@@ -159,7 +212,6 @@ export function GoogleLoginButton() {
 
       // Opsional: Tampilkan Google One Tap
       window.google!.accounts.id.prompt()
-
     } catch (err) {
       console.error('Error in GSI initialization/rendering:', err)
     }
@@ -225,3 +277,17 @@ export function GoogleLoginButton() {
     </div>
   )
 }
+```
+
+---
+
+## Ringkasan per Perspektif
+
+| Role | Temuan & Kontribusi |
+|------|---------------------|
+| **Dev / Security** | Mengaktifkan opsi `use_fedcm_for_prompt: true` untuk Chrome compatibility, menambahkan form honeypot tersembunyi `website_api_bypass`, serta menunda inisialisasi GSI sampai checkbox centang bernilai true. |
+| **QA** | Memverifikasi kegagalan jika honeypot terisi. Memastikan kotak dialog google-signin-btn-container tersembunyi saat `isVerified` false, dan muncul saat `isVerified` true. |
+| **PM / UX** | Alur login Google tetap ramah pengguna, dengan tambahan verifikasi visual brutalist "Saya bukan robot" yang serasi dengan identitas desain Fimo. |
+
+---
+*Generated from code review & security audit — Fimo Project*
