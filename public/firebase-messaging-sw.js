@@ -83,13 +83,31 @@ self.addEventListener('push', function(event) {
   if (event.data) {
     try {
       const data = event.data.json();
-      title = data.notification?.title || title;
+      
+      // Extremely robust parsing to support standard Web Push payload structure
+      const notification = data.notification || data.data?.notification || data.data || {};
+      title = notification.title || data.title || title;
+      const body = notification.body || data.body || options.body;
+      const icon = notification.icon || data.icon || '/logo-circle.png';
+      const badge = notification.badge || data.badge || '/icon-192.png';
+      
+      const payloadData = data.data || data || {};
+      
       options = {
-        body: data.notification?.body || options.body,
-        icon: data.notification?.icon || options.icon,
-        badge: data.notification?.badge || options.badge,
-        data: data.data || {}
+        body: body,
+        icon: icon,
+        badge: badge,
+        data: payloadData
       };
+
+      // Add snooze and manage actions if it is a reminder push notification
+      if (payloadData.reminder_id) {
+        options.actions = [
+          { action: 'snooze_1d', title: 'Tunda 1 Hari' },
+          { action: 'snooze_3d', title: 'Tunda 3 Hari' },
+          { action: 'manage_reminder', title: 'Kelola Pengingat' }
+        ];
+      }
     } catch (e) {
       options.body = event.data.text();
     }
@@ -102,22 +120,75 @@ self.addEventListener('notificationclick', function(event) {
   console.log('[Service Worker] Notification clicked.');
   event.notification.close();
 
-  const actionUrl = event.notification.data?.action_url || '/dashboard';
+  const reminderId = event.notification.data?.reminder_id;
+  const action = event.action;
 
-  event.waitUntil(
-    clients.matchAll({
-      type: 'window',
-      includeUncontrolled: true
-    }).then(function(windowClients) {
-      for (let i = 0; i < windowClients.length; i++) {
-        const client = windowClients[i];
-        if (client.url === actionUrl && 'focus' in client) {
-          return client.focus();
+  if (action === 'snooze_1d' || action === 'snooze_3d') {
+    const days = action === 'snooze_1d' ? 1 : 3;
+    
+    event.waitUntil(
+      fetch('/api/reminders/snooze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          reminder_id: reminderId,
+          snooze_days: days
+        })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Snooze API returned non-200');
         }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow(actionUrl);
-      }
-    })
-  );
+        return response.json();
+      })
+      .then(data => {
+        console.log('[Service Worker] Rescheduled successfully:', data);
+        
+        const category = event.notification.data?.category || 'custom';
+        const title = event.notification.data?.title || 'Pengingat';
+        let encourageMsg = '';
+        if (category === 'bill') {
+          encourageMsg = `Tidak apa-apa, menunda pembayaran "${title}" adalah hal yang manusiawi. Tetap bernapas lega dan bayar ketika siap. Semoga lancar rezekinya!`;
+        } else if (category === 'saving') {
+          encourageMsg = `Jangan memaksakan diri. Menabung untuk masa depan itu penting, tapi kesehatan mentalmu saat ini jauh lebih utama. Kamu hebat!`;
+        } else if (category === 'installment') {
+          encourageMsg = `Cicilan "${title}" ditunda. Jangan biarkan kecemasan menguasaimu. Selangkah demi selangkah, kamu pasti bisa melaluinya!`;
+        } else if (category === 'subscription') {
+          encourageMsg = `Langganan "${title}" ditunda. Gunakan waktu ini untuk memikirkan kembali nilainya bagi hidupmu. Semangat!`;
+        } else {
+          encourageMsg = `Pengingat "${title}" berhasil dijadwalkan ulang. Ambil waktu sejenak untuk menenangkan pikiran. Tetap semangat!`;
+        }
+
+        return self.registration.showNotification('Pengingat Ditunda', {
+          body: encourageMsg,
+          icon: '/logo-circle.png',
+          tag: 'snooze-confirm'
+        });
+      })
+      .catch(error => {
+        console.error('[Service Worker] Snooze failed:', error);
+      })
+    );
+  } else {
+    // If they clicked 'manage_reminder' or clicked the notification body, open action_url
+    const actionUrl = event.notification.data?.action_url || `/dashboard/reminders?manage_id=${reminderId}`;
+    event.waitUntil(
+      clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true
+      }).then(function(windowClients) {
+        for (let i = 0; i < windowClients.length; i++) {
+          const client = windowClients[i];
+          if (client.url.includes('/dashboard') && 'navigate' in client && 'focus' in client) {
+            return client.navigate(actionUrl).then(c => c.focus());
+          }
+        }
+        if (clients.openWindow) {
+          return clients.openWindow(actionUrl);
+        }
+      })
+    );
+  }
 });

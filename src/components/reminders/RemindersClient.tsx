@@ -13,7 +13,9 @@ import {
   Search, 
   SlidersHorizontal,
   Clock, 
-  Info
+  Info,
+  CheckCircle2,
+  Heart
 } from 'lucide-react'
 import { 
   Dialog, 
@@ -31,7 +33,8 @@ import {
   updateReminder, 
   deleteReminder, 
   toggleReminderStatus,
-  getReminders
+  getReminders,
+  completeReminder
 } from '@/actions/reminders'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -100,6 +103,118 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
   const [search, setSearch] = useState('')
   const [filterType, setFilterType] = useState<string>('all')
   const router = useRouter()
+
+  // Manage Reminder Dialog State (for notifications and deep linking)
+  const [manageDialogOpen, setManageDialogOpen] = useState(false)
+  const [manageReminder, setManageReminder] = useState<Reminder | null>(null)
+  const [manageSnoozeDate, setManageSnoozeDate] = useState('')
+  const [loadingManage, setLoadingManage] = useState(false)
+
+  // Listen for manage_id query parameter
+  useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const manageId = params.get('manage_id')
+      if (manageId) {
+        // We look for the reminder in initialReminders
+        const found = initialReminders.find(r => r.id === manageId)
+        if (found) {
+          setManageReminder(found)
+          setManageSnoozeDate(new Date().toISOString().split('T')[0])
+          setManageDialogOpen(true)
+        }
+      }
+    }
+  })
+
+  const closeManageDialog = () => {
+    setManageDialogOpen(false)
+    setManageReminder(null)
+    router.replace('/dashboard/reminders')
+  }
+
+  const handleCompleteFromManage = async () => {
+    if (!manageReminder) return
+    setLoadingManage(true)
+    const res = await completeReminder(manageReminder.id)
+    if (res.success) {
+      toast.success(`Berhasil menyelesaikan "${manageReminder.title}"!`)
+      closeManageDialog()
+      router.refresh()
+      setTimeout(async () => {
+        try {
+          const data = await getReminders()
+          setReminders(data as Reminder[])
+        } catch (err) {
+          console.error(err)
+        }
+      }, 300)
+    } else {
+      toast.error(res.error || 'Gagal menyelesaikan pengingat')
+    }
+    setLoadingManage(false)
+  }
+
+  const handleSnoozeFromManage = async (days?: number, customDate?: string) => {
+    if (!manageReminder) return
+    setLoadingManage(true)
+    
+    const payload: any = {
+      reminder_id: manageReminder.id
+    }
+    if (customDate) {
+      payload.custom_date = customDate
+    } else if (days !== undefined) {
+      payload.snooze_days = days
+    }
+
+    try {
+      const res = await fetch('/api/reminders/snooze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+      if (!res.ok) {
+        throw new Error('Gagal menunda pengingat.')
+      }
+      const data = await res.json()
+      if (data.success) {
+        const category = manageReminder.type || 'custom'
+        const title = manageReminder.title
+        let msg = ''
+        if (category === 'bill') {
+          msg = `Tidak apa-apa, menunda pembayaran "${title}" adalah hal yang manusiawi. Tetap tenang dan bayar ketika siap ya!`
+        } else if (category === 'saving') {
+          msg = `Jangan memaksakan diri. Menabung itu penting, tapi kesehatan mentalmu saat ini jauh lebih utama. Semangat!`
+        } else if (category === 'installment') {
+          msg = `Cicilan "${title}" ditunda. Jangan biarkan kecemasan menguasaimu. Kamu pasti bisa melaluinya!`
+        } else if (category === 'subscription') {
+          msg = `Langganan "${title}" ditunda. Pikirkan kembali kegunaannya bagi harimu. Semangat!`
+        } else {
+          msg = `Jadwal "${title}" diatur ulang. Ambil waktu sejenak untuk menenangkan pikiranmu!`
+        }
+        toast.success(msg, { duration: 6000 })
+        closeManageDialog()
+        router.refresh()
+        setTimeout(async () => {
+          try {
+            const data = await getReminders()
+            setReminders(data as Reminder[])
+          } catch (err) {
+            console.error(err)
+          }
+        }, 300)
+      } else {
+        toast.error(data.error || 'Gagal menunda pengingat')
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Terjadi kesalahan sistem.')
+    } finally {
+      setLoadingManage(false)
+    }
+  }
 
   // Form State
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -709,6 +824,152 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
               Hapus Permanen
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Unified Manage Reminder Dialog (for notifications/snoozing) */}
+      <Dialog open={manageDialogOpen} onOpenChange={(open) => !open && closeManageDialog()}>
+        <DialogContent className="sm:max-w-[480px] rounded-3xl p-6 bg-white dark:bg-neutral-950 border-2 border-black dark:border-white shadow-[6px_6px_0px_rgba(0,0,0,1)]">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+              <span className="p-1.5 bg-[#c5b0f4]/20 rounded-xl">🔔</span>
+              Kelola Pengingat
+            </DialogTitle>
+          </DialogHeader>
+
+          {manageReminder && (
+            <div className="space-y-5 pt-4">
+              {/* Reminder Details Header */}
+              <div className="p-4 bg-slate-50 dark:bg-zinc-900/60 rounded-2xl border border-slate-100 dark:border-zinc-800 flex flex-col justify-between gap-2">
+                <div className="flex items-center justify-between">
+                  <span className={cn(
+                    "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold",
+                    typeConfig[manageReminder.type]?.color || typeConfig.custom.color
+                  )}>
+                    {typeConfig[manageReminder.type]?.icon || typeConfig.custom.icon} {typeConfig[manageReminder.type]?.label || typeConfig.custom.label}
+                  </span>
+                  <span className="text-[10px] font-mono font-bold text-slate-400">
+                    Tempo: {formatDateIndo(manageReminder.due_date)}
+                  </span>
+                </div>
+                <h3 className="text-base font-extrabold text-neutral-900 dark:text-white mt-1">
+                  {manageReminder.title}
+                </h3>
+                {manageReminder.amount && (
+                  <span className="text-lg font-black text-neutral-900 dark:text-white mt-0.5">
+                    {formatRupiah(manageReminder.amount)}
+                  </span>
+                )}
+                {manageReminder.notes && (
+                  <p className="text-xs text-slate-500 mt-1 italic">
+                    Catatan: {manageReminder.notes}
+                  </p>
+                )}
+              </div>
+
+              {/* Mental Health Support Message Card */}
+              <div className="p-4 bg-[#c5b0f4]/10 dark:bg-[#c5b0f4]/5 border-2 border-[#c5b0f4]/35 rounded-2xl flex items-start gap-3">
+                <Heart className="h-5 w-5 text-[#8b5cf6] fill-[#8b5cf6]/10 shrink-0 mt-0.5 animate-pulse" />
+                <div className="space-y-1">
+                  <h4 className="text-xs font-bold text-[#8b5cf6] dark:text-[#a78bfa]">
+                    Fimo Support
+                  </h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+                    {manageReminder.type === 'bill' && (
+                      `Semangat ya! Mengatur dan melunasi tagihan "${manageReminder.title}" bisa terasa berat, tapi ingat bahwa kamu sedang melindungi kedamaian pikiranmu. Semoga semua berjalan lancar, kami yakin kamu bisa melaluinya!`
+                    )}
+                    {manageReminder.type === 'saving' && (
+                      `Setiap nominal yang kamu sisihkan untuk "${manageReminder.title}" adalah bentuk kasih sayang dan keamanan untuk dirimu di masa depan. Kamu sedang membangun ketenangan jiwa. Hebat sekali!`
+                    )}
+                    {manageReminder.type === 'installment' && (
+                      `Satu langkah demi satu langkah, kamu sedang berjalan menuju kebebasan finansial seutuhnya. Setiap cicilan "${manageReminder.title}" yang terselesaikan adalah beban yang berkurang dari pundakmu!`
+                    )}
+                    {manageReminder.type === 'subscription' && (
+                      `Tinjau kembali langganan "${manageReminder.title}" dengan penuh kesadaran. Apakah layanan ini benar-benar membawa kebahagiaan dan manfaat nyata untuk kesehatan mental serta harimu?`
+                    )}
+                    {manageReminder.type === 'custom' && (
+                      `Langkah kecil untuk "${manageReminder.title}" yang kamu jadwalkan hari ini adalah bukti nyata kepedulianmu pada masa depanmu. Tetap semangat, hargai setiap proses kecil!`
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons Row */}
+              <div className="grid grid-cols-1 gap-4 pt-2">
+                {/* 1. Mark as Completed Button */}
+                <div className="space-y-2">
+                  <span className="text-[10px] font-bold font-mono text-slate-400 uppercase tracking-widest block">
+                    Aksi Utama
+                  </span>
+                  <Button
+                    onClick={handleCompleteFromManage}
+                    disabled={loadingManage}
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-black border-2 border-black dark:border-white shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all font-bold rounded-xl flex items-center justify-center gap-1.5 h-11"
+                  >
+                    <CheckCircle2 className="h-5 w-5 shrink-0" />
+                    Tandai Selesai / Lunas
+                  </Button>
+                </div>
+
+                {/* 2. Snooze Options Section */}
+                <div className="space-y-2">
+                  <span className="text-[10px] font-bold font-mono text-slate-400 uppercase tracking-widest block">
+                    Tunda Pengingat (Snooze)
+                  </span>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Button
+                      variant="outline"
+                      disabled={loadingManage}
+                      onClick={() => handleSnoozeFromManage(1)}
+                      className="rounded-xl border-neutral-200 dark:border-neutral-800 text-xs font-bold"
+                    >
+                      1 Hari
+                    </Button>
+                    <Button
+                      variant="outline"
+                      disabled={loadingManage}
+                      onClick={() => handleSnoozeFromManage(3)}
+                      className="rounded-xl border-neutral-200 dark:border-neutral-800 text-xs font-bold"
+                    >
+                      3 Hari
+                    </Button>
+                    <Button
+                      variant="outline"
+                      disabled={loadingManage}
+                      onClick={() => handleSnoozeFromManage(7)}
+                      className="rounded-xl border-neutral-200 dark:border-neutral-800 text-xs font-bold"
+                    >
+                      1 Minggu
+                    </Button>
+                  </div>
+                </div>
+
+                {/* 3. Custom Date Reschedule */}
+                <div className="space-y-2">
+                  <label htmlFor="manage-snooze-date" className="text-[10px] font-bold font-mono text-slate-400 uppercase tracking-widest block">
+                    Atur Tanggal Kustom
+                  </label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="manage-snooze-date"
+                      type="date"
+                      value={manageSnoozeDate}
+                      onChange={(e) => setManageSnoozeDate(e.target.value)}
+                      className="rounded-xl border-neutral-200 dark:border-neutral-800 flex-1 text-xs"
+                      required
+                    />
+                    <Button
+                      disabled={loadingManage || !manageSnoozeDate}
+                      onClick={() => handleSnoozeFromManage(undefined, manageSnoozeDate)}
+                      className="bg-black hover:bg-neutral-800 text-white dark:bg-white dark:text-black dark:hover:bg-neutral-200 rounded-xl px-4 text-xs font-bold"
+                    >
+                      Tunda
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

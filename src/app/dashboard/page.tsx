@@ -24,6 +24,8 @@ import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggl
 import { AICoachCard } from '@/components/dashboard/AICoachCard'
 import { DashboardWidgetsMobile } from '@/components/dashboard/DashboardWidgetsMobile'
 import { UpcomingReminders } from '@/components/dashboard/UpcomingReminders'
+import { FimoAITrigger } from '@/components/dashboard/FimoAITrigger'
+import { MobileChartsTabs } from '@/components/dashboard/MobileChartsTabs'
 
 function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', {
@@ -232,7 +234,10 @@ export default async function DashboardPage({
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <DashboardRangeToggle />
+          <div className="flex items-center gap-2 flex-nowrap">
+            <DashboardRangeToggle />
+            <FimoAITrigger />
+          </div>
           <div className="hidden md:flex items-center gap-2 flex-wrap">
             <ReceiptScanner wallets={walletsRes.data || []} categories={categoriesRes.data || []} />
             <TransferForm />
@@ -264,24 +269,18 @@ export default async function DashboardPage({
         ))}
       </div>
 
-      <AICoachCard />
+      {/* Fimo AI Coach inline only on Desktop */}
+      <div className="hidden md:block">
+        <AICoachCard />
+      </div>
 
-      {/* Mobile-only Spending Trend Chart (Direct Display) */}
-      <Card className="block md:hidden border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] bg-white dark:bg-zinc-900">
-        <CardHeader className="p-4 pb-2">
-          <CardTitle className="text-sm font-extrabold text-neutral-900 dark:text-white flex items-center justify-between">
-            <span>Tren Keuangan — {chartTitleLabel}</span>
-            <span className="text-[10px] font-mono text-slate-400 font-normal uppercase tracking-wider">
-              Rasio Tabungan: {savingsRate}%
-            </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-3 pt-0">
-          <div className="h-[200px] overflow-hidden pr-2">
-            <SpendingTrendChart data={dailyChartData} height={200} />
-          </div>
-        </CardContent>
-      </Card>
+      {/* Mobile-only Interactive Charts Selector (Tren vs Kategori) */}
+      <MobileChartsTabs 
+        dailyChartData={dailyChartData}
+        categoryChartData={categoryChartData}
+        savingsRate={savingsRate}
+        chartTitleLabel={chartTitleLabel}
+      />
 
       {/* Mobile-only widgets grid */}
       <DashboardWidgetsMobile
