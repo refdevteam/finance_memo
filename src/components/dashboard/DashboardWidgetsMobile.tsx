@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/dialog'
 import { Card } from '@/components/ui/card'
 import { BudgetCategory } from '@/actions/budgets'
-import { CategoryPieChart, CategoryMiniPieChart } from '@/components/dashboard/DashboardCharts'
 import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
 import { cn } from '@/lib/utils'
 import { UpcomingReminders } from '@/components/dashboard/UpcomingReminders'
@@ -58,7 +57,7 @@ export function DashboardWidgetsMobile({
   }
 
   return (
-    <div className="grid grid-cols-3 gap-2 md:hidden">
+    <div className="grid grid-cols-2 gap-2 md:hidden">
       
       {/* 1. Anggaran Kategori */}
       <Dialog open={activeDialog === 'budget'} onOpenChange={(open) => setActiveDialog(open ? 'budget' : null)}>
@@ -115,61 +114,7 @@ export function DashboardWidgetsMobile({
         </DialogContent>
       </Dialog>
 
-      {/* 2. Breakdown Kategori */}
-      <Dialog open={activeDialog === 'breakdown'} onOpenChange={(open) => setActiveDialog(open ? 'breakdown' : null)}>
-        <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] min-h-[120px] flex flex-col justify-between p-2.5 border-2 border-black dark:border-white shadow-[2px_2px_0px_rgba(0,0,0,1)]">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[9px] font-bold font-mono text-slate-400 uppercase tracking-wider truncate">
-                  Kategori
-                </span>
-                <LucideIcons.PieChart className="h-4 w-4 text-indigo-500 shrink-0" />
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center justify-center mt-2 space-y-1 min-w-0">
-              {categoryChartData.length > 0 ? (
-                <>
-                  <CategoryMiniPieChart data={categoryChartData} />
-                  <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 truncate max-w-full text-center">
-                    {topCategoryName}
-                  </span>
-                </>
-              ) : (
-                <span className="text-[9px] text-slate-400 italic py-2">Kosong</span>
-              )}
-            </div>
-          </Card>
-        } />
-        <DialogContent className="max-w-[95%] rounded-3xl p-5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)]">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold dark:text-white">
-              Pengeluaran per Kategori
-            </DialogTitle>
-          </DialogHeader>
-          <div className="pt-4 flex flex-col items-center justify-center">
-            <CategoryPieChart data={categoryChartData} />
-            
-            {/* Daftar Kategori & Nominal (Amount) */}
-            <div className="w-full mt-6 space-y-2 max-h-[200px] overflow-y-auto pr-1">
-              {categoryChartData.map((c) => (
-                <div key={c.name} className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-50 dark:bg-zinc-900/40 border border-slate-100 dark:border-zinc-800/60 hover:bg-slate-100 dark:hover:bg-zinc-800/80 transition-all duration-200">
-                  <div className="flex items-center min-w-0">
-                    <span className="w-3.5 h-3.5 rounded-full mr-2 shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: c.color }} />
-                    <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">{c.name}</span>
-                  </div>
-                  <span className="font-mono font-bold text-slate-900 dark:text-white ml-2 shrink-0">
-                    {formatRupiah(c.value)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* 3. Pengingat Tagihan */}
+      {/* 2. Pengingat Tagihan */}
       <Dialog open={activeDialog === 'reminders'} onOpenChange={(open) => setActiveDialog(open ? 'reminders' : null)}>
         <DialogTrigger render={
           <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] min-h-[120px] flex flex-col justify-between p-2.5 border-2 border-black dark:border-white shadow-[2px_2px_0px_rgba(0,0,0,1)]">

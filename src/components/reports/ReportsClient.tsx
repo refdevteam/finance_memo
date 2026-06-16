@@ -10,7 +10,7 @@ import { InlineSelect } from '@/components/ui/inline-select'
 import { toast } from 'sonner'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
-import { CategoryPieChart, SixMonthTrendChart } from '@/components/dashboard/DashboardCharts'
+import { CategoryBarChart, SixMonthTrendChart } from '@/components/dashboard/DashboardCharts'
 import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
 import { cn } from '@/lib/utils'
 import { generateMonthlyInsights } from '@/actions/ai-insights'
@@ -680,8 +680,8 @@ export function ReportsClient({
             <CardContent className="p-2 md:p-6 pt-2 md:pt-0">
               {categoryChartData.length > 0 ? (
                 <>
-                  {/* Pie Chart di atas */}
-                  <CategoryPieChart data={categoryChartData} height={isMobile && !isExporting ? 130 : 260} />
+                  {/* Bar Chart di atas */}
+                  <CategoryBarChart data={categoryChartData} height={isMobile && !isExporting ? 130 : 260} />
 
                   {/* Legenda Keterangan & Nominal di bawah (Layout Vertikal Stacked) */}
                   <div className={cn(

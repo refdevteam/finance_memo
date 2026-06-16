@@ -247,7 +247,7 @@ export function HelpGuidance() {
       )
     },
     {
-      title: '8. Fimo AI Coach',
+      title: '8. Fimo AI',
       subtitle: 'ANALISIS KEUANGAN & HEALTH SCORE',
       description: 'Dapatkan ulasan analisis keuangan riil dan tips taktis harian, mingguan, hingga bulanan yang dirancang khusus oleh AI Coach pintar Fimo. Periksa juga Financial Health Score kamu untuk mengukur kesehatan keuanganmu secara dinamis!',
       icon: Sparkles,
@@ -402,9 +402,8 @@ export function HelpGuidance() {
               {Array.from({ length: steps.length }).map((_, i) => (
                 <div
                   key={i}
-                  className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                    i + 1 <= step ? 'bg-black dark:bg-white' : 'bg-neutral-100 dark:bg-neutral-800'
-                  }`}
+                  className={`h-1 flex-1 rounded-full transition-all duration-300 ${i + 1 <= step ? 'bg-black dark:bg-white' : 'bg-neutral-100 dark:bg-neutral-800'
+                    }`}
                 />
               ))}
             </div>

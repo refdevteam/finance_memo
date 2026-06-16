@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { SpendingTrendChart, CategoryPieChart } from './DashboardCharts'
+import { SpendingTrendChart, CategoryBarChart } from './DashboardCharts'
 import { cn } from '@/lib/utils'
 
 interface MobileChartsTabsProps {
@@ -27,7 +27,7 @@ export function MobileChartsTabs({
   savingsRate,
   chartTitleLabel,
 }: MobileChartsTabsProps) {
-  const [activeTab, setActiveTab] = useState<'trend' | 'category'>('trend')
+  const [activeTab, setActiveTab] = useState<'trend' | 'category'>('category')
 
   return (
     <Card className="block md:hidden border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden">
@@ -35,17 +35,6 @@ export function MobileChartsTabs({
         <div className="flex items-center justify-between gap-2">
           {/* User Tab Selector Chips */}
           <div className="flex gap-1 bg-slate-100 dark:bg-zinc-950 p-1 rounded-xl">
-            <button
-              onClick={() => setActiveTab('trend')}
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 transform active:scale-95 border-none",
-                activeTab === 'trend'
-                  ? "bg-black text-white dark:bg-white dark:text-black shadow-sm"
-                  : "text-slate-500 dark:text-slate-400"
-              )}
-            >
-              📈 Tren
-            </button>
             <button
               onClick={() => setActiveTab('category')}
               className={cn(
@@ -56,6 +45,17 @@ export function MobileChartsTabs({
               )}
             >
               📊 Kategori
+            </button>
+            <button
+              onClick={() => setActiveTab('trend')}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 transform active:scale-95 border-none",
+                activeTab === 'trend'
+                  ? "bg-black text-white dark:bg-white dark:text-black shadow-sm"
+                  : "text-slate-500 dark:text-slate-400"
+              )}
+            >
+              📈 Tren
             </button>
           </div>
           <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider">
@@ -87,25 +87,27 @@ export function MobileChartsTabs({
             
             {categoryChartData.length > 0 ? (
               <>
-                <div className="flex flex-col items-center justify-center min-h-[160px] relative">
-                  <CategoryPieChart data={categoryChartData} height={160} />
+                <div className="flex flex-col items-center justify-center min-h-[160px] relative pr-2">
+                  <CategoryBarChart data={categoryChartData} height={160} />
                 </div>
                 
-                {/* Legenda compact untuk mobile */}
-                <div className="grid grid-cols-2 gap-1.5 max-h-[120px] overflow-y-auto pt-2 border-t border-slate-100 dark:border-zinc-800 pr-1">
+                {/* Legenda Detail mirip popup pengeluaran per kategori */}
+                <div className="w-full mt-4 space-y-2 max-h-[180px] overflow-y-auto pr-1">
                   {categoryChartData.map((c) => (
                     <div 
                       key={c.name} 
-                      className="flex items-center justify-between text-[10px] p-1.5 px-2.5 rounded-xl bg-slate-50/50 dark:bg-zinc-800/20 border border-slate-100/30 dark:border-zinc-800/10 truncate"
+                      className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-50 dark:bg-zinc-900/40 border border-slate-100 dark:border-zinc-800/60 hover:bg-slate-100 dark:hover:bg-zinc-800/80 transition-all duration-200"
                     >
-                      <div className="flex items-center min-w-0 flex-1 mr-1">
+                      <div className="flex items-center min-w-0">
                         <span 
-                          className="w-2 h-2 rounded-full mr-1.5 shrink-0" 
+                          className="w-3.5 h-3.5 rounded-full mr-2 shrink-0 border border-black/5 dark:border-white/5" 
                           style={{ backgroundColor: c.color }} 
                         />
-                        <span className="font-bold text-slate-700 dark:text-slate-300 truncate">{c.name}</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">
+                          {c.name}
+                        </span>
                       </div>
-                      <span className="font-mono font-extrabold text-slate-900 dark:text-slate-100 shrink-0">
+                      <span className="font-mono font-bold text-slate-900 dark:text-white ml-2 shrink-0">
                         {formatRupiah(c.value)}
                       </span>
                     </div>

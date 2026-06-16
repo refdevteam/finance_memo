@@ -4,18 +4,18 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Sparkles } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
 } from '@/components/ui/dialog'
 import { AICoachCard } from '@/components/dashboard/AICoachCard'
 
 const GREETINGS = [
   "Yuk, cek kondisi kesehatan keuanganmu dari Fimo AI! ✨",
   "Ada analisis keuangan baru dari Fimo AI. Klik aku! 🤖",
-  "Butuh tips hemat? Tanya Fimo AI Coach sekarang! 📊",
+  "Butuh tips hemat? Tanya Fimo AI sekarang! 📊",
   "Jangan lupa catat transaksimu hari ini ya! 📝",
   "Hemat pangkal kaya! Kurangi jajan berlebih hari ini. ☕",
   "Sudah cek sisa anggaran belanjamu minggu ini? 📊",
@@ -86,7 +86,7 @@ export function FloatingMascot() {
               onClick={handleMascotClick}
             >
               {/* Close Button */}
-              <button 
+              <button
                 onClick={(e) => {
                   e.stopPropagation()
                   setShowBubble(false)
@@ -105,17 +105,17 @@ export function FloatingMascot() {
         {/* Interactive Mascot */}
         <motion.div
           initial={{ opacity: 0, y: 50, scale: 0.5 }}
-          animate={{ 
-            opacity: 1, 
-            y: 0, 
+          animate={{
+            opacity: 1,
+            y: 0,
             scale: 1,
             rotate: isWiggling ? [0, -10, 10, -10, 10, 0] : 0
           }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          transition={{ 
-            type: "spring", 
-            stiffness: 260, 
+          transition={{
+            type: "spring",
+            stiffness: 260,
             damping: 20,
             rotate: { duration: 0.6, ease: "easeInOut" }
           }}
@@ -129,9 +129,9 @@ export function FloatingMascot() {
             className="w-full h-full"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src="/mascot.png" 
-              alt="Fimo Mascot Guide" 
+            <img
+              src="/mascot.png"
+              alt="Fimo Mascot Guide"
               className="w-full h-full object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]"
             />
           </motion.div>
@@ -144,7 +144,7 @@ export function FloatingMascot() {
           <DialogHeader className="border-b border-neutral-200 dark:border-zinc-800 pb-3">
             <DialogTitle className="text-base font-extrabold uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-1.5">
               <Sparkles className="h-4 w-4 text-[#8b5cf6] fill-[#8b5cf6]/10 shrink-0" />
-              Fimo AI Coach
+              Fimo AI
             </DialogTitle>
           </DialogHeader>
           <div className="pt-2">

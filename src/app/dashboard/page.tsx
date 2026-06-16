@@ -17,7 +17,7 @@ import { TransactionForm } from '@/components/transactions/TransactionForm'
 import { TransferForm } from '@/components/transactions/TransferForm'
 import { ReceiptScanner } from '@/components/transactions/ReceiptScanner'
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions'
-import { SpendingTrendChart, CategoryPieChart } from '@/components/dashboard/DashboardCharts'
+import { SpendingTrendChart, CategoryBarChart } from '@/components/dashboard/DashboardCharts'
 import { getBudgets } from '@/actions/budgets'
 import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
 import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
@@ -303,14 +303,14 @@ export default async function DashboardPage({
           </CardContent>
         </Card>
 
-        {/* Category Breakdown Pie */}
+        {/* Category Breakdown Bar */}
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="text-lg font-semibold dark:text-white">Pengeluaran per Kategori</CardTitle>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col justify-between">
             <div className="flex-1 flex items-center justify-center min-h-[200px]">
-              <CategoryPieChart data={categoryChartData} height={200} />
+              <CategoryBarChart data={categoryChartData} height={200} />
             </div>
             
             {/* Legenda Baru: Keterangan Warna & Amount */}

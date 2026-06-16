@@ -57,18 +57,21 @@ function CustomTooltip({ active, payload, label }: any) {
     <div className="rounded-xl border border-border bg-popover/90 dark:bg-popover/90 backdrop-blur-lg shadow-lg p-3 text-xs text-popover-foreground">
       <p className="font-medium text-muted-foreground mb-1.5">{label}</p>
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      {payload.map((entry: any, idx: number) => (
-        <div key={idx} className="flex items-center gap-2">
-          <span
-            className="w-2.5 h-2.5 rounded-full"
-            style={{ backgroundColor: entry.color }}
-          />
-          <span className="text-muted-foreground">{entry.name}:</span>
-          <span className="font-semibold text-foreground">
-            {formatRupiah(entry.value)}
-          </span>
-        </div>
-      ))}
+      {payload.map((entry: any, idx: number) => {
+        const entryColor = entry.color || entry.fill || entry.payload?.color || entry.payload?.payload?.color;
+        return (
+          <div key={idx} className="flex items-center gap-2">
+            <span
+              className="w-2.5 h-2.5 rounded-full"
+              style={{ backgroundColor: entryColor }}
+            />
+            <span className="text-muted-foreground">{entry.name}:</span>
+            <span className="font-semibold text-foreground">
+              {formatRupiah(entry.value)}
+            </span>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -159,7 +162,7 @@ export function SpendingTrendChart({ data, height = 300 }: { data: DailyData[]; 
   )
 }
 
-export function CategoryPieChart({ data, height = 260 }: { data: CategoryData[]; height?: number }) {
+export function CategoryBarChart({ data, height = 260 }: { data: CategoryData[]; height?: number }) {
   if (!data.length) {
     return (
       <div style={{ height }} className="flex items-center justify-center border-2 border-dashed border-border rounded-xl">
@@ -170,25 +173,39 @@ export function CategoryPieChart({ data, height = 260 }: { data: CategoryData[];
     )
   }
 
+  // Sort descending by value to show highest expenses first
+  const sortedData = [...data].sort((a, b) => b.value - a.value)
+
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <RechartsPie>
-        <Pie
-          data={data}
-          cx="50%"
-          cy="45%"
-          innerRadius={height > 180 ? 55 : 22}
-          outerRadius={height > 180 ? 85 : 42}
-          paddingAngle={3}
-          dataKey="value"
-          strokeWidth={0}
-        >
-          {data.map((entry, idx) => (
-            <Cell key={idx} fill={entry.color || COLORS[idx % COLORS.length]} />
+      <BarChart
+        layout="vertical"
+        data={sortedData}
+        margin={{ top: 5, right: 15, left: -25, bottom: 5 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.4} horizontal={false} />
+        <XAxis 
+          type="number" 
+          tickFormatter={formatCompact} 
+          tick={{ fontSize: 10, fill: '#94a3b8' }} 
+          axisLine={false} 
+          tickLine={false} 
+        />
+        <YAxis
+          type="category"
+          dataKey="name"
+          tick={{ fontSize: 10, fill: '#64748b', fontWeight: 'bold' }}
+          axisLine={false}
+          tickLine={false}
+          width={80}
+        />
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+        <Bar dataKey="value" name="Pengeluaran" radius={[0, 4, 4, 0]} barSize={14}>
+          {sortedData.map((entry, idx) => (
+            <Cell key={`cell-${idx}`} fill={entry.color || COLORS[idx % COLORS.length]} />
           ))}
-        </Pie>
-        <Tooltip content={<PieTooltip />} />
-      </RechartsPie>
+        </Bar>
+      </BarChart>
     </ResponsiveContainer>
   )
 }
