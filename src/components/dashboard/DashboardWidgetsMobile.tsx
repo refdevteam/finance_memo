@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Card } from '@/components/ui/card'
 import { BudgetCategory } from '@/actions/budgets'
-import { SpendingTrendChart, CategoryPieChart, CategoryMiniPieChart, SpendingMiniTrendChart } from '@/components/dashboard/DashboardCharts'
+import { CategoryPieChart, CategoryMiniPieChart } from '@/components/dashboard/DashboardCharts'
 import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
 import { cn } from '@/lib/utils'
 import { UpcomingReminders } from '@/components/dashboard/UpcomingReminders'
@@ -55,7 +55,6 @@ export function DashboardWidgetsMobile({
   const budgetPercentage = totalBudgeted > 0 ? Math.round((totalSpent / totalBudgeted) * 100) : 0
 
   // Category breakdown calculations
-  const topCategories = categoryChartData.slice(0, 2)
   const topCategoryName = categoryChartData[0]?.name || 'Belum ada'
 
   // Dynamic budget progress bar color
@@ -69,82 +68,35 @@ export function DashboardWidgetsMobile({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 md:hidden">
+    <div className="grid grid-cols-3 gap-2 md:hidden">
       
-      {/* 1. Tren Keuangan (High Priority) */}
-      <Dialog open={activeDialog === 'trend'} onOpenChange={(open) => setActiveDialog(open ? 'trend' : null)}>
-        <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] min-h-[140px] flex flex-col justify-between p-3">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[9px] font-bold font-mono text-slate-400 uppercase tracking-wider">
-                  Tren Keuangan
-                </span>
-                <LucideIcons.TrendingUp className="h-4 w-4 text-emerald-500 shrink-0" />
-              </div>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-semibold">
-                Rasio Tabungan: {savingsRate}%
-              </p>
-            </div>
-            
-            <div className="flex items-center justify-between mt-2 gap-1.5">
-              <div className="flex-1 space-y-1 min-w-0">
-                <div className="flex items-center text-[10px] text-slate-600 dark:text-slate-400">
-                  <LucideIcons.ArrowUpRight className="h-3 w-3 text-emerald-500 mr-1 shrink-0" />
-                  <span className="truncate font-mono">{formatRupiah(totalIncome)}</span>
-                </div>
-                <div className="flex items-center text-[10px] text-slate-600 dark:text-slate-400">
-                  <LucideIcons.ArrowDownLeft className="h-3 w-3 text-rose-500 mr-1 shrink-0" />
-                  <span className="truncate font-mono">{formatRupiah(totalExpense)}</span>
-                </div>
-              </div>
-              
-              {dailyChartData.length > 0 && (
-                <SpendingMiniTrendChart data={dailyChartData} />
-              )}
-            </div>
-          </Card>
-        } />
-        <DialogContent className="max-w-[95%] rounded-3xl p-5">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold dark:text-white">
-              Tren Keuangan — {monthName}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="pt-4 overflow-x-hidden">
-            <SpendingTrendChart data={dailyChartData} />
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* 2. Anggaran Kategori (High Priority) */}
+      {/* 1. Anggaran Kategori */}
       <Dialog open={activeDialog === 'budget'} onOpenChange={(open) => setActiveDialog(open ? 'budget' : null)}>
         <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] min-h-[140px] flex flex-col justify-between p-3">
+          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] min-h-[120px] flex flex-col justify-between p-2.5 border-2 border-black dark:border-white shadow-[2px_2px_0px_rgba(0,0,0,1)]">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[9px] font-bold font-mono text-slate-400 uppercase tracking-wider">
-                  Anggaran Kategori
+                <span className="text-[9px] font-bold font-mono text-slate-400 uppercase tracking-wider truncate">
+                  Anggaran
                 </span>
                 <LucideIcons.PiggyBank className="h-4 w-4 text-amber-500 shrink-0" />
               </div>
               {totalBudgeted > 0 ? (
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-semibold truncate">
-                  Limit: {formatRupiah(totalBudgeted)}
+                <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1 font-mono truncate">
+                  {formatRupiah(totalBudgeted)}
                 </p>
               ) : (
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
-                  Belum diatur
+                <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1">
+                  Mulai set
                 </p>
               )}
             </div>
 
-            <div className="space-y-1.5 mt-2">
+            <div className="space-y-1 mt-2">
               {totalBudgeted > 0 ? (
                 <>
                   <div className="flex justify-between items-center text-[9px] font-bold text-slate-600 dark:text-slate-400 font-mono">
-                    <span>{formatRupiah(totalSpent)}</span>
-                    <span className="font-extrabold">{budgetPercentage}%</span>
+                    <span className="truncate">{formatRupiah(totalSpent)}</span>
                   </div>
                   <div className="h-1.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                     <div 
@@ -154,14 +106,14 @@ export function DashboardWidgetsMobile({
                   </div>
                 </>
               ) : (
-                <div className="text-[10px] text-slate-400 italic py-1 text-center border border-dashed border-slate-200 dark:border-zinc-800 rounded-lg">
-                  Set Anggaran
+                <div className="text-[8px] text-slate-400 italic py-0.5 text-center border border-dashed border-slate-200 dark:border-zinc-800 rounded-md">
+                  Atur
                 </div>
               )}
             </div>
           </Card>
         } />
-        <DialogContent className="max-w-[95%] rounded-3xl p-5">
+        <DialogContent className="max-w-[95%] rounded-3xl p-5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)]">
           <DialogHeader>
             <DialogTitle className="text-base font-bold dark:text-white">
               Ringkasan Anggaran
@@ -173,48 +125,34 @@ export function DashboardWidgetsMobile({
         </DialogContent>
       </Dialog>
 
-      {/* 3. Breakdown Kategori (Medium Priority) */}
+      {/* 2. Breakdown Kategori */}
       <Dialog open={activeDialog === 'breakdown'} onOpenChange={(open) => setActiveDialog(open ? 'breakdown' : null)}>
         <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] min-h-[140px] flex flex-col justify-between p-3">
+          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] min-h-[120px] flex flex-col justify-between p-2.5 border-2 border-black dark:border-white shadow-[2px_2px_0px_rgba(0,0,0,1)]">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[9px] font-bold font-mono text-slate-400 uppercase tracking-wider">
-                  Breakdown Kategori
+                <span className="text-[9px] font-bold font-mono text-slate-400 uppercase tracking-wider truncate">
+                  Kategori
                 </span>
                 <LucideIcons.PieChart className="h-4 w-4 text-indigo-500 shrink-0" />
               </div>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-semibold truncate">
-                Terbanyak: {topCategoryName}
-              </p>
             </div>
 
-            <div className="flex items-center justify-between mt-2 gap-1.5">
-              <div className="flex-1 space-y-1 min-w-0">
-                {topCategories.length > 0 ? (
-                  topCategories.map((c) => (
-                    <div key={c.name} className="flex items-center justify-between text-[9px] text-slate-600 dark:text-slate-400">
-                      <div className="flex items-center min-w-0">
-                        <span className="w-1.5 h-1.5 rounded-full mr-1 shrink-0" style={{ backgroundColor: c.color }} />
-                        <span className="truncate">{c.name}</span>
-                      </div>
-                      <span className="font-mono shrink-0 font-semibold ml-1">{formatRupiah(c.value)}</span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-[9px] text-slate-400 italic py-2">
-                    Tidak ada transaksi
-                  </p>
-                )}
-              </div>
-              
-              {categoryChartData.length > 0 && (
-                <CategoryMiniPieChart data={categoryChartData} />
+            <div className="flex flex-col items-center justify-center mt-2 space-y-1 min-w-0">
+              {categoryChartData.length > 0 ? (
+                <>
+                  <CategoryMiniPieChart data={categoryChartData} />
+                  <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 truncate max-w-full text-center">
+                    {topCategoryName}
+                  </span>
+                </>
+              ) : (
+                <span className="text-[9px] text-slate-400 italic py-2">Kosong</span>
               )}
             </div>
           </Card>
         } />
-        <DialogContent className="max-w-[95%] rounded-3xl p-5">
+        <DialogContent className="max-w-[95%] rounded-3xl p-5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)]">
           <DialogHeader>
             <DialogTitle className="text-base font-bold dark:text-white">
               Pengeluaran per Kategori
@@ -241,42 +179,35 @@ export function DashboardWidgetsMobile({
         </DialogContent>
       </Dialog>
 
-      {/* 4. Pengingat Tagihan (High Priority) */}
+      {/* 3. Pengingat Tagihan */}
       <Dialog open={activeDialog === 'reminders'} onOpenChange={(open) => setActiveDialog(open ? 'reminders' : null)}>
         <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] min-h-[140px] flex flex-col justify-between p-3">
+          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] min-h-[120px] flex flex-col justify-between p-2.5 border-2 border-black dark:border-white shadow-[2px_2px_0px_rgba(0,0,0,1)]">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[9px] font-bold font-mono text-slate-400 uppercase tracking-wider">
-                  Pengingat Tagihan
+                <span className="text-[9px] font-bold font-mono text-slate-400 uppercase tracking-wider truncate">
+                  Tagihan
                 </span>
                 <LucideIcons.Bell className={cn("h-4 w-4 shrink-0", upcomingRemindersCount > 0 ? "text-rose-500 animate-bounce" : "text-emerald-500")} />
               </div>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-semibold">
-                Siklus 7 Hari Depan
-              </p>
             </div>
 
             <div className="space-y-1.5 mt-2">
               {upcomingRemindersCount > 0 ? (
-                <div className="flex items-center gap-1 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 px-2 py-1 rounded-lg border border-rose-100 dark:border-rose-950/40">
-                  <LucideIcons.AlertTriangle className="h-3 w-3 shrink-0" />
-                  <span className="text-[9px] font-bold font-mono">
-                    Ada {upcomingRemindersCount} tagihan dekat
-                  </span>
+                <div className="flex flex-col items-center justify-center gap-0.5 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 py-1.5 rounded-lg border border-rose-100 dark:border-rose-950/40 text-[9px] font-bold text-center">
+                  <LucideIcons.AlertTriangle className="h-3.5 w-3.5 shrink-0 mb-0.5 text-rose-500" />
+                  <span>{upcomingRemindersCount} Tagihan</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-lg border border-emerald-100 dark:border-emerald-950/40">
-                  <LucideIcons.CheckCircle2 className="h-3 w-3 shrink-0" />
-                  <span className="text-[9px] font-bold font-mono">
-                    Semua Tagihan Aman!
-                  </span>
+                <div className="flex flex-col items-center justify-center gap-0.5 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-950/40 text-[9px] font-bold text-center">
+                  <LucideIcons.CheckCircle2 className="h-3.5 w-3.5 shrink-0 mb-0.5 text-emerald-500" />
+                  <span>Aman</span>
                 </div>
               )}
             </div>
           </Card>
         } />
-        <DialogContent className="max-w-[95%] rounded-3xl p-5">
+        <DialogContent className="max-w-[95%] rounded-3xl p-5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)]">
           <DialogHeader>
             <DialogTitle className="text-base font-bold dark:text-white">
               Pengingat Mendatang

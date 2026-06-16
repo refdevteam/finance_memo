@@ -95,10 +95,10 @@ function PieTooltip({ active, payload }: any) {
   )
 }
 
-export function SpendingTrendChart({ data }: { data: DailyData[] }) {
+export function SpendingTrendChart({ data, height = 300 }: { data: DailyData[]; height?: number }) {
   if (!data.length) {
     return (
-      <div className="h-[300px] flex items-center justify-center border-2 border-dashed border-border rounded-xl">
+      <div style={{ height }} className="flex items-center justify-center border-2 border-dashed border-border rounded-xl">
         <div className="text-center">
           <p className="text-muted-foreground text-sm">Belum ada data transaksi bulan ini.</p>
           <p className="text-muted-foreground/60 text-xs mt-1">Mulai catat transaksi untuk melihat tren.</p>
@@ -108,7 +108,7 @@ export function SpendingTrendChart({ data }: { data: DailyData[] }) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
+    <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
         <defs>
           <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">

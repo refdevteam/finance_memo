@@ -126,9 +126,22 @@ serve(async (req) => {
 
   } catch (err) {
     console.error('Error in send-reminder edge function:', err)
+    let errorMessage = 'Unknown error'
+    if (err instanceof Error) {
+      errorMessage = err.message
+    } else if (typeof err === 'object' && err !== null) {
+      try {
+        errorMessage = JSON.stringify(err)
+      } catch (_) {
+        errorMessage = String(err)
+      }
+    } else {
+      errorMessage = String(err)
+    }
+
     return new Response(JSON.stringify({
       success: false,
-      error: err instanceof Error ? err.message : 'Unknown error'
+      error: errorMessage
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,

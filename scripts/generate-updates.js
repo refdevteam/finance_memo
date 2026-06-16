@@ -80,27 +80,131 @@ function cleanAndFormatText(text) {
 
 function generateUpdates() {
   console.log('Generating updates.json dynamically from git log...');
-  
-  let version = 'v1.3.0';
-  
-  // Use today's date formatted in Indonesian locale as default fallback
-  const today = new Date();
-  const defaultOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-  let dateStr = today.toLocaleDateString('id-ID', defaultOptions);
-  
-  const items = [];
 
-  // Read version from package.json
+  let currentHash = '';
+  try {
+    currentHash = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
+  } catch (err) {
+    console.warn('Could not retrieve current HEAD commit hash:', err.message);
+  }
+
+  // Read existing auto-updates config
+  let lastCommitHash = '';
+  let existingVersion = '';
+  try {
+    if (fs.existsSync(OUTPUT_PATH)) {
+      const data = JSON.parse(fs.readFileSync(OUTPUT_PATH, 'utf8'));
+      lastCommitHash = data.lastCommitHash || '';
+      existingVersion = data.version || '';
+    }
+  } catch (err) {
+    console.warn('Could not read existing updates-auto.json:', err.message);
+  }
+
+  // Read base version from package.json
+  let pkgVersion = '1.2.0';
+  let indent = 2;
   try {
     if (fs.existsSync(PACKAGE_PATH)) {
-      const packageJson = JSON.parse(fs.readFileSync(PACKAGE_PATH, 'utf8'));
+      const pkgContent = fs.readFileSync(PACKAGE_PATH, 'utf8');
+      const match = pkgContent.match(/^[\s\t]+/m);
+      if (match) indent = match[0];
+      const packageJson = JSON.parse(pkgContent);
       if (packageJson.version) {
-        version = `v${packageJson.version}`;
+        pkgVersion = packageJson.version;
       }
     }
   } catch (err) {
     console.warn('Could not read package.json version:', err.message);
   }
+
+  let finalVersion = existingVersion || `v${pkgVersion}`;
+
+  // Prevent double-bumping by checking if we have already built/processed this commit hash
+  if (currentHash && currentHash === lastCommitHash) {
+    console.log(`Commit hash (${currentHash}) has not changed. Skipping version bump.`);
+  } else {
+    // Retrieve new commit messages since lastCommitHash to detect the bump type
+    let commitMessages = [];
+    if (currentHash) {
+      try {
+        let gitCmd = 'git log -n 15 --pretty=format:"%s"';
+        if (lastCommitHash) {
+          try {
+            // Check if lastCommitHash is still an ancestor of current HEAD (valid history path)
+            execSync(`git merge-base --is-ancestor ${lastCommitHash} HEAD`, { stdio: 'ignore' });
+            gitCmd = `git log ${lastCommitHash}..HEAD --pretty=format:"%s"`;
+            console.log(`Retrieving commits since last release commit: ${lastCommitHash}`);
+          } catch (_) {
+            console.log('lastCommitHash is not an ancestor, checking last 15 commits instead.');
+          }
+        } else {
+          console.log('No previous commit hash stored, evaluating last 15 commits.');
+        }
+        const logOutput = execSync(gitCmd, { encoding: 'utf8' });
+        commitMessages = logOutput.split('\n').map(s => s.trim()).filter(Boolean);
+      } catch (err) {
+        console.warn('Could not retrieve git commits for analysis:', err.message);
+      }
+    }
+
+    // Determine bump type
+    let bumpType = 'patch'; // Default to minor/patch update
+    if (commitMessages.length > 0) {
+      const isMajor = commitMessages.some(msg => 
+        /breaking change/i.test(msg) || /major:/i.test(msg)
+      );
+      const isMinor = commitMessages.some(msg => 
+        /^(feat|feature|baru|new|add|menengah):/i.test(msg)
+      );
+
+      if (isMajor) {
+        bumpType = 'major';
+      } else if (isMinor) {
+        bumpType = 'minor';
+      }
+    }
+
+    // Perform version bump
+    const parts = pkgVersion.split('.').map(Number);
+    if (parts.length === 3 && !parts.some(isNaN)) {
+      let [major, minor, patch] = parts;
+      if (bumpType === 'major') {
+        major += 1;
+        minor = 0;
+        patch = 0;
+      } else if (bumpType === 'minor') {
+        minor += 1;
+        patch = 0;
+      } else {
+        patch += 1;
+      }
+      const newVersion = `${major}.${minor}.${patch}`;
+      console.log(`Detected bump type: ${bumpType}. Bumping version from ${pkgVersion} to ${newVersion}`);
+      pkgVersion = newVersion;
+      finalVersion = `v${newVersion}`;
+
+      // Write updated version back to package.json
+      try {
+        if (fs.existsSync(PACKAGE_PATH)) {
+          const pkgContent = fs.readFileSync(PACKAGE_PATH, 'utf8');
+          const packageJson = JSON.parse(pkgContent);
+          packageJson.version = newVersion;
+          fs.writeFileSync(PACKAGE_PATH, JSON.stringify(packageJson, null, indent) + '\n', 'utf8');
+          console.log(`Successfully updated package.json version to: ${newVersion}`);
+        }
+      } catch (err) {
+        console.error('Failed to write version to package.json:', err.message);
+      }
+    }
+  }
+
+  // Compile recent updates list (display up to 50 commits to the user in the UI)
+  // Use today's date formatted in Indonesian locale as default fallback
+  const today = new Date();
+  const defaultOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+  let dateStr = today.toLocaleDateString('id-ID', defaultOptions);
+  const items = [];
 
   try {
     // Run git log to get hash, subject, date of the last 50 commits
@@ -159,19 +263,20 @@ function generateUpdates() {
   }
 
   const outputData = {
-    version,
+    version: finalVersion,
     date: dateStr,
-    items
+    items,
+    lastCommitHash: currentHash || lastCommitHash
   };
 
-  // Ensure public directory exists
+  // Ensure output directory exists
   const publicDir = path.dirname(OUTPUT_PATH);
   if (!fs.existsSync(publicDir)) {
     fs.mkdirSync(publicDir, { recursive: true });
   }
 
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(outputData, null, 2), 'utf8');
-  console.log(`Successfully generated updates.json with ${items.length} items.`);
+  console.log(`Successfully generated updates.json with ${items.length} items. Version: ${finalVersion}`);
 }
 
 generateUpdates();
