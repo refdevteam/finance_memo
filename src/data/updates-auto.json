@@ -1,7 +1,23 @@
 {
-  "version": "v1.3.0",
-  "date": "13 Juni 2026",
+  "version": "v1.4.0",
+  "date": "16 Juni 2026",
   "items": [
+    {
+      "category": "baru",
+      "text": "Pengubahan diagram kategori menjadi vertikal & pemakaian warna pastel Figma"
+    },
+    {
+      "category": "baru",
+      "text": "Penyesuaian tata letak kartu anggaran & tagihan mobile agar lebih padat"
+    },
+    {
+      "category": "peningkatan",
+      "text": "Perbaikan error tipe data (any) pada pengingat & snooze API"
+    },
+    {
+      "category": "peningkatan",
+      "text": "Perbaikan crash server rendering pada modul beranda"
+    },
     {
       "category": "baru",
       "text": "Optimalisasi tampilan loading skeleton kustom per halaman"
@@ -18,5 +34,6 @@
       "category": "peningkatan",
       "text": "Integrasi sistem streak catatan harian dengan dialog brutalist"
     }
-  ]
+  ],
+  "lastCommitHash": "ec3ab31"
 }
