@@ -2,36 +2,36 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { 
-  Plus, 
-  Trash2, 
-  Edit3, 
-  Bell, 
-  Mail, 
-  Smartphone, 
-  Calendar, 
-  Search, 
+import {
+  Plus,
+  Trash2,
+  Edit3,
+  Bell,
+  Mail,
+  Smartphone,
+  Calendar,
+  Search,
   SlidersHorizontal,
-  Clock, 
+  Clock,
   Info,
   CheckCircle2,
   Heart
 } from 'lucide-react'
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogFooter
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { 
-  createReminder, 
-  updateReminder, 
-  deleteReminder, 
+import {
+  createReminder,
+  updateReminder,
+  deleteReminder,
   toggleReminderStatus,
   getReminders,
   completeReminder
@@ -158,8 +158,12 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
   const handleSnoozeFromManage = async (days?: number, customDate?: string) => {
     if (!manageReminder) return
     setLoadingManage(true)
-    
-    const payload: any = {
+
+    const payload: {
+      reminder_id: string
+      custom_date?: string
+      snooze_days?: number
+    } = {
       reminder_id: manageReminder.id
     }
     if (customDate) {
@@ -209,8 +213,9 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
       } else {
         toast.error(data.error || 'Gagal menunda pengingat')
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Terjadi kesalahan sistem.')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Terjadi kesalahan sistem.'
+      toast.error(message)
     } finally {
       setLoadingManage(false)
     }
@@ -220,7 +225,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  
+
   const [title, setTitle] = useState('')
   const [type, setType] = useState<Reminder['type']>('custom')
   const [amount, setAmount] = useState('')
@@ -322,7 +327,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
   const handleToggleActive = async (id: string, currentStatus: boolean) => {
     const nextStatus = !currentStatus
     // Optimistic update
-    setReminders(prev => 
+    setReminders(prev =>
       prev.map(r => r.id === id ? { ...r, is_active: nextStatus } : r)
     )
 
@@ -342,7 +347,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
     } else {
       toast.error(res.error || 'Gagal mengubah status pengingat')
       // Revert optimistic
-      setReminders(prev => 
+      setReminders(prev =>
         prev.map(r => r.id === id ? { ...r, is_active: currentStatus } : r)
       )
     }
@@ -350,7 +355,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
 
   // Filtering
   const filteredReminders = reminders.filter(r => {
-    const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase()) || 
+    const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase()) ||
       (r.notes && r.notes.toLowerCase().includes(search.toLowerCase()))
     const matchesType = filterType === 'all' || r.type === filterType
     return matchesSearch && matchesType
@@ -372,7 +377,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
             Kelola pengingat otomatis multi-channel untuk tagihan, tabungan, cicilan, dan langganan Anda.
           </p>
         </div>
-        <Button 
+        <Button
           onClick={openCreateDialog}
           className="bg-black hover:bg-neutral-800 text-white dark:bg-white dark:text-black dark:hover:bg-neutral-200 shadow-md rounded-xl"
         >
@@ -385,8 +390,8 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-neutral-400" />
-          <Input 
-            placeholder="Cari pengingat..." 
+          <Input
+            placeholder="Cari pengingat..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 h-11 bg-white dark:bg-card/50 border-neutral-200 dark:border-neutral-800 rounded-xl text-sm"
@@ -430,7 +435,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
             {activeReminders.map((reminder) => {
               const cfg = typeConfig[reminder.type] || typeConfig.custom
               return (
-                <div 
+                <div
                   key={reminder.id}
                   className="group relative border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-card/45 backdrop-blur-md rounded-2xl p-4 sm:p-5 hover:shadow-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200 flex flex-col justify-between"
                 >
@@ -444,21 +449,21 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
 
                       {/* Status & Action Buttons */}
                       <div className="flex items-center gap-1">
-                        <button 
+                        <button
                           onClick={() => handleToggleActive(reminder.id, reminder.is_active)}
                           className="p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-neutral-500 hover:text-amber-500 active:scale-95"
                           title="Nonaktifkan"
                         >
                           <Clock className="h-4 w-4 fill-amber-500/10 text-amber-500" />
                         </button>
-                        <button 
+                        <button
                           onClick={() => openEditDialog(reminder)}
                           className="p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-neutral-400 hover:text-neutral-900 dark:hover:text-white active:scale-95"
                           title="Edit"
                         >
                           <Edit3 className="h-4 w-4" />
                         </button>
-                        <button 
+                        <button
                           onClick={() => setDeleteId(reminder.id)}
                           className="p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all text-neutral-400 hover:text-rose-600 active:scale-95"
                           title="Hapus"
@@ -472,7 +477,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
                     <h3 className="font-bold text-neutral-900 dark:text-white text-base truncate mb-1" title={reminder.title}>
                       {reminder.title}
                     </h3>
-                    
+
                     {reminder.notes ? (
                       <p className="text-xs text-neutral-500 dark:text-neutral-400 line-clamp-2 leading-relaxed mb-3 h-8">
                         {reminder.notes}
@@ -512,27 +517,27 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
                       {/* Channels icons */}
                       <div className="flex gap-2 items-center shrink-0 bg-neutral-50 dark:bg-neutral-900/60 px-2 py-1 rounded-lg border border-neutral-100 dark:border-neutral-800/40">
                         <span title="Dalam Aplikasi" className="flex items-center">
-                          <Bell 
+                          <Bell
                             className={cn(
-                              "h-3.5 w-3.5", 
+                              "h-3.5 w-3.5",
                               reminder.channels?.inapp ? "text-emerald-500 fill-emerald-500/10" : "text-neutral-300 dark:text-neutral-700"
-                            )} 
+                            )}
                           />
                         </span>
                         <span title="Email" className="flex items-center">
-                          <Mail 
+                          <Mail
                             className={cn(
-                              "h-3.5 w-3.5", 
+                              "h-3.5 w-3.5",
                               reminder.channels?.email ? "text-emerald-500 fill-emerald-500/10" : "text-neutral-300 dark:text-neutral-700"
-                            )} 
+                            )}
                           />
                         </span>
                         <span title="Push Notification" className="flex items-center">
-                          <Smartphone 
+                          <Smartphone
                             className={cn(
-                              "h-3.5 w-3.5", 
+                              "h-3.5 w-3.5",
                               reminder.channels?.push ? "text-emerald-500 fill-emerald-500/10" : "text-neutral-300 dark:text-neutral-700"
-                            )} 
+                            )}
                           />
                         </span>
                       </div>
@@ -556,7 +561,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
             {inactiveReminders.map((reminder) => {
               const cfg = typeConfig[reminder.type] || typeConfig.custom
               return (
-                <div 
+                <div
                   key={reminder.id}
                   className="border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-card/10 rounded-2xl p-4 sm:p-5 opacity-65 hover:opacity-100 transition-all duration-200 flex flex-col justify-between"
                 >
@@ -569,14 +574,14 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
 
                       {/* Toggle and Delete */}
                       <div className="flex items-center gap-1">
-                        <button 
+                        <button
                           onClick={() => handleToggleActive(reminder.id, reminder.is_active)}
                           className="p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-neutral-400 hover:text-emerald-600 active:scale-95"
                           title="Aktifkan Kembali"
                         >
                           <Clock className="h-4 w-4 text-neutral-400" />
                         </button>
-                        <button 
+                        <button
                           onClick={() => setDeleteId(reminder.id)}
                           className="p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all text-neutral-400 hover:text-rose-600 active:scale-95"
                           title="Hapus"
@@ -589,7 +594,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
                     <h3 className="font-bold text-neutral-500 dark:text-neutral-400 text-base truncate mb-1">
                       {reminder.title}
                     </h3>
-                    
+
                     {reminder.notes ? (
                       <p className="text-xs text-neutral-400 dark:text-neutral-500 line-clamp-2 leading-relaxed mb-3 h-8">
                         {reminder.notes}
@@ -641,9 +646,9 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
             {/* Title */}
             <div className="space-y-2">
               <Label htmlFor="title">Judul Pengingat</Label>
-              <Input 
-                id="title" 
-                placeholder="Bayar BPJS, Tabungan Nikah..." 
+              <Input
+                id="title"
+                placeholder="Bayar BPJS, Tabungan Nikah..."
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
@@ -673,8 +678,8 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
                 <Label htmlFor="amount">Jumlah (Opsional)</Label>
                 <div className="relative">
                   <span className="absolute left-3 top-2 text-neutral-400 text-sm font-medium">Rp</span>
-                  <Input 
-                    id="amount" 
+                  <Input
+                    id="amount"
                     type="number"
                     placeholder="0"
                     value={amount}
@@ -689,8 +694,8 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="due_date">Tanggal Jatuh Tempo</Label>
-                <Input 
-                  id="due_date" 
+                <Input
+                  id="due_date"
                   type="date"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
@@ -721,7 +726,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
               <Label>Saluran Notifikasi</Label>
               <div className="flex gap-4 p-3 bg-neutral-50 dark:bg-neutral-900/60 rounded-xl border border-neutral-100 dark:border-neutral-800/80">
                 <label className="flex items-center gap-2 cursor-pointer flex-1 justify-center text-xs">
-                  <input 
+                  <input
                     type="checkbox"
                     checked={channels.inapp}
                     onChange={(e) => setChannels(prev => ({ ...prev, inapp: e.target.checked }))}
@@ -734,7 +739,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer flex-1 justify-center text-xs">
-                  <input 
+                  <input
                     type="checkbox"
                     checked={channels.email}
                     onChange={(e) => setChannels(prev => ({ ...prev, email: e.target.checked }))}
@@ -747,7 +752,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer flex-1 justify-center text-xs">
-                  <input 
+                  <input
                     type="checkbox"
                     checked={channels.push}
                     onChange={(e) => setChannels(prev => ({ ...prev, push: e.target.checked }))}
@@ -775,16 +780,16 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
             </div>
 
             <DialogFooter className="pt-2">
-              <Button 
-                type="button" 
-                variant="ghost" 
+              <Button
+                type="button"
+                variant="ghost"
                 onClick={() => setDialogOpen(false)}
                 className="rounded-xl"
               >
                 Batal
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={loading}
                 className="bg-black hover:bg-neutral-800 text-white dark:bg-white dark:text-black dark:hover:bg-neutral-200 rounded-xl"
               >
@@ -808,16 +813,16 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
             Apakah Anda yakin ingin menghapus pengingat ini? Tindakan ini bersifat permanen dan tidak dapat dibatalkan.
           </div>
           <DialogFooter className="gap-2 pt-4">
-            <Button 
-              type="button" 
-              variant="ghost" 
+            <Button
+              type="button"
+              variant="ghost"
               onClick={() => setDeleteId(null)}
               className="rounded-xl"
             >
               Batal
             </Button>
-            <Button 
-              type="button" 
+            <Button
+              type="button"
               onClick={handleDelete}
               className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl border-none"
             >

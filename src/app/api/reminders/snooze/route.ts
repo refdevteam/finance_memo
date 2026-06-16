@@ -81,8 +81,9 @@ export async function POST(request: Request) {
     if (updateError) throw updateError
 
     return NextResponse.json({ success: true, new_due_date: newDueDateStr })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in snooze API:', error)
-    return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
