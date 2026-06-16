@@ -17,13 +17,8 @@ import { cn } from '@/lib/utils'
 import { UpcomingReminders } from '@/components/dashboard/UpcomingReminders'
 
 interface DashboardWidgetsMobileProps {
-  dailyChartData: { date: string; income: number; expense: number }[]
   categoryChartData: { name: string; value: number; color: string }[]
   budgets: BudgetCategory[]
-  totalIncome: number
-  totalExpense: number
-  savingsRate: number
-  monthName: string
   upcomingRemindersCount: number
 }
 
@@ -37,13 +32,8 @@ function formatRupiah(amount: number): string {
 }
 
 export function DashboardWidgetsMobile({
-  dailyChartData,
   categoryChartData,
   budgets,
-  totalIncome,
-  totalExpense,
-  savingsRate,
-  monthName,
   upcomingRemindersCount
 }: DashboardWidgetsMobileProps) {
   const [activeDialog, setActiveDialog] = useState<string | null>(null)
