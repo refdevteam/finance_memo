@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { SpendingTrendChart, CategoryBarChart, getPastelColor } from './DashboardCharts'
+import { SpendingTrendChart, CategoryBarChart } from './DashboardCharts'
+import { getPastelColor } from '@/lib/colors'
 import { cn } from '@/lib/utils'
 
 interface MobileChartsTabsProps {
