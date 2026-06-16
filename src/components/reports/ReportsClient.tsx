@@ -10,7 +10,7 @@ import { InlineSelect } from '@/components/ui/inline-select'
 import { toast } from 'sonner'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
-import { CategoryBarChart, SixMonthTrendChart } from '@/components/dashboard/DashboardCharts'
+import { CategoryBarChart, SixMonthTrendChart, getPastelColor } from '@/components/dashboard/DashboardCharts'
 import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
 import { cn } from '@/lib/utils'
 import { generateMonthlyInsights } from '@/actions/ai-insights'
@@ -697,7 +697,7 @@ export function ReportsClient({
                         )}
                       >
                         <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                          <span className="w-1.5 h-1.5 rounded-full mr-2 shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: cat.color }} />
+                          <span className="w-1.5 h-1.5 rounded-full mr-2 shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: getPastelColor(cat.color, i) }} />
                           <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">{cat.name}</span>
                         </div>
                         <span className="font-mono font-bold text-slate-800 dark:text-slate-100 shrink-0 ml-1.5">{formatRupiah(cat.value)}</span>

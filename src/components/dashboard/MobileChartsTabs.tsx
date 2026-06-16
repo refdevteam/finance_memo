@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { SpendingTrendChart, CategoryBarChart } from './DashboardCharts'
+import { SpendingTrendChart, CategoryBarChart, getPastelColor } from './DashboardCharts'
 import { cn } from '@/lib/utils'
 
 interface MobileChartsTabsProps {
@@ -93,7 +93,7 @@ export function MobileChartsTabs({
                 
                 {/* Legenda Detail mirip popup pengeluaran per kategori */}
                 <div className="w-full mt-4 space-y-2 max-h-[180px] overflow-y-auto pr-1">
-                  {categoryChartData.map((c) => (
+                  {categoryChartData.map((c, idx) => (
                     <div 
                       key={c.name} 
                       className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-50 dark:bg-zinc-900/40 border border-slate-100 dark:border-zinc-800/60 hover:bg-slate-100 dark:hover:bg-zinc-800/80 transition-all duration-200"
@@ -101,7 +101,7 @@ export function MobileChartsTabs({
                       <div className="flex items-center min-w-0">
                         <span 
                           className="w-3.5 h-3.5 rounded-full mr-2 shrink-0 border border-black/5 dark:border-white/5" 
-                          style={{ backgroundColor: c.color }} 
+                          style={{ backgroundColor: getPastelColor(c.color, idx) }} 
                         />
                         <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">
                           {c.name}

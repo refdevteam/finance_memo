@@ -17,7 +17,7 @@ import { TransactionForm } from '@/components/transactions/TransactionForm'
 import { TransferForm } from '@/components/transactions/TransferForm'
 import { ReceiptScanner } from '@/components/transactions/ReceiptScanner'
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions'
-import { SpendingTrendChart, CategoryBarChart } from '@/components/dashboard/DashboardCharts'
+import { SpendingTrendChart, CategoryBarChart, getPastelColor } from '@/components/dashboard/DashboardCharts'
 import { getBudgets } from '@/actions/budgets'
 import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
 import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
@@ -314,10 +314,10 @@ export default async function DashboardPage({
             
             {/* Legenda Baru: Keterangan Warna & Amount */}
             <div className="mt-4 space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
-              {categoryChartData.map((c) => (
+              {categoryChartData.map((c, idx) => (
                 <div key={c.name} className="flex items-center justify-between text-xs p-1.5 px-2.5 rounded-xl bg-white/40 dark:bg-black/10 border border-slate-100/50 dark:border-slate-800/50 hover:bg-white dark:hover:bg-neutral-800/80 transition-all duration-200 shadow-3xs">
                   <div className="flex items-center min-w-0 flex-1">
-                    <span className="w-2.5 h-2.5 rounded-full mr-2 shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: c.color }} />
+                    <span className="w-2.5 h-2.5 rounded-full mr-2 shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: getPastelColor(c.color, idx) }} />
                     <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">{c.name}</span>
                   </div>
                   <span className="font-mono font-bold text-slate-800 dark:text-slate-100 ml-2 shrink-0">

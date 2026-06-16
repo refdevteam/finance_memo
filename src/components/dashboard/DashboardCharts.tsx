@@ -28,11 +28,41 @@ interface CategoryData {
   color: string
 }
 
-const COLORS = [
-  '#f43f5e', '#8b5cf6', '#3b82f6', '#06b6d4', 
-  '#10b981', '#f59e0b', '#ec4899', '#6366f1',
-  '#14b8a6', '#f97316',
+export const COLORS = [
+  '#c5b0f4', // block-lilac
+  '#dceeb1', // block-lime
+  '#c8e6cd', // block-mint
+  '#efd4d4', // block-pink
+  '#f3c9b6', // block-coral
+  '#f4ecd6', // block-cream
 ]
+
+const COLOR_MAPPING: Record<string, string> = {
+  '#f43f5e': '#efd4d4', // pink
+  '#ef4444': '#efd4d4',
+  '#e11d48': '#efd4d4',
+  '#8b5cf6': '#c5b0f4', // lilac
+  '#6366f1': '#c5b0f4',
+  '#7c3aed': '#c5b0f4',
+  '#3b82f6': '#c5b0f4', // lilac/blue
+  '#2563eb': '#c5b0f4',
+  '#06b6d4': '#c8e6cd', // mint
+  '#10b981': '#c8e6cd', // mint
+  '#14b8a6': '#c8e6cd',
+  '#16a34a': '#c8e6cd',
+  '#f59e0b': '#f4ecd6', // cream
+  '#d97706': '#f4ecd6',
+  '#f97316': '#f3c9b6', // coral
+}
+
+export function getPastelColor(color: string | null | undefined, index: number): string {
+  if (!color) return COLORS[index % COLORS.length]
+  const normalized = color.toLowerCase()
+  if (COLOR_MAPPING[normalized]) return COLOR_MAPPING[normalized]
+  const pastelSet = new Set(COLORS)
+  if (pastelSet.has(normalized)) return normalized
+  return COLORS[index % COLORS.length]
+}
 
 function formatCompact(value: number): string {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}jt`
@@ -157,30 +187,26 @@ export function CategoryBarChart({ data, height = 260 }: { data: CategoryData[];
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart
-        layout="vertical"
         data={sortedData}
-        margin={{ top: 5, right: 15, left: -25, bottom: 5 }}
+        margin={{ top: 10, right: 5, left: -20, bottom: 5 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.4} horizontal={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.4} vertical={false} />
         <XAxis 
-          type="number" 
-          tickFormatter={formatCompact} 
-          tick={{ fontSize: 10, fill: '#94a3b8' }} 
-          axisLine={false} 
-          tickLine={false} 
-        />
-        <YAxis
-          type="category"
           dataKey="name"
           tick={{ fontSize: 10, fill: '#64748b', fontWeight: 'bold' }}
           axisLine={false}
           tickLine={false}
-          width={80}
+        />
+        <YAxis
+          tickFormatter={formatCompact}
+          tick={{ fontSize: 10, fill: '#94a3b8' }}
+          axisLine={false}
+          tickLine={false}
         />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
-        <Bar dataKey="value" name="Pengeluaran" radius={[0, 4, 4, 0]} barSize={14}>
+        <Bar dataKey="value" name="Pengeluaran" radius={[4, 4, 0, 0]} barSize={18}>
           {sortedData.map((entry, idx) => (
-            <Cell key={`cell-${idx}`} fill={entry.color || COLORS[idx % COLORS.length]} />
+            <Cell key={`cell-${idx}`} fill={getPastelColor(entry.color, idx)} />
           ))}
         </Bar>
       </BarChart>
@@ -206,7 +232,7 @@ export function CategoryMiniPieChart({ data }: { data: CategoryData[] }) {
             strokeWidth={0}
           >
             {chartData.map((entry, idx) => (
-              <Cell key={idx} fill={entry.color || COLORS[idx % COLORS.length]} />
+              <Cell key={idx} fill={getPastelColor(entry.color, idx)} />
             ))}
           </Pie>
         </RechartsPie>
