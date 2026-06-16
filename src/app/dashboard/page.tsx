@@ -284,7 +284,6 @@ export default async function DashboardPage({
 
       {/* Mobile-only widgets grid */}
       <DashboardWidgetsMobile
-        categoryChartData={categoryChartData}
         budgets={budgets}
         upcomingRemindersCount={upcomingRemindersCount}
       />

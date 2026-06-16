@@ -16,7 +16,6 @@ import { cn } from '@/lib/utils'
 import { UpcomingReminders } from '@/components/dashboard/UpcomingReminders'
 
 interface DashboardWidgetsMobileProps {
-  categoryChartData: { name: string; value: number; color: string }[]
   budgets: BudgetCategory[]
   upcomingRemindersCount: number
 }
@@ -31,7 +30,6 @@ function formatRupiah(amount: number): string {
 }
 
 export function DashboardWidgetsMobile({
-  categoryChartData,
   budgets,
   upcomingRemindersCount
 }: DashboardWidgetsMobileProps) {
