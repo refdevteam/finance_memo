@@ -275,18 +275,18 @@ export default async function DashboardPage({
         <AICoachCard />
       </div>
 
+      {/* Mobile-only widgets grid */}
+      <DashboardWidgetsMobile
+        budgets={budgets}
+        upcomingRemindersCount={upcomingRemindersCount}
+      />
+
       {/* Mobile-only Interactive Charts Selector (Tren vs Kategori) */}
       <MobileChartsTabs 
         dailyChartData={dailyChartData}
         categoryChartData={categoryChartData}
         savingsRate={savingsRate}
         chartTitleLabel={chartTitleLabel}
-      />
-
-      {/* Mobile-only widgets grid */}
-      <DashboardWidgetsMobile
-        budgets={budgets}
-        upcomingRemindersCount={upcomingRemindersCount}
       />
 
       {/* Desktop-only Charts Grid */}
