@@ -85,6 +85,21 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
       .gte('transaction_date', startDate)
       .lte('transaction_date', toYYYYMMDD(now))
 
+    // Fetch total income of the last 30 days as a reference for context (highly accurate)
+    const thirtyDaysAgoForRef = new Date()
+    thirtyDaysAgoForRef.setDate(now.getDate() - 29)
+    const startDate30DaysForRef = toYYYYMMDD(thirtyDaysAgoForRef)
+
+    const { data: income30DaysData } = await supabase
+      .from('transactions')
+      .select('amount')
+      .eq('user_id', user.id)
+      .eq('type', 'income')
+      .gte('transaction_date', startDate30DaysForRef)
+      .lte('transaction_date', toYYYYMMDD(now))
+
+    const income30Days = (income30DaysData || []).reduce((s, t) => s + Number(t.amount), 0)
+
     // Fetch current monthly budgets
     const budgetMonth = now.getMonth() + 1
     const budgetYear = now.getFullYear()
@@ -132,8 +147,9 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
         
         Data Keuangan Pengguna (2 Hari Terakhir):
         - Streak Mencatat: ${userStreak} Hari berturut-turut
-        - Total Pemasukan: ${currency} ${income.toLocaleString('id-ID')}
-        - Total Pengeluaran: ${currency} ${expense.toLocaleString('id-ID')}
+        - Total Pemasukan (2 Hari Terakhir): ${currency} ${income.toLocaleString('id-ID')}
+        - Total Pengeluaran (2 Hari Terakhir): ${currency} ${expense.toLocaleString('id-ID')}
+        - Referensi Pemasukan (30 Hari Terakhir): ${currency} ${income30Days.toLocaleString('id-ID')}
         - Kategori Belanja & Nominal:
         ${expenseCategories || 'Tidak ada belanja dalam 2 hari terakhir.'}
 
@@ -141,9 +157,10 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
         1. Kembalikan format JSON murni.
         2. Struktur JSON wajib memiliki key "tip" (string) dan "score" (integer 0-100).
         3. Aturan Skor Kesehatan Keuangan Harian (Tingkat Realistis Tinggi):
-           - Jika tidak ada transaksi sama sekali (Pemasukan = 0 dan Pengeluaran = 0), skor WAJIB bernilai 0. Tips harus memotivasi user dengan ramah untuk mulai mencatat transaksi pertamanya agar AI bisa menganalisis.
-           - Jika Pengeluaran > Pemasukan (defisit), skor harus di bawah 50.
-           - Jika Pengeluaran <= Pemasukan, tentukan skor (50-100) berdasarkan persentase tabungan. Berikan sedikit bonus skor jika streak mencatat bertambah banyak.
+           - Jangan anggap pengguna mengalami defisit hanya karena pemasukan 2 hari terakhir bernilai 0. Bandingkan pengeluaran 2 hari terakhir terhadap Referensi Pemasukan (30 Hari Terakhir). Pengeluaran harian wajar adalah maksimal 3-5% dari referensi pemasukan 30 hari terakhir.
+           - Jika tidak ada transaksi sama sekali dalam 2 hari terakhir (Pemasukan = 0 dan Pengeluaran = 0), skor WAJIB bernilai 0. Tips harus memotivasi user dengan ramah untuk mulai mencatat transaksi pertamanya agar AI bisa menganalisis.
+           - Jika total pengeluaran 2 hari terakhir melebihi 20% dari referensi pemasukan 30 hari terakhir, berikan skor di bawah 55 (indikasi pemborosan mendadak).
+           - Tentukan skor (55-100) secara kritis dan realistis berdasarkan rasio belanja harian terhadap referensi pemasukan bulanan tersebut. Berikan sedikit bonus skor jika streak mencatat bertambah banyak.
         4. Larangan Halusinasi:
            - Jangan sebutkan kategori belanja apa pun (seperti Makanan, Kopi, Transport) jika kategori tersebut tidak tercatat di dalam "Kategori Belanja" di atas.
            - Hanya berikan saran taktis berdasarkan data nominal pengeluaran dan pemasukan riil di atas.
@@ -161,8 +178,9 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
         
         Data Keuangan Pengguna (7 Hari Terakhir):
         - Streak Mencatat: ${userStreak} Hari berturut-turut
-        - Total Pemasukan: ${currency} ${income.toLocaleString('id-ID')}
-        - Total Pengeluaran: ${currency} ${expense.toLocaleString('id-ID')}
+        - Total Pemasukan (7 Hari Terakhir): ${currency} ${income.toLocaleString('id-ID')}
+        - Total Pengeluaran (7 Hari Terakhir): ${currency} ${expense.toLocaleString('id-ID')}
+        - Referensi Pemasukan (30 Hari Terakhir): ${currency} ${income30Days.toLocaleString('id-ID')}
         - Kategori Belanja & Nominal:
         ${expenseCategories || 'Tidak ada belanja dalam 7 hari terakhir.'}
         
@@ -176,11 +194,12 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
         Aturan Penilaian & Output:
         1. Kembalikan format JSON murni tanpa markdown blocks.
         2. Struktur JSON wajib memiliki key "tip" (string) dan "score" (integer 0-100).
-        3. Aturan Skor Kesehatan Keuangan Mingguan:
-           - Jika tidak ada transaksi sama sekali (Pemasukan = 0 dan Pengeluaran = 0), skor WAJIB bernilai 0. Tips harus memotivasi untuk mulai mencatat keuangan agar analisis berjalan.
+        3. Aturan Skor Kesehatan Keuangan Mingguan (Tingkat Realistis Tinggi):
+           - Jangan anggap pengguna mengalami defisit hanya karena pemasukan 7 hari terakhir bernilai 0. Bandingkan pengeluaran 7 hari terakhir terhadap Referensi Pemasukan (30 Hari Terakhir). Pengeluaran mingguan sehat adalah maksimal 20-25% dari referensi pemasukan 30 hari terakhir.
+           - Jika tidak ada transaksi sama sekali dalam 7 hari terakhir (Pemasukan = 0 dan Pengeluaran = 0), skor WAJIB bernilai 0. Tips harus memotivasi untuk mulai mencatat keuangan agar analisis berjalan.
            - Jika Pengeluaran melebihi anggaran yang ditentukan untuk kategori tersebut, skor harus di bawah 40.
-           - Jika Pengeluaran > Pemasukan secara keseluruhan (defisit mingguan), skor harus di bawah 50.
-           - Jika pengeluaran terkontrol dengan baik di bawah batas anggaran, berikan skor 70-100 yang proporsional.
+           - Jika total pengeluaran 7 hari terakhir melebihi 30% dari referensi pemasukan 30 hari terakhir, berikan skor di bawah 50.
+           - Jika pengeluaran terkontrol dengan baik di bawah batas anggaran dan batas mingguan sehat, berikan skor 70-100 yang proporsional.
         4. Larangan Halusinasi:
            - Jangan berasumsi pengguna membeli barang, berlangganan, atau berbelanja di luar data nyata yang disediakan di atas.
            - Berikan analisis logis dan kritis mengenai batas anggaran bulanan versus total pengeluaran 7 hari terakhir.
