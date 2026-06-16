@@ -76,28 +76,6 @@ function CustomTooltip({ active, payload, label }: any) {
   )
 }
 
-
-// Custom tooltip for pie chart
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function PieTooltip({ active, payload }: any) {
-  if (!active || !payload?.length) return null
-  const data = payload[0]
-  return (
-    <div className="rounded-xl border border-border bg-popover/90 dark:bg-popover/90 backdrop-blur-lg shadow-lg p-3 text-xs text-popover-foreground">
-      <div className="flex items-center gap-2">
-        <span
-          className="w-2.5 h-2.5 rounded-full"
-          style={{ backgroundColor: data.payload.color }}
-        />
-        <span className="font-medium text-muted-foreground">{data.name}</span>
-      </div>
-      <p className="font-bold text-foreground mt-1">
-        {formatRupiah(data.value)}
-      </p>
-    </div>
-  )
-}
-
 export function SpendingTrendChart({ data, height = 300 }: { data: DailyData[]; height?: number }) {
   if (!data.length) {
     return (

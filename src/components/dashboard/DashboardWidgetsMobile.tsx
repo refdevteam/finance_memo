@@ -43,9 +43,6 @@ export function DashboardWidgetsMobile({
   const totalSpent = activeBudgets.reduce((sum, b) => sum + b.spent, 0)
   const budgetPercentage = totalBudgeted > 0 ? Math.round((totalSpent / totalBudgeted) * 100) : 0
 
-  // Category breakdown calculations
-  const topCategoryName = categoryChartData[0]?.name || 'Belum ada'
-
   // Dynamic budget progress bar color
   let budgetColorClass = 'bg-emerald-500'
   if (budgetPercentage >= 100) {
