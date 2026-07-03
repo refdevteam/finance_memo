@@ -45,7 +45,7 @@ declare global {
       };
     };
     turnstile?: {
-      render: (element: string | HTMLElement, options: Record<string, any>) => string;
+      render: (element: string | HTMLElement, options: Record<string, unknown>) => string;
       reset: (widgetId?: string) => void;
       remove: (widgetId?: string) => void;
     };
@@ -140,7 +140,7 @@ export function GoogleLoginButton() {
     return () => {
       try {
         document.body.removeChild(script)
-      } catch (e) {
+      } catch {
         // Abaikan jika sudah di-remove
       }
       delete window.onloadTurnstileCallback

@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, ComponentType } from 'react'
 import { useRouter } from 'next/navigation'
 import * as LucideIcons from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getPastelColor } from '@/lib/colors'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
-import { generateAIBudgetPlan, deleteAIBudgetPlan, AIBudgetPlan, AIBudgetCategoryRecommendation } from '@/actions/ai-budget'
+import { generateAIBudgetPlan, deleteAIBudgetPlan, AIBudgetPlan } from '@/actions/ai-budget'
 import { setBudget } from '@/actions/budgets'
 
 interface WalletRow {
@@ -113,8 +113,6 @@ export function AIBudgetPlannerClient({
         })
         setCustomLimits(limits)
         
-        // Calculate remaining target saving as default monthly savings slider
-        const totalAllocated = res.data.budgets.reduce((sum, b) => sum + b.recommended_limit, 0)
         // Default savings projection to Jago or first bank
         if (res.data.savings_recommendations.length > 0) {
           setSelectedBank(res.data.savings_recommendations[0].institution)
@@ -379,7 +377,7 @@ export function AIBudgetPlannerClient({
                       const aiRec = plan.budgets.find(b => b.category_id === cat.id)
                       const spent = initialBudgets.find(b => b.category_id === cat.id)?.spent ?? 0
                       const pastelBg = getPastelColor(cat.color, idx)
-                      const Icon = (LucideIcons as any)[cat.icon || 'Tag'] || LucideIcons.Tag
+                      const Icon = (LucideIcons as Record<string, ComponentType<{ className?: string }>>)[cat.icon || 'Tag'] || LucideIcons.Tag
 
                       return (
                         <div
