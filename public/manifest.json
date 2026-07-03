@@ -4,6 +4,7 @@
   "description": "Aplikasi pengelolaan keuangan pribadi cerdas dengan scan struk AI.",
   "start_url": "/dashboard",
   "display": "standalone",
+  "gcm_sender_id": "103953800507",
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "portrait-primary",

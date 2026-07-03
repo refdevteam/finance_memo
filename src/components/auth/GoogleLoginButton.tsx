@@ -4,8 +4,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
-import { Loader2, ShieldCheck } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { verifyTurnstileToken } from '@/actions/auth'
+import { cn } from '@/lib/utils'
 
 interface GoogleCredentialResponse {
   credential: string;
@@ -21,7 +23,7 @@ declare global {
             client_id: string;
             callback: (response: GoogleCredentialResponse) => void;
             auto_select?: boolean;
-            use_fedcm_for_prompt?: boolean; // Menambahkan opsi FedCM
+            use_fedcm_for_prompt?: boolean;
           }) => void;
           renderButton: (
             element: HTMLElement,
@@ -42,6 +44,12 @@ declare global {
         };
       };
     };
+    turnstile?: {
+      render: (element: string | HTMLElement, options: Record<string, any>) => string;
+      reset: (widgetId?: string) => void;
+      remove: (widgetId?: string) => void;
+    };
+    onloadTurnstileCallback?: () => void;
   }
 }
 
@@ -56,7 +64,7 @@ export function GoogleLoginButton() {
 
   // Anti-bot states
   const [isVerified, setIsVerified] = useState(false)
-  const [honeypot, setHoneypot] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
 
   // Gunakan mounted state untuk menghindari perbedaan rendering SSR dan Client
   useEffect(() => {
@@ -91,15 +99,56 @@ export function GoogleLoginButton() {
     return () => clearInterval(interval)
   }, [])
 
-  // Callback setelah sukses login di pop-up Google
-  const handleCredentialResponse = useCallback(async (response: GoogleCredentialResponse) => {
-    // PROTEKSI BOT 1: Cek Honeypot
-    if (honeypot.trim() !== '') {
-      console.warn('[Security] Bot detected via honeypot field submission!')
-      setErrorMsg('Autentikasi ditolak.')
-      return
+  // Inisialisasi Cloudflare Turnstile secara dinamis
+  useEffect(() => {
+    if (!mounted) return
+
+    // Set callback global sebelum memuat script Turnstile
+    window.onloadTurnstileCallback = () => {
+      if (window.turnstile) {
+        window.turnstile.render('#turnstile-widget', {
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA', // testing sitekey
+          theme: resolvedTheme === 'dark' ? 'dark' : 'light',
+          callback: async (token: string) => {
+            try {
+              setErrorMsg(null)
+              const success = await verifyTurnstileToken(token)
+              if (success) {
+                setTurnstileToken(token)
+                setIsVerified(true)
+              } else {
+                setErrorMsg('Verifikasi keamanan captcha gagal. Silakan coba lagi.')
+              }
+            } catch (err) {
+              console.error('Error verifying captcha:', err)
+              setErrorMsg('Kesalahan sistem saat memverifikasi captcha.')
+            }
+          },
+          'error-callback': () => {
+            setErrorMsg('Gagal memuat Cloudflare Turnstile. Periksa koneksi internet Anda.')
+          }
+        })
+      }
     }
 
+    const script = document.createElement('script')
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback'
+    script.async = true
+    script.defer = true
+    document.body.appendChild(script)
+
+    return () => {
+      try {
+        document.body.removeChild(script)
+      } catch (e) {
+        // Abaikan jika sudah di-remove
+      }
+      delete window.onloadTurnstileCallback
+    }
+  }, [mounted, resolvedTheme])
+
+  // Callback setelah sukses login di pop-up Google
+  const handleCredentialResponse = useCallback(async (response: GoogleCredentialResponse) => {
     setIsLoading(true)
     setErrorMsg(null)
     try {
@@ -107,6 +156,9 @@ export function GoogleLoginButton() {
       const { error } = await supabase.auth.signInWithIdToken({
         provider: 'google',
         token: response.credential,
+        options: {
+          captchaToken: turnstileToken || undefined,
+        }
       })
 
       if (error) {
@@ -125,7 +177,7 @@ export function GoogleLoginButton() {
       setErrorMsg(message)
       setIsLoading(false)
     }
-  }, [router, honeypot])
+  }, [router, turnstileToken])
 
   // Inisialisasi GSI dan Render Tombol hanya jika user terverifikasi (isVerified === true)
   useEffect(() => {
@@ -142,7 +194,7 @@ export function GoogleLoginButton() {
       window.google!.accounts.id.initialize({
         client_id: clientId,
         callback: handleCredentialResponse,
-        use_fedcm_for_prompt: true, // FIX 1: Aktifkan FedCM
+        use_fedcm_for_prompt: true, // Aktifkan FedCM
       })
 
       const buttonDiv = document.getElementById('google-signin-btn-container')
@@ -157,7 +209,7 @@ export function GoogleLoginButton() {
         })
       }
 
-      // Opsional: Tampilkan Google One Tap
+      // Tampilkan Google One Tap
       window.google!.accounts.id.prompt()
 
     } catch (err) {
@@ -168,35 +220,12 @@ export function GoogleLoginButton() {
   return (
     <div className="w-full space-y-4 flex flex-col items-center justify-center" style={{ colorScheme: 'light' }}>
       
-      {/* PROTEKSI BOT 2: Honeypot Input (sr-only tersembunyi dari manusia) */}
-      <input
-        type="text"
-        name="website_api_bypass"
-        value={honeypot}
-        onChange={(e) => setHoneypot(e.target.value)}
-        className="sr-only"
-        tabIndex={-1}
-        autoComplete="off"
+      {/* Cloudflare Turnstile Widget Container */}
+      <div 
+        id="turnstile-widget" 
+        className={cn("w-full flex justify-center", !isVerified ? 'block' : 'hidden')}
+        style={{ minHeight: '65px' }}
       />
-
-      {/* PROTEKSI BOT 3: Checkbox Verifikasi Manusia */}
-      {!isVerified && (
-        <label className="flex items-center space-x-3 p-3.5 bg-neutral-50 dark:bg-zinc-800/50 border-2 border-black dark:border-zinc-700 rounded-2xl cursor-pointer hover:bg-neutral-100 dark:hover:bg-zinc-800 transition-all select-none w-full shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.05)]">
-          <input
-            type="checkbox"
-            checked={isVerified}
-            onChange={(e) => setIsVerified(e.target.checked)}
-            className="w-5 h-5 accent-emerald-500 rounded border-2 border-black cursor-pointer"
-          />
-          <div className="flex flex-col text-left">
-            <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-              Verifikasi Keamanan
-            </span>
-            <span className="text-[9px] text-neutral-400">Centang untuk memuat opsi Google Sign-In</span>
-          </div>
-        </label>
-      )}
 
       {/* Container tombol resmi Google GSI */}
       <div 

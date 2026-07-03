@@ -16,7 +16,8 @@ import {
   Sun,
   Moon,
   Plus,
-  PiggyBank
+  PiggyBank,
+  Sparkles
 } from 'lucide-react'
 import { signOut } from '@/actions/auth'
 import { useTheme } from 'next-themes'
@@ -44,6 +45,7 @@ const menuItems = [
   { icon: ArrowLeftRight, label: 'Transaksi', href: '/dashboard/transactions' },
   { icon: PiggyBank, label: 'Anggaran', href: '/dashboard/budgets' },
   { icon: PieChart, label: 'Kategori', href: '/dashboard/categories' },
+  { icon: Sparkles, label: 'AI Planner', href: '/dashboard/ai-budget-planner' },
   { icon: TrendingUp, label: 'Laporan', href: '/dashboard/reports' },
 ]
 

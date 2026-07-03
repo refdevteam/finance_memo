@@ -25,8 +25,11 @@ export async function getFirebaseToken(): Promise<string | null> {
 
   try {
     const messaging = getMessaging(app)
+    // Wait for the PWA Service Worker to be fully ready to handle background push events
+    const registration = await navigator.serviceWorker.ready
     const token = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+      serviceWorkerRegistration: registration,
     })
     return token
   } catch (error) {
