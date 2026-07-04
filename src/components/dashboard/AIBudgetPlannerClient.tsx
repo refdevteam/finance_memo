@@ -377,7 +377,8 @@ export function AIBudgetPlannerClient({
                       const aiRec = plan.budgets.find(b => b.category_id === cat.id)
                       const spent = initialBudgets.find(b => b.category_id === cat.id)?.spent ?? 0
                       const pastelBg = getPastelColor(cat.color, idx)
-                      const Icon = (LucideIcons as Record<string, ComponentType<{ className?: string }>>)[cat.icon || 'Tag'] || LucideIcons.Tag
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      const Icon = (LucideIcons as any)[cat.icon || 'Tag'] || LucideIcons.Tag
 
                       return (
                         <div
