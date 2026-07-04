@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, ComponentType } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import * as LucideIcons from 'lucide-react'
 import { cn } from '@/lib/utils'
