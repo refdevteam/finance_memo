@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
@@ -22,6 +22,7 @@ declare global {
           initialize: (config: {
             client_id: string;
             callback: (response: GoogleCredentialResponse) => void;
+            nonce?: string;
             auto_select?: boolean;
             use_fedcm_for_prompt?: boolean;
           }) => void;
@@ -65,6 +66,11 @@ export function GoogleLoginButton() {
   // Anti-bot states
   const [isVerified, setIsVerified] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+
+  // Nonce untuk Google Sign-In (diperlukan saat FedCM aktif, khususnya di mobile Chrome)
+  // Gunakan ref agar handleCredentialResponse selalu membaca nilai terbaru
+  const rawNonceRef = useRef<string | null>(null)
+  const [hashedNonce, setHashedNonce] = useState<string | null>(null)
 
   // Gunakan mounted state untuk menghindari perbedaan rendering SSR dan Client
   useEffect(() => {
@@ -156,6 +162,9 @@ export function GoogleLoginButton() {
       const { error } = await supabase.auth.signInWithIdToken({
         provider: 'google',
         token: response.credential,
+        // Teruskan raw nonce ke Supabase agar cocok dengan hashed nonce yang dikirim ke Google
+        // Ini diperlukan di mobile Chrome karena FedCM selalu menyematkan nonce ke id_token
+        nonce: rawNonceRef.current || undefined,
         options: {
           captchaToken: turnstileToken || undefined,
         }
@@ -179,9 +188,35 @@ export function GoogleLoginButton() {
     }
   }, [router, turnstileToken])
 
-  // Inisialisasi GSI dan Render Tombol hanya jika user terverifikasi (isVerified === true)
+  // Generate nonce saat user lolos captcha (isVerified = true)
+  // Nonce diperlukan agar Google Sign-In dan Supabase cocok, terutama di mobile Chrome (FedCM)
   useEffect(() => {
-    if (!isVerified || !isGoogleLoaded || !mounted) return
+    if (!isVerified) return
+
+    const generateNonce = async () => {
+      // 1. Buat random bytes sebagai raw nonce
+      const array = new Uint8Array(32)
+      crypto.getRandomValues(array)
+      const rawNonce = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('')
+
+      // 2. Hash nonce dengan SHA-256 untuk dikirim ke Google
+      const encoder = new TextEncoder()
+      const data = encoder.encode(rawNonce)
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+      const hashArray = Array.from(new Uint8Array(hashBuffer))
+      const hashed = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+
+      // Simpan keduanya: raw ke ref (untuk signInWithIdToken), hashed ke state (untuk GSI initialize)
+      rawNonceRef.current = rawNonce
+      setHashedNonce(hashed)
+    }
+
+    generateNonce().catch(err => console.error('Gagal generate nonce:', err))
+  }, [isVerified])
+
+  // Inisialisasi GSI dan Render Tombol hanya jika user terverifikasi dan nonce sudah siap
+  useEffect(() => {
+    if (!isVerified || !isGoogleLoaded || !mounted || !hashedNonce) return
 
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
     if (!clientId) {
@@ -194,8 +229,9 @@ export function GoogleLoginButton() {
       window.google!.accounts.id.initialize({
         client_id: clientId,
         callback: handleCredentialResponse,
-        // use_fedcm_for_prompt dinonaktifkan: FedCM menyematkan nonce otomatis ke id_token
-        // tapi signInWithIdToken tidak meneruskan nonce yang sama → menyebabkan error nonce mismatch
+        // Kirim hashed nonce ke Google — di mobile Chrome, FedCM akan menyertakan nonce ini
+        // ke dalam id_token, kemudian raw nonce dikirim ke Supabase untuk diverifikasi
+        nonce: hashedNonce,
       })
 
       const buttonDiv = document.getElementById('google-signin-btn-container')
@@ -216,7 +252,7 @@ export function GoogleLoginButton() {
     } catch (err) {
       console.error('Error in GSI initialization/rendering:', err)
     }
-  }, [isVerified, isGoogleLoaded, resolvedTheme, buttonWidth, handleCredentialResponse, mounted])
+  }, [isVerified, isGoogleLoaded, resolvedTheme, buttonWidth, handleCredentialResponse, mounted, hashedNonce])
 
   return (
     <div className="w-full space-y-4 flex flex-col items-center justify-center" style={{ colorScheme: 'light' }}>
