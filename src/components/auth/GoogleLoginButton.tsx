@@ -194,7 +194,8 @@ export function GoogleLoginButton() {
       window.google!.accounts.id.initialize({
         client_id: clientId,
         callback: handleCredentialResponse,
-        use_fedcm_for_prompt: true, // Aktifkan FedCM
+        // use_fedcm_for_prompt dinonaktifkan: FedCM menyematkan nonce otomatis ke id_token
+        // tapi signInWithIdToken tidak meneruskan nonce yang sama → menyebabkan error nonce mismatch
       })
 
       const buttonDiv = document.getElementById('google-signin-btn-container')
