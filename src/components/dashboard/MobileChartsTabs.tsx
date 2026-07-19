@@ -35,7 +35,7 @@ export function MobileChartsTabs({
       <CardHeader className="p-4 pb-2 border-b border-neutral-100 dark:border-neutral-800">
         <div className="flex items-center justify-between gap-2">
           {/* User Tab Selector Chips */}
-          <div className="flex gap-1 bg-slate-100 dark:bg-zinc-950 p-1 rounded-xl">
+          <div className="flex gap-1 bg-slate-100 dark:bg-zinc-950 p-1 rounded-2xl">
             <button
               onClick={() => setActiveTab('category')}
               className={cn(
@@ -116,7 +116,7 @@ export function MobileChartsTabs({
                 </div>
               </>
             ) : (
-              <div className="flex items-center justify-center min-h-[160px] border-2 border-dashed border-border rounded-xl">
+              <div className="flex items-center justify-center min-h-[160px] border-2 border-dashed border-border rounded-2xl">
                 <p className="text-muted-foreground text-xs">Belum ada pengeluaran bulan ini.</p>
               </div>
             )}

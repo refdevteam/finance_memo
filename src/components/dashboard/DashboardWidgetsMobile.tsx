@@ -57,7 +57,7 @@ export function DashboardWidgetsMobile({
       {/* 1. Anggaran Kategori */}
       <Dialog open={activeDialog === 'budget'} onOpenChange={(open) => setActiveDialog(open ? 'budget' : null)}>
         <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_rgba(0,0,0,1)] dark:hover:shadow-[1px_1px_0px_rgba(255,255,255,0.15)] min-h-[92px] flex flex-col justify-between p-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_rgba(255,255,255,0.15)] rounded-xl">
+          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_rgba(0,0,0,1)] dark:hover:shadow-[1px_1px_0px_rgba(255,255,255,0.15)] min-h-[92px] flex flex-col justify-between p-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_rgba(255,255,255,0.15)] rounded-2xl">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black font-mono uppercase tracking-wider">
@@ -107,7 +107,7 @@ export function DashboardWidgetsMobile({
       {/* 2. Pengingat Tagihan */}
       <Dialog open={activeDialog === 'reminders'} onOpenChange={(open) => setActiveDialog(open ? 'reminders' : null)}>
         <DialogTrigger render={
-          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_rgba(0,0,0,1)] dark:hover:shadow-[1px_1px_0px_rgba(255,255,255,0.15)] min-h-[92px] flex flex-col justify-between p-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_rgba(255,255,255,0.15)] rounded-xl">
+          <Card className="cursor-pointer active:scale-98 transition-transform select-none hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_rgba(0,0,0,1)] dark:hover:shadow-[1px_1px_0px_rgba(255,255,255,0.15)] min-h-[92px] flex flex-col justify-between p-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_rgba(255,255,255,0.15)] rounded-2xl">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black font-mono uppercase tracking-wider">

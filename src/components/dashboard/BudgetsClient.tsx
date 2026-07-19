@@ -98,7 +98,7 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
       </div>
 
       {/* Month Navigation & Action Buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-zinc-950 p-4 rounded-xl border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-zinc-950 p-4 rounded-2xl border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
         {/* Month Selector Row */}
         <div className="flex items-center justify-center sm:justify-start gap-3">
           <Button
@@ -138,7 +138,7 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
 
       {/* Stats Summary Card */}
       {totalBudgeted > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#c8e6cd] text-black border-2 border-black dark:border-white p-6 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#c8e6cd] text-black border-2 border-black dark:border-white p-6 rounded-2xl shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
           <div className="space-y-1">
             <span className="text-[10px] font-bold font-mono text-emerald-900 uppercase tracking-wider">
               Total Dianggarkan
@@ -178,7 +178,7 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
           placeholder="Cari kategori anggaran..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 pr-10 py-5 rounded-xl bg-white dark:bg-zinc-950 border-2 border-black dark:border-white focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-all shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] text-sm"
+          className="pl-10 pr-10 py-5 rounded-2xl bg-white dark:bg-zinc-950 border-2 border-black dark:border-white focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-all shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] text-sm"
         />
         {searchQuery && (
           <button 
@@ -231,7 +231,7 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
               <div 
                 key={b.category_id}
                 className={cn(
-                  "p-4 sm:p-5 bg-white dark:bg-zinc-950 rounded-xl border-2 border-black dark:border-white transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] duration-200 flex flex-col justify-between min-h-[125px] sm:min-h-[140px]",
+                  "p-4 sm:p-5 bg-white dark:bg-zinc-950 rounded-2xl border-2 border-black dark:border-white transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] duration-200 flex flex-col justify-between min-h-[125px] sm:min-h-[140px]",
                   !hasBudget && "opacity-75 hover:opacity-100"
                 )}
               >

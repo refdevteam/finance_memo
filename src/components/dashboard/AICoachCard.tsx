@@ -53,7 +53,7 @@ export function AICoachCard() {
   return (
     <div
       className={cn(
-        "w-full bg-[#c5b0f4] text-black border-2 border-black dark:border-white rounded-xl p-4 sm:p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] flex flex-col gap-4 transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] duration-200"
+        "w-full bg-[#c5b0f4] text-black border-2 border-black dark:border-white rounded-2xl p-4 sm:p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] flex flex-col gap-4 transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] duration-200"
       )}
     >
       {/* Header & Tabs */}
@@ -64,7 +64,7 @@ export function AICoachCard() {
         </div>
 
         {/* Selection Switcher */}
-        <div className="grid grid-cols-4 w-full sm:flex sm:w-auto gap-1 bg-black/5 p-1 rounded-xl border border-black/10">
+        <div className="grid grid-cols-4 w-full sm:flex sm:w-auto gap-1 bg-black/5 p-1 rounded-2xl border border-black/10">
           {options.map((opt) => (
             <button
               key={opt.value}

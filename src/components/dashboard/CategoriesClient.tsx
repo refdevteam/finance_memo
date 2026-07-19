@@ -110,7 +110,7 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
           placeholder={`Cari kategori ${activeTab === 'expense' ? 'pengeluaran' : 'pemasukan'}...`}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 pr-10 py-5 rounded-xl bg-white dark:bg-zinc-950 border-2 border-black dark:border-white focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-all shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] text-sm"
+          className="pl-10 pr-10 py-5 rounded-2xl bg-white dark:bg-zinc-950 border-2 border-black dark:border-white focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-all shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] text-sm"
         />
         {searchQuery && (
           <button 
@@ -139,7 +139,7 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
               variant="outline" 
               size="sm" 
               onClick={() => setSearchQuery('')}
-              className="mt-4 rounded-xl text-xs"
+              className="mt-4 rounded-2xl text-xs"
             >
               Reset Pencarian
             </Button>
@@ -154,7 +154,7 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
           return (
             <div 
               key={cat.id} 
-              className="group relative p-3.5 sm:p-4.5 bg-white dark:bg-zinc-950 rounded-xl border-2 border-black dark:border-white transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] duration-200 flex flex-col items-center justify-center text-center min-h-[105px] sm:min-h-[120px]"
+              className="group relative p-3.5 sm:p-4.5 bg-white dark:bg-zinc-950 rounded-2xl border-2 border-black dark:border-white transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] duration-200 flex flex-col items-center justify-center text-center min-h-[105px] sm:min-h-[120px]"
             >
               {/* Custom item delete button (absolute position corner) */}
               {isCustom && (
@@ -178,10 +178,10 @@ export function CategoriesClient({ initialCategories }: CategoriesClientProps) {
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter className="gap-2">
-                        <AlertDialogCancel className="rounded-xl">Batal</AlertDialogCancel>
+                        <AlertDialogCancel className="rounded-2xl">Batal</AlertDialogCancel>
                         <AlertDialogAction 
                           onClick={() => handleDelete(cat.id, cat.name)}
-                          className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl"
+                          className="bg-rose-600 hover:bg-rose-700 text-white rounded-2xl"
                         >
                           Hapus
                         </AlertDialogAction>
