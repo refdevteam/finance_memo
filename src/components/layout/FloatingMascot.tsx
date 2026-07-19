@@ -61,15 +61,10 @@ export function FloatingMascot() {
   // Load saved position from localStorage on mount
   useEffect(() => {
     const saved = getSavedPosition()
-    if (saved) {
-      // Clamp to current viewport in case the screen size changed
-      const maxX = window.innerWidth - MASCOT_SIZE - 16
-      const maxY = window.innerHeight - MASCOT_SIZE - 16
-      setDragPosition({
-        x: Math.min(Math.max(saved.x, -(window.innerWidth - MASCOT_SIZE - 16)), 0),
-        y: Math.min(Math.max(saved.y, -(window.innerHeight - MASCOT_SIZE - 16)), 0),
-      })
-      // Use absolute pixel position instead of offset from default
+    if (saved && !isNaN(saved.x) && !isNaN(saved.y)) {
+      const maxX = window.innerWidth - MASCOT_SIZE - 32
+      const maxY = window.innerHeight - MASCOT_SIZE - 32
+      
       setDragPosition({
         x: Math.max(Math.min(saved.x, 0), -maxX),
         y: Math.max(Math.min(saved.y, 0), -maxY),
@@ -169,11 +164,12 @@ export function FloatingMascot() {
           animate={{
             rotate: isWiggling ? [0, -10, 10, -10, 10, 0] : 0,
             scale: 1,
+            opacity: 1,
           }}
           whileHover={{ scale: isDragging ? 1 : 1.05 }}
           whileTap={{ scale: 0.95 }}
           whileDrag={{ scale: 1.1, cursor: 'grabbing' }}
-          initial={{ opacity: 0, y: 50, scale: 0.5 }}
+          initial={{ opacity: 0, scale: 0.5 }}
           onAnimationComplete={() => {}}
           onDragStart={() => {
             setIsDragging(true)
