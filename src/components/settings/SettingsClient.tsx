@@ -373,14 +373,14 @@ export function SettingsClient({ profile }: SettingsClientProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               {/* Export Button */}
               <Button
                 onClick={handleExportData}
                 disabled={exporting}
                 variant="outline"
                 type="button"
-                className="flex-1 rounded-xl px-5 border-neutral-200 dark:border-neutral-800 gap-2 text-xs font-semibold"
+                className="flex-1 rounded-xl border-neutral-200 dark:border-neutral-800 gap-2 text-xs font-semibold min-h-[48px] px-4 py-3"
               >
                 {exporting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -397,7 +397,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                     variant="destructive"
                     type="button"
                     disabled={deleting}
-                    className="flex-1 rounded-xl px-5 gap-2 text-xs font-semibold border-none"
+                    className="flex-1 rounded-xl gap-2 text-xs font-semibold border-none min-h-[48px] px-4 py-3"
                   >
                     {deleting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />

@@ -1,134 +1,11 @@
 // @ts-nocheck — Deno Edge Function: URL imports are valid in Supabase's Deno runtime.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { initFcm, sendFcmPush } from "../_shared/fcm.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-async function getFcmAccessToken(serviceAccount: any): Promise<string> {
-  const email = serviceAccount.client_email;
-  const privateKeyPem = serviceAccount.private_key;
-  
-  const pemHeader = "-----BEGIN PRIVATE KEY-----";
-  const pemFooter = "-----END PRIVATE KEY-----";
-  const pemContents = privateKeyPem
-    .replace(pemHeader, "")
-    .replace(pemFooter, "")
-    .replace(/\s/g, "");
-  
-  const binaryDerString = atob(pemContents);
-  const binaryDer = new Uint8Array(binaryDerString.length);
-  for (let i = 0; i < binaryDerString.length; i++) {
-    binaryDer[i] = binaryDerString.charCodeAt(i);
-  }
-
-  const key = await crypto.subtle.importKey(
-    "pkcs8",
-    binaryDer,
-    {
-      name: "RSASHA256",
-      hash: { name: "SHA-256" },
-    },
-    false,
-    ["sign"]
-  );
-
-  const header = {
-    alg: "RS256",
-    typ: "JWT",
-  };
-
-  const now = Math.floor(Date.now() / 1000);
-  const claimSet = {
-    iss: email,
-    scope: "https://www.googleapis.com/auth/firebase.messaging",
-    aud: "https://oauth2.googleapis.com/token",
-    exp: now + 3600,
-    iat: now,
-  };
-
-  const encode = (obj: any) => btoa(JSON.stringify(obj)).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-  const stringToSign = `${encode(header)}.${encode(claimSet)}`;
-  
-  const signatureBuffer = await crypto.subtle.sign(
-    "RSASHA256",
-    key,
-    new TextEncoder().encode(stringToSign)
-  );
-
-  const signature = btoa(String.fromCharCode(...new Uint8Array(signatureBuffer)))
-    .replace(/=/g, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-
-  const assertion = `${stringToSign}.${signature}`;
-
-  const response = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`Failed to get OAuth token: ${response.statusText} - ${errorBody}`);
-  }
-
-  const tokenData = await response.json();
-  return tokenData.access_token;
-}
-
-async function sendFcmNotification(
-  accessToken: string,
-  projectId: string,
-  fcmToken: string,
-  title: string,
-  body: string,
-  metadata: any = {}
-) {
-  const url = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({
-      message: {
-        token: fcmToken,
-        notification: {
-          title,
-          body,
-        },
-        data: metadata,
-        webpush: {
-          headers: {
-            Urgency: "high",
-          },
-          notification: {
-            body,
-            icon: "/logo-circle.png",
-            click_action: "/dashboard/reminders",
-          },
-        },
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`FCM send failed: ${response.statusText} - ${errText}`);
-  }
-
-  const resJson = await response.json();
-  return resJson;
 }
 
 serve(async (req) => {
@@ -145,10 +22,7 @@ serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
-    // Initialize FCM settings variables in outer try scope
-    let fcmAccessToken: string | null = null
-    let fcmProjectId = ''
+    const resendApiKey = Deno.env.get('RESEND_API_KEY')
 
     // Call the Postgres RPC function to process due reminders
     const { data: dueReminders, error: rpcError } = await supabase.rpc('process_due_reminders')
@@ -163,28 +37,15 @@ serve(async (req) => {
     const results = []
 
     if (dueReminders && dueReminders.length > 0) {
-      const resendApiKey = Deno.env.get('RESEND_API_KEY')
-      const fcmServiceAccountStr = Deno.env.get('FIREBASE_SERVICE_ACCOUNT')
-      
-      if (fcmServiceAccountStr) {
-        try {
-          const serviceAccount = JSON.parse(fcmServiceAccountStr)
-          fcmProjectId = serviceAccount.project_id
-          fcmAccessToken = await getFcmAccessToken(serviceAccount)
-          console.log('[FCM] Successfully generated OAuth access token')
-        } catch (err) {
-          console.error('[FCM] Failed to initialize Firebase service account or generate token:', err)
-        }
-      } else {
-        console.log('[FCM] FIREBASE_SERVICE_ACCOUNT is missing in environment. Falling back to simulation.')
-      }
+      // Initialize FCM once for all reminders in this batch
+      const fcm = await initFcm()
 
       for (const reminder of dueReminders) {
         const emailSent = { channel: 'email', status: 'skipped' }
         const pushSent = { channel: 'push', status: 'skipped' }
 
         const channels = reminder.channels || {}
-        const amountFormatted = reminder.amount 
+        const amountFormatted = reminder.amount
           ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(reminder.amount)
           : 'Tanpa nominal'
 
@@ -220,7 +81,7 @@ serve(async (req) => {
                   `
                 })
               })
-              
+
               if (res.ok) {
                 emailSent.status = 'sent'
                 console.log(`[Email] Berhasil dikirim ke ${reminder.email} untuk pengingat: ${reminder.title}`)
@@ -239,7 +100,7 @@ serve(async (req) => {
           }
         }
 
-        // 2. Send Push Notification
+        // 2. Send Push Notification via FCM
         if (channels.push && reminder.fcm_token) {
           const reminderType = reminder.type || 'custom'
           let encourageMsg = ''
@@ -262,22 +123,21 @@ serve(async (req) => {
             notificationBody = `${reminder.notes || 'Pengingat jatuh tempo hari ini.'} ${encourageMsg}`
           }
 
-          if (fcmAccessToken && fcmProjectId) {
+          if (fcm) {
             try {
-              await sendFcmNotification(
-                fcmAccessToken,
-                fcmProjectId,
-                reminder.fcm_token,
-                `Pengingat fimo: ${reminder.title}`,
-                notificationBody,
-                {
+              await sendFcmPush(fcm.accessToken, fcm.projectId, {
+                fcmToken: reminder.fcm_token,
+                title: `Pengingat fimo: ${reminder.title}`,
+                body: notificationBody,
+                actionUrl: `/dashboard/reminders?manage_id=${reminder.reminder_id}`,
+                icon: '/logo-circle.png',
+                data: {
                   reminder_id: String(reminder.reminder_id),
                   type: 'reminder',
                   category: reminderType,
                   title: reminder.title,
-                  action_url: `/dashboard/reminders?manage_id=${reminder.reminder_id}`
-                }
-              )
+                },
+              })
               pushSent.status = 'sent'
               console.log(`[FCM Push] Berhasil dikirim ke token ${reminder.fcm_token.substring(0, 15)}...`)
             } catch (err) {
@@ -306,8 +166,7 @@ serve(async (req) => {
       processed: results,
       diagnostics: {
         fcm_env_exists: !!Deno.env.get('FIREBASE_SERVICE_ACCOUNT'),
-        fcm_project_id: fcmProjectId || null,
-        fcm_token_success: !!fcmAccessToken
+        resend_env_exists: !!resendApiKey,
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Sparkles } from 'lucide-react'
 import { usePathname } from 'next/navigation'
@@ -22,6 +22,28 @@ const GREETINGS = [
   "Kamu hebat! Mengelola keuangan adalah langkah awal sukses. ✨"
 ]
 
+const STORAGE_KEY = 'fimo-mascot-position'
+const MASCOT_SIZE = 64 // w-16 h-16 in px
+
+function getSavedPosition(): { x: number; y: number } | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
+}
+
+function savePosition(pos: { x: number; y: number }) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(pos))
+  } catch {
+    // ignore
+  }
+}
+
 export function FloatingMascot() {
   const pathname = usePathname()
   const isDashboard = pathname?.startsWith('/dashboard')
@@ -29,6 +51,31 @@ export function FloatingMascot() {
   const [bubbleText, setBubbleText] = useState("")
   const [isWiggling, setIsWiggling] = useState(false)
   const [isAiOpen, setIsAiOpen] = useState(false)
+
+  // Drag state
+  const [dragPosition, setDragPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStartPos = useRef<{ x: number; y: number } | null>(null)
+  const constraintsRef = useRef<HTMLDivElement>(null)
+
+  // Load saved position from localStorage on mount
+  useEffect(() => {
+    const saved = getSavedPosition()
+    if (saved) {
+      // Clamp to current viewport in case the screen size changed
+      const maxX = window.innerWidth - MASCOT_SIZE - 16
+      const maxY = window.innerHeight - MASCOT_SIZE - 16
+      setDragPosition({
+        x: Math.min(Math.max(saved.x, -(window.innerWidth - MASCOT_SIZE - 16)), 0),
+        y: Math.min(Math.max(saved.y, -(window.innerHeight - MASCOT_SIZE - 16)), 0),
+      })
+      // Use absolute pixel position instead of offset from default
+      setDragPosition({
+        x: Math.max(Math.min(saved.x, 0), -maxX),
+        y: Math.max(Math.min(saved.y, 0), -maxY),
+      })
+    }
+  }, [])
 
   // Show a greeting bubble 3 seconds after load
   useEffect(() => {
@@ -67,16 +114,26 @@ export function FloatingMascot() {
   }, [showBubble])
 
   const handleMascotClick = () => {
-    setIsAiOpen(true)
-    setShowBubble(false)
+    // Only open AI if it was a tap, not the end of a drag
+    if (!isDragging) {
+      setIsAiOpen(true)
+      setShowBubble(false)
+    }
   }
 
   return (
     <>
-      <div className={`fixed right-4 md:right-8 z-40 flex flex-col items-end pointer-events-none transition-all duration-300 ${isDashboard ? 'bottom-24' : 'bottom-6'}`}>
-        {/* Speech Bubble */}
+      {/* Full-screen invisible drag constraint overlay */}
+      <div
+        ref={constraintsRef}
+        className="fixed inset-0 pointer-events-none z-30"
+        aria-hidden="true"
+      />
+
+      <div className={`fixed right-4 md:right-8 z-40 flex flex-col items-end pointer-events-none transition-none ${isDashboard ? 'bottom-24' : 'bottom-6'}`}>
+        {/* Speech Bubble — positioned relative to mascot, only shown when not dragging */}
         <AnimatePresence>
-          {showBubble && (
+          {showBubble && !isDragging && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -102,17 +159,38 @@ export function FloatingMascot() {
           )}
         </AnimatePresence>
 
-        {/* Interactive Mascot */}
+        {/* Interactive Mascot — Draggable */}
         <motion.div
-          initial={{ opacity: 0, y: 50, scale: 0.5 }}
+          drag
+          dragConstraints={constraintsRef}
+          dragElastic={0.1}
+          dragMomentum={false}
+          dragTransition={{ bounceStiffness: 300, bounceDamping: 30 }}
           animate={{
-            opacity: 1,
-            y: 0,
+            rotate: isWiggling ? [0, -10, 10, -10, 10, 0] : 0,
             scale: 1,
-            rotate: isWiggling ? [0, -10, 10, -10, 10, 0] : 0
           }}
-          whileHover={{ scale: 1.05 }}
+          whileHover={{ scale: isDragging ? 1 : 1.05 }}
           whileTap={{ scale: 0.95 }}
+          whileDrag={{ scale: 1.1, cursor: 'grabbing' }}
+          initial={{ opacity: 0, y: 50, scale: 0.5 }}
+          onAnimationComplete={() => {}}
+          onDragStart={() => {
+            setIsDragging(true)
+            dragStartPos.current = { ...dragPosition }
+            setShowBubble(false)
+          }}
+          onDragEnd={(_, info) => {
+            // Save final position (offset from default bottom-right anchor)
+            const newPos = {
+              x: dragPosition.x + info.offset.x,
+              y: dragPosition.y + info.offset.y,
+            }
+            setDragPosition(newPos)
+            savePosition(newPos)
+            // Use a small timeout so click event doesn't fire after drag
+            setTimeout(() => setIsDragging(false), 100)
+          }}
           transition={{
             type: "spring",
             stiffness: 260,
@@ -120,20 +198,33 @@ export function FloatingMascot() {
             rotate: { duration: 0.6, ease: "easeInOut" }
           }}
           onClick={handleMascotClick}
-          className="w-14 h-14 md:w-16 md:h-16 cursor-pointer pointer-events-auto relative select-none"
+          className="w-14 h-14 md:w-16 md:h-16 cursor-grab active:cursor-grabbing pointer-events-auto relative select-none touch-none"
+          style={{ x: dragPosition.x, y: dragPosition.y }}
+          title="Seret untuk memindahkan • Ketuk untuk membuka Fimo AI"
         >
-          {/* Gentle Bobbing Container */}
+          {/* Gentle Bobbing Container — stops bobbing while dragging */}
           <motion.div
-            animate={{ y: [0, -4, 0] }}
+            animate={isDragging ? { y: 0 } : { y: [0, -4, 0] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             className="w-full h-full"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/mascot.png"
-              alt="Fimo Mascot Guide"
+              alt="Fimo Mascot Guide — seret untuk memindahkan"
               className="w-full h-full object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]"
+              draggable={false}
             />
+          </motion.div>
+
+          {/* Drag hint tooltip — shown on first render for a few seconds */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: [0, 1, 1, 0], scale: [0.8, 1, 1, 0.8] }}
+            transition={{ duration: 3, delay: 1, times: [0, 0.1, 0.8, 1] }}
+            className="absolute -top-7 left-1/2 -translate-x-1/2 bg-black/70 text-white text-[9px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap pointer-events-none"
+          >
+            Seret untuk pindah
           </motion.div>
         </motion.div>
       </div>

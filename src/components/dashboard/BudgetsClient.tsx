@@ -98,17 +98,18 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
       </div>
 
       {/* Month Navigation & Action Buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-950 p-4 rounded-xl border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-zinc-950 p-4 rounded-xl border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
+        {/* Month Selector Row */}
+        <div className="flex items-center justify-center sm:justify-start gap-3">
           <Button
             variant="outline"
             size="icon"
             onClick={() => changeMonth('prev')}
-            className="rounded-full border-slate-200 dark:border-slate-800 w-9 h-9 flex items-center justify-center p-0"
+            className="rounded-full border-slate-200 dark:border-slate-800 w-9 h-9 flex items-center justify-center p-0 shrink-0"
           >
             <LucideIcons.ChevronLeft className="h-4 w-4" />
           </Button>
-          <div className="text-center min-w-[130px]">
+          <div className="text-center min-w-[140px]">
             <h2 className="font-extrabold text-base text-slate-800 dark:text-slate-100">
               {INDONESIAN_MONTHS[month - 1]} {year}
             </h2>
@@ -117,23 +118,22 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
             variant="outline"
             size="icon"
             onClick={() => changeMonth('next')}
-            className="rounded-full border-slate-200 dark:border-slate-800 w-9 h-9 flex items-center justify-center p-0"
+            className="rounded-full border-slate-200 dark:border-slate-800 w-9 h-9 flex items-center justify-center p-0 shrink-0"
           >
             <LucideIcons.ChevronRight className="h-4 w-4" />
           </Button>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={handleCopyBudgets}
-            className="rounded-full border-slate-200 dark:border-slate-800 text-xs font-semibold flex items-center space-x-1.5 w-full sm:w-auto px-4 py-2"
-            disabled={isPending}
-          >
-            <LucideIcons.Copy className="h-3.5 w-3.5" />
-            <span>Salin Anggaran Bulan Lalu</span>
-          </Button>
-        </div>
+        {/* Copy Budget Button */}
+        <Button
+          variant="outline"
+          onClick={handleCopyBudgets}
+          className="rounded-full border-slate-200 dark:border-slate-800 text-xs font-semibold flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2.5 sm:py-2"
+          disabled={isPending}
+        >
+          <LucideIcons.Copy className="h-3.5 w-3.5" />
+          <span>Salin Anggaran Bulan Lalu</span>
+        </Button>
       </div>
 
       {/* Stats Summary Card */}

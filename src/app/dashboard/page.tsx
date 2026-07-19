@@ -316,7 +316,7 @@ export default async function DashboardPage({
             {/* Legenda Baru: Keterangan Warna & Amount */}
             <div className="mt-4 space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
               {categoryChartData.map((c, idx) => (
-                <div key={c.name} className="flex items-center justify-between text-xs p-1.5 px-2.5 rounded-xl bg-white/40 dark:bg-black/10 border border-slate-100/50 dark:border-slate-800/50 hover:bg-white dark:hover:bg-neutral-800/80 transition-all duration-200 shadow-3xs">
+                <div key={c.name} className="flex items-center justify-between text-xs p-1.5 px-2.5 rounded-2xl bg-white/40 dark:bg-black/10 border border-slate-100/50 dark:border-slate-800/50 hover:bg-white dark:hover:bg-neutral-800/80 transition-all duration-200 shadow-3xs">
                   <div className="flex items-center min-w-0 flex-1">
                     <span className="w-2.5 h-2.5 rounded-full mr-2 shrink-0 border border-black/5 dark:border-white/5" style={{ backgroundColor: getPastelColor(c.color, idx) }} />
                     <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">{c.name}</span>

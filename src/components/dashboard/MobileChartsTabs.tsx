@@ -97,7 +97,7 @@ export function MobileChartsTabs({
                   {categoryChartData.map((c, idx) => (
                     <div 
                       key={c.name} 
-                      className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-50 dark:bg-zinc-900/40 border border-slate-100 dark:border-zinc-800/60 hover:bg-slate-100 dark:hover:bg-zinc-800/80 transition-all duration-200"
+                      className="flex items-center justify-between text-xs p-2 rounded-2xl bg-slate-50 dark:bg-zinc-900/40 border border-slate-100 dark:border-zinc-800/60 hover:bg-slate-100 dark:hover:bg-zinc-800/80 transition-all duration-200"
                     >
                       <div className="flex items-center min-w-0">
                         <span 

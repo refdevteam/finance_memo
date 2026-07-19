@@ -255,19 +255,19 @@ export function NotificationCenter() {
                   </p>
                 </div>
 
-                {/* Status Dot & Delete Button Container */}
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                  {!notif.is_read && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 group-hover:scale-0 transition-transform duration-200" />
-                  )}
-                  <button
-                    onClick={(e) => handleDelete(e, notif.id)}
-                    className="opacity-0 group-hover:opacity-100 p-1 rounded-md text-neutral-400 hover:text-rose-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all"
-                    title="Hapus"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+                {/* Status Dot — pojok kanan atas, jauh dari teks */}
+                {!notif.is_read && (
+                  <span className="absolute top-3 right-3 h-2 w-2 rounded-full bg-emerald-500 group-hover:opacity-0 transition-opacity duration-200 shrink-0" />
+                )}
+
+                {/* Delete Button — muncul saat hover, di tengah vertikal */}
+                <button
+                  onClick={(e) => handleDelete(e, notif.id)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1.5 rounded-md text-neutral-400 hover:text-rose-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all"
+                  title="Hapus"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
               </div>
             ))
           )}
