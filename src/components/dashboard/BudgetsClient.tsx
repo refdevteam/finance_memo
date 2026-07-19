@@ -98,7 +98,7 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
       </div>
 
       {/* Month Navigation & Action Buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-zinc-950 p-4 rounded-2xl border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-zinc-950 p-4 rounded-xl border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
         {/* Month Selector Row */}
         <div className="flex items-center justify-center sm:justify-start gap-3">
           <Button
@@ -138,7 +138,7 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
 
       {/* Stats Summary Card */}
       {totalBudgeted > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#c8e6cd] text-black border-2 border-black dark:border-white p-6 rounded-2xl shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#c8e6cd] text-black border-2 border-black dark:border-white p-6 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
           <div className="space-y-1">
             <span className="text-[10px] font-bold font-mono text-emerald-900 uppercase tracking-wider">
               Total Dianggarkan

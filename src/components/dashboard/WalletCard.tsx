@@ -46,7 +46,7 @@ export function WalletCard({ id, name, type, balance, color }: WalletCardProps) 
     <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="overflow-hidden rounded-2xl border-2 border-black dark:border-neutral-700 bg-white dark:bg-zinc-900 transition-all duration-200 relative p-4 sm:p-5 flex flex-col justify-between min-h-[140px] sm:min-h-[160px] cursor-pointer select-none"
+      className="overflow-hidden rounded-xl border-2 border-black dark:border-neutral-700 bg-white dark:bg-zinc-900 transition-all duration-200 relative p-4 sm:p-5 flex flex-col justify-between min-h-[140px] sm:min-h-[160px] cursor-pointer select-none"
       style={{
         boxShadow: isHovered
           ? `6px 6px 0px ${walletColor}`

@@ -134,7 +134,7 @@ export function FloatingMascot() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: 10 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="mb-2 max-w-[200px] md:max-w-[240px] bg-white dark:bg-zinc-900 border border-indigo-100 dark:border-zinc-800 p-3 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-slate-700 dark:text-slate-200 text-[11px] leading-relaxed relative pointer-events-auto cursor-pointer"
+              className="mb-2 max-w-[200px] md:max-w-[240px] bg-white dark:bg-zinc-900 border border-indigo-100 dark:border-zinc-800 p-3 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-slate-700 dark:text-slate-200 text-[11px] leading-relaxed relative pointer-events-auto cursor-pointer"
               onClick={handleMascotClick}
             >
               {/* Close Button */}

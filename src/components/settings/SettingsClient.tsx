@@ -203,7 +203,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
 
       <div className="grid grid-cols-1 gap-6">
         {/* Profile Card */}
-        <Card className="border-neutral-200 dark:border-neutral-800 rounded-2xl bg-white dark:bg-card/40 backdrop-blur-md">
+        <Card className="border-neutral-200 dark:border-neutral-800 rounded-xl bg-white dark:bg-card/40 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-base font-bold flex items-center gap-2">
               <User className="h-4 w-4 text-neutral-500" />
@@ -283,7 +283,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
         </Card>
 
         {/* Push Notifications Card */}
-        <Card className="border-neutral-200 dark:border-neutral-800 rounded-2xl bg-white dark:bg-card/40 backdrop-blur-md">
+        <Card className="border-neutral-200 dark:border-neutral-800 rounded-xl bg-white dark:bg-card/40 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-base font-bold flex items-center gap-2">
               <Smartphone className="h-4 w-4 text-neutral-500" />
@@ -362,7 +362,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
         </Card>
 
         {/* GDPR Privacy & Actions Card */}
-        <Card className="border-rose-100 dark:border-rose-950/30 rounded-2xl bg-white dark:bg-card/40 backdrop-blur-md">
+        <Card className="border-rose-100 dark:border-rose-950/30 rounded-xl bg-white dark:bg-card/40 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-base font-bold flex items-center gap-2 text-rose-600 dark:text-rose-400">
               <ShieldAlert className="h-4 w-4" />

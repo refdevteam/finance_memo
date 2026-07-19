@@ -183,7 +183,7 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
   return (
     <div className="space-y-6">
       {/* Search and Quick Filters */}
-      <div className="bg-white dark:bg-card p-4 rounded-2xl border-2 border-black dark:border-white space-y-4 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
+      <div className="bg-white dark:bg-card p-4 rounded-xl border-2 border-black dark:border-white space-y-4 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
         <div className="flex flex-col md:flex-row gap-3">
           {/* Global Search Input */}
           <div className="relative flex-1">
@@ -327,7 +327,7 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
       </div>
 
       {/* Transactions List */}
-      <div className="bg-card dark:bg-card rounded-2xl border-2 border-black dark:border-white overflow-hidden shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
+      <div className="bg-card dark:bg-card rounded-xl border-2 border-black dark:border-white overflow-hidden shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)]">
         {filteredTransactions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
             <p className="font-medium">Tidak ada transaksi ditemukan.</p>

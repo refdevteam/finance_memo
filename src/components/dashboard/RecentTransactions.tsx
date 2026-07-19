@@ -64,7 +64,7 @@ export async function RecentTransactions() {
         return (
           <div 
             key={t.id} 
-            className="flex items-center justify-between p-3 rounded-2xl hover:bg-secondary/40 dark:hover:bg-secondary/40 transition-colors"
+            className="flex items-center justify-between p-3 rounded-xl hover:bg-secondary/40 dark:hover:bg-secondary/40 transition-colors"
           >
             <div className="flex items-center gap-4">
               <div 

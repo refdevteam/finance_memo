@@ -101,7 +101,7 @@ export function DeveloperUpdates({ asSidebarItem = false }: { asSidebarItem?: bo
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger render={triggerButton} />
-      <DialogContent className="sm:max-w-[480px] w-[92vw] overflow-y-auto max-h-[85vh] rounded-2xl p-4 sm:p-6 md:p-8 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)]">
+      <DialogContent className="sm:max-w-[480px] w-[92vw] overflow-y-auto max-h-[85vh] rounded-xl p-4 sm:p-6 md:p-8 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)]">
         <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80">
           <div className="flex items-center space-x-2">
             <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">

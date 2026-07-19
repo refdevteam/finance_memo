@@ -188,7 +188,7 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
             {/* Upload Area */}
             <div 
               className={`
-                border-2 border-dashed rounded-2xl p-6 text-center transition-colors relative
+                border-2 border-dashed rounded-xl p-6 text-center transition-colors relative
                 ${previewUrl ? 'border-primary bg-secondary/30 dark:border-white' : 'border-border'}
                 ${isScanning ? 'opacity-50 cursor-not-allowed' : ''}
               `}
@@ -231,7 +231,7 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
                         e.stopPropagation();
                         if (!isScanning) cameraInputRef.current?.click();
                       }}
-                      className="flex flex-col items-center justify-center p-6 bg-secondary hover:bg-accent border border-border rounded-2xl cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] duration-200"
+                      className="flex flex-col items-center justify-center p-6 bg-secondary hover:bg-accent border border-border rounded-xl cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] duration-200"
                     >
                       <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center mb-3 shadow-sm">
                         <Camera className="h-6 w-6" />
@@ -246,7 +246,7 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
                         e.stopPropagation();
                         if (!isScanning) fileInputRef.current?.click();
                       }}
-                      className="flex flex-col items-center justify-center p-6 bg-secondary/50 hover:bg-accent border border-border rounded-2xl cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] duration-200"
+                      className="flex flex-col items-center justify-center p-6 bg-secondary/50 hover:bg-accent border border-border rounded-xl cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] duration-200"
                     >
                       <div className="h-12 w-12 bg-accent text-foreground rounded-full flex items-center justify-center mb-3">
                         <Upload className="h-6 w-6" />

@@ -267,7 +267,7 @@ export function OnboardingForm({ initialData }: { initialData?: Partial<Onboardi
               )}
 
               {step === 4 && (
-                <div className="space-y-3 bg-slate-50 dark:bg-zinc-900/40 p-5 rounded-2xl border border-slate-100 dark:border-slate-850 shadow-inner">
+                <div className="space-y-3 bg-slate-50 dark:bg-zinc-900/40 p-5 rounded-xl border border-slate-100 dark:border-slate-850 shadow-inner">
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-500">Nama:</span>
                     <span className="font-semibold text-neutral-800 dark:text-neutral-200">{formData.full_name}</span>

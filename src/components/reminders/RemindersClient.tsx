@@ -423,7 +423,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
         </h2>
 
         {activeReminders.length === 0 ? (
-          <div className="border border-dashed border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-card/20 rounded-2xl p-12 text-center">
+          <div className="border border-dashed border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-card/20 rounded-xl p-12 text-center">
             <Clock className="h-10 w-10 text-neutral-300 dark:text-neutral-700 mx-auto stroke-[1.2] mb-3" />
             <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Tidak ada pengingat aktif</h3>
             <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 max-w-sm mx-auto">
@@ -437,7 +437,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
               return (
                 <div
                   key={reminder.id}
-                  className="group relative border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-card/45 backdrop-blur-md rounded-2xl p-4 sm:p-5 hover:shadow-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200 flex flex-col justify-between"
+                  className="group relative border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-card/45 backdrop-blur-md rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200 flex flex-col justify-between"
                 >
                   <div>
                     {/* Category, Status and Options */}
@@ -563,7 +563,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
               return (
                 <div
                   key={reminder.id}
-                  className="border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-card/10 rounded-2xl p-4 sm:p-5 opacity-65 hover:opacity-100 transition-all duration-200 flex flex-col justify-between"
+                  className="border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-card/10 rounded-xl p-4 sm:p-5 opacity-65 hover:opacity-100 transition-all duration-200 flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-3.5">
@@ -845,7 +845,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
           {manageReminder && (
             <div className="space-y-5 pt-4">
               {/* Reminder Details Header */}
-              <div className="p-4 bg-slate-50 dark:bg-zinc-900/60 rounded-2xl border border-slate-100 dark:border-zinc-800 flex flex-col justify-between gap-2">
+              <div className="p-4 bg-slate-50 dark:bg-zinc-900/60 rounded-xl border border-slate-100 dark:border-zinc-800 flex flex-col justify-between gap-2">
                 <div className="flex items-center justify-between">
                   <span className={cn(
                     "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold",
@@ -873,7 +873,7 @@ export function RemindersClient({ initialReminders }: RemindersClientProps) {
               </div>
 
               {/* Mental Health Support Message Card */}
-              <div className="p-4 bg-[#c5b0f4]/10 dark:bg-[#c5b0f4]/5 border-2 border-[#c5b0f4]/35 rounded-2xl flex items-start gap-3">
+              <div className="p-4 bg-[#c5b0f4]/10 dark:bg-[#c5b0f4]/5 border-2 border-[#c5b0f4]/35 rounded-xl flex items-start gap-3">
                 <Heart className="h-5 w-5 text-[#8b5cf6] fill-[#8b5cf6]/10 shrink-0 mt-0.5 animate-pulse" />
                 <div className="space-y-1">
                   <h4 className="text-xs font-bold text-[#8b5cf6] dark:text-[#a78bfa]">

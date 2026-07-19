@@ -158,7 +158,7 @@ export function RecurringForm({ id, initialData, onSuccess }: RecurringFormProps
         </DialogHeader>
         {wallets.length === 0 ? (
           <div className="py-8 text-center space-y-4">
-            <div className="p-3 bg-amber-500/10 text-amber-500 rounded-2xl w-fit mx-auto">
+            <div className="p-3 bg-amber-500/10 text-amber-500 rounded-xl w-fit mx-auto">
               <AlertTriangle className="h-6 w-6" />
             </div>
             <div className="space-y-1">

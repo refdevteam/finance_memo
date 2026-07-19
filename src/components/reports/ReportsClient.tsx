@@ -729,7 +729,7 @@ export function ReportsClient({
                   </Card>
                 }
               />
-              <DialogContent className="sm:max-w-[640px] w-[92vw] rounded-2xl p-4 sm:p-6 md:p-8 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)] overflow-y-auto max-h-[90vh]">
+              <DialogContent className="sm:max-w-[640px] w-[92vw] rounded-xl p-4 sm:p-6 md:p-8 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)] overflow-y-auto max-h-[90vh]">
                 <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80">
                   <DialogTitle className="text-lg font-bold tracking-tight text-neutral-900 dark:text-white flex items-center gap-2">
                     <TrendingUp className="h-5 w-5 text-indigo-500" />
@@ -799,7 +799,7 @@ export function ReportsClient({
               const balance = income - expense
 
               return (
-                <Card key={w.id} className="border-2 border-black dark:border-zinc-800 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.05)] rounded-2xl overflow-hidden">
+                <Card key={w.id} className="border-2 border-black dark:border-zinc-800 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.05)] rounded-xl overflow-hidden">
                   <CardHeader className="bg-slate-100/60 dark:bg-zinc-900/50 pb-3 flex flex-row items-center justify-between border-b border-border/60">
                     <div>
                       <CardTitle className="text-base font-bold">{w.name}</CardTitle>

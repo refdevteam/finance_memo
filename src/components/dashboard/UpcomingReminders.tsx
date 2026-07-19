@@ -159,7 +159,7 @@ export function UpcomingReminders() {
       </div>
 
       {reminders.length === 0 ? (
-        <div className="bg-neutral-50/50 dark:bg-neutral-900/10 border border-neutral-100 dark:border-neutral-800/80 rounded-2xl p-6 text-center">
+        <div className="bg-neutral-50/50 dark:bg-neutral-900/10 border border-neutral-100 dark:border-neutral-800/80 rounded-xl p-6 text-center">
           <CheckCircle2 className="h-8 w-8 text-emerald-500/80 mx-auto mb-2" />
           <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
             Semua tagihan aman untuk 7 hari ke depan!
@@ -173,7 +173,7 @@ export function UpcomingReminders() {
               <div 
                 key={reminder.id}
                 className={cn(
-                  "flex items-center justify-between p-3.5 rounded-2xl border transition-all duration-200 bg-white dark:bg-card/50",
+                  "flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 bg-white dark:bg-card/50",
                   dueInfo.isOverdue 
                     ? "border-rose-200 dark:border-rose-950/40 bg-rose-50/20 dark:bg-rose-950/5" 
                     : "border-neutral-100 dark:border-neutral-900/60"

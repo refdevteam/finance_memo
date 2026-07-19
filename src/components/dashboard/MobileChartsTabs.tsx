@@ -31,11 +31,11 @@ export function MobileChartsTabs({
   const [activeTab, setActiveTab] = useState<'trend' | 'category'>('category')
 
   return (
-    <Card className="block md:hidden border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden">
+    <Card className="block md:hidden border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] bg-white dark:bg-zinc-900 rounded-xl overflow-hidden">
       <CardHeader className="p-4 pb-2 border-b border-neutral-100 dark:border-neutral-800">
         <div className="flex items-center justify-between gap-2">
           {/* User Tab Selector Chips */}
-          <div className="flex gap-1 bg-slate-100 dark:bg-zinc-950 p-1 rounded-2xl">
+          <div className="flex gap-1 bg-slate-100 dark:bg-zinc-950 p-1 rounded-xl">
             <button
               onClick={() => setActiveTab('category')}
               className={cn(
@@ -97,7 +97,7 @@ export function MobileChartsTabs({
                   {categoryChartData.map((c, idx) => (
                     <div 
                       key={c.name} 
-                      className="flex items-center justify-between text-xs p-2 rounded-2xl bg-slate-50 dark:bg-zinc-900/40 border border-slate-100 dark:border-zinc-800/60 hover:bg-slate-100 dark:hover:bg-zinc-800/80 transition-all duration-200"
+                      className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-50 dark:bg-zinc-900/40 border border-slate-100 dark:border-zinc-800/60 hover:bg-slate-100 dark:hover:bg-zinc-800/80 transition-all duration-200"
                     >
                       <div className="flex items-center min-w-0">
                         <span 
@@ -116,7 +116,7 @@ export function MobileChartsTabs({
                 </div>
               </>
             ) : (
-              <div className="flex items-center justify-center min-h-[160px] border-2 border-dashed border-border rounded-2xl">
+              <div className="flex items-center justify-center min-h-[160px] border-2 border-dashed border-border rounded-xl">
                 <p className="text-muted-foreground text-xs">Belum ada pengeluaran bulan ini.</p>
               </div>
             )}

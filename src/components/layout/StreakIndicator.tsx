@@ -39,7 +39,7 @@ export function StreakIndicator({ streak = 0 }: StreakIndicatorProps) {
         }
       />
       
-      <DialogContent className="sm:max-w-[440px] w-[92vw] rounded-2xl p-4 sm:p-6 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)] overflow-hidden">
+      <DialogContent className="sm:max-w-[440px] w-[92vw] rounded-xl p-4 sm:p-6 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)] overflow-hidden">
         <DialogHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-800/80">
           <div className="flex items-center space-x-2">
             <div className="p-2 rounded-xl bg-orange-500/10 text-orange-500">

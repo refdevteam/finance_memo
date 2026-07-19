@@ -50,7 +50,7 @@ function formatRupiah(amount: number): string {
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-2xl border border-border bg-popover/90 dark:bg-popover/90 backdrop-blur-lg shadow-lg p-3 text-xs text-popover-foreground">
+    <div className="rounded-xl border border-border bg-popover/90 dark:bg-popover/90 backdrop-blur-lg shadow-lg p-3 text-xs text-popover-foreground">
       <p className="font-medium text-muted-foreground mb-1.5">{label}</p>
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {payload.map((entry: any, idx: number) => {
@@ -75,7 +75,7 @@ function CustomTooltip({ active, payload, label }: any) {
 export function SpendingTrendChart({ data, height = 300 }: { data: DailyData[]; height?: number }) {
   if (!data.length) {
     return (
-      <div style={{ height }} className="flex items-center justify-center border-2 border-dashed border-border rounded-2xl">
+      <div style={{ height }} className="flex items-center justify-center border-2 border-dashed border-border rounded-xl">
         <div className="text-center">
           <p className="text-muted-foreground text-sm">Belum ada data transaksi bulan ini.</p>
           <p className="text-muted-foreground/60 text-xs mt-1">Mulai catat transaksi untuk melihat tren.</p>
@@ -139,7 +139,7 @@ export function SpendingTrendChart({ data, height = 300 }: { data: DailyData[]; 
 export function CategoryBarChart({ data, height = 260 }: { data: CategoryData[]; height?: number }) {
   if (!data.length) {
     return (
-      <div style={{ height }} className="flex items-center justify-center border-2 border-dashed border-border rounded-2xl">
+      <div style={{ height }} className="flex items-center justify-center border-2 border-dashed border-border rounded-xl">
         <div className="text-center p-2">
           <p className="text-muted-foreground text-xs sm:text-sm">Belum ada pengeluaran bulan ini.</p>
         </div>
@@ -210,7 +210,7 @@ export function CategoryMiniPieChart({ data }: { data: CategoryData[] }) {
 export function SixMonthTrendChart({ data, height = 300 }: { data: DailyData[]; height?: number }) {
   if (!data.length) {
     return (
-      <div style={{ height }} className="flex items-center justify-center border-2 border-dashed border-border rounded-2xl">
+      <div style={{ height }} className="flex items-center justify-center border-2 border-dashed border-border rounded-xl">
         <div className="text-center p-2">
           <p className="text-muted-foreground text-xs sm:text-sm">Belum ada data transaksi.</p>
         </div>
