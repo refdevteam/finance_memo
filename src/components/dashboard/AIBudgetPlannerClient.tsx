@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 import { getPastelColor } from '@/lib/colors'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
-import { generateAIBudgetPlan, deleteAIBudgetPlan, AIBudgetPlan } from '@/actions/ai-budget'
+import { generateAIBudgetPlan, deleteAIBudgetPlan, applyAIBudgetPlanToBudgets, AIBudgetPlan } from '@/actions/ai-budget'
 import { setBudget } from '@/actions/budgets'
 
 interface WalletRow {
@@ -154,26 +154,18 @@ export function AIBudgetPlannerClient({
   const handleApplyBudgets = async () => {
     setIsApplying(true)
     try {
-      let successCount = 0
-      let failedCount = 0
-      
-      const promises = Object.entries(customLimits).map(async ([catId, amount]) => {
-        const res = await setBudget(catId, amount, currentMonth, currentYear)
-        if (res.success) {
-          successCount++
-        } else {
-          failedCount++
-        }
-      })
+      const itemsToApply = Object.entries(customLimits).map(([catId, amount]) => ({
+        category_id: catId,
+        limit_amount: amount
+      }))
 
-      await Promise.all(promises)
-
-      if (failedCount === 0) {
-        toast.success(`Berhasil menerapkan ${successCount} anggaran pengeluaran!`)
+      const res = await applyAIBudgetPlanToBudgets(itemsToApply, currentMonth, currentYear)
+      if (res.success) {
+        toast.success(`Berhasil menerapkan ${res.count || 0} anggaran pengeluaran!`)
         router.push('/dashboard/budgets')
         router.refresh()
       } else {
-        toast.warning(`Berhasil menerapkan ${successCount} anggaran, namun ${failedCount} gagal.`)
+        toast.error(res.error || 'Gagal menerapkan anggaran ke database.')
       }
     } catch (err) {
       console.error('Error applying AI budgets:', err)

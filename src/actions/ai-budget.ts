@@ -279,3 +279,56 @@ export async function deleteAIBudgetPlan(): Promise<{ success: boolean; error?: 
     return { success: false, error: 'Gagal menghapus rencana budget AI.' }
   }
 }
+
+/**
+ * Apply AI Budget recommendations directly to Supabase budgets table.
+ */
+export async function applyAIBudgetPlanToBudgets(
+  items: { category_id: string; limit_amount: number }[],
+  month: number,
+  year: number
+): Promise<{ success: boolean; count?: number; error?: string }> {
+  const supabase = createClient()
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: 'Kamu harus login terlebih dahulu.' }
+
+    if (!items || items.length === 0) {
+      return { success: false, error: 'Tidak ada item anggaran untuk diterapkan.' }
+    }
+
+    const payload = items
+      .filter((item) => item.category_id && item.limit_amount > 0)
+      .map((item) => ({
+        user_id: user.id,
+        category_id: item.category_id,
+        amount: item.limit_amount,
+        month,
+        year,
+        notes: 'AI Recommended Budget'
+      }))
+
+    if (payload.length === 0) {
+      return { success: false, error: 'Tidak ada nominal anggaran yang valid (> 0).' }
+    }
+
+    const { error } = await supabase
+      .from('budgets')
+      .upsert(payload, {
+        onConflict: 'user_id,category_id,month,year'
+      })
+
+    if (error) throw error
+
+    revalidatePath('/dashboard/budgets')
+    revalidatePath('/dashboard/ai-budget-planner')
+    revalidatePath('/dashboard')
+
+    return { success: true, count: payload.length }
+
+  } catch (err) {
+    console.error('Error applying AI budget plan:', err)
+    return { success: false, error: err instanceof Error ? err.message : 'Gagal menerapkan anggaran AI.' }
+  }
+}
+

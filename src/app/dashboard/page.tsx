@@ -20,9 +20,11 @@ import { RecentTransactions } from '@/components/dashboard/RecentTransactions'
 import { SpendingTrendChart, CategoryBarChart } from '@/components/dashboard/DashboardCharts'
 import { getPastelColor } from '@/lib/colors'
 import { getBudgets } from '@/actions/budgets'
+import { getCachedAIBudgetPlan, AIBudgetPlanResult } from '@/actions/ai-budget'
 import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
 import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
 import { AICoachCard } from '@/components/dashboard/AICoachCard'
+import { AIBudgetDashboardHighlight } from '@/components/dashboard/AIBudgetDashboardHighlight'
 import { DashboardWidgetsMobile } from '@/components/dashboard/DashboardWidgetsMobile'
 import { UpcomingReminders } from '@/components/dashboard/UpcomingReminders'
 import { FimoAITrigger } from '@/components/dashboard/FimoAITrigger'
@@ -94,7 +96,7 @@ export default async function DashboardPage({
   const sevenDaysLaterStr = toLocalYYYYMMDD(sevenDaysLater)
 
   // Fetch all data in parallel
-  const [walletsRes, incomeRes, expenseRes, dailyTransactionsRes, categoryExpensesRes, categoriesRes, remindersRes] = await Promise.all([
+  const [walletsRes, incomeRes, expenseRes, dailyTransactionsRes, categoryExpensesRes, categoriesRes, remindersRes, aiPlanRes] = await Promise.all([
     // Total balance from all active wallets
     supabase
       .from('wallets')
@@ -151,6 +153,9 @@ export default async function DashboardPage({
       .eq('user_id', user.id)
       .eq('is_active', true)
       .lte('due_date', sevenDaysLaterStr),
+
+    // Cached AI Budget Plan
+    getCachedAIBudgetPlan().catch((): AIBudgetPlanResult => ({ success: false }))
   ])
 
   const budgets = await getBudgets(now.getMonth() + 1, now.getFullYear())
@@ -269,6 +274,14 @@ export default async function DashboardPage({
           </div>
         ))}
       </div>
+
+      {/* AI Budget Planner Highlight Card */}
+      <AIBudgetDashboardHighlight
+        plan={aiPlanRes?.success ? aiPlanRes.data || null : null}
+        currentBudgets={budgets}
+        currentMonth={now.getMonth() + 1}
+        currentYear={now.getFullYear()}
+      />
 
       {/* Fimo AI Coach inline only on Desktop */}
       <div className="hidden md:block">
