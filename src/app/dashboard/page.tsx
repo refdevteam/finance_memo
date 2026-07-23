@@ -278,7 +278,6 @@ export default async function DashboardPage({
       {/* AI Budget Planner Highlight Card */}
       <AIBudgetDashboardHighlight
         plan={aiPlanRes?.success ? aiPlanRes.data || null : null}
-        currentBudgets={budgets}
         currentMonth={now.getMonth() + 1}
         currentYear={now.getFullYear()}
       />

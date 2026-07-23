@@ -8,7 +8,6 @@ import { getPastelColor } from '@/lib/colors'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { generateAIBudgetPlan, deleteAIBudgetPlan, applyAIBudgetPlanToBudgets, AIBudgetPlan } from '@/actions/ai-budget'
-import { setBudget } from '@/actions/budgets'
 
 interface WalletRow {
   id: string

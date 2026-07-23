@@ -3,11 +3,9 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { Sparkles, ArrowRight, CheckCircle2, Edit3, Save, PiggyBank, Lightbulb, ShieldAlert } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { AIBudgetPlan, applyAIBudgetPlanToBudgets } from '@/actions/ai-budget'
-import { BudgetCategory } from '@/actions/budgets'
 import {
   Sheet,
   SheetContent,
@@ -19,7 +17,6 @@ import {
 
 interface AIBudgetDashboardHighlightProps {
   plan: AIBudgetPlan | null
-  currentBudgets: BudgetCategory[]
   currentMonth: number
   currentYear: number
 }
@@ -35,7 +32,6 @@ function formatRupiah(amount: number): string {
 
 export function AIBudgetDashboardHighlight({
   plan,
-  currentBudgets,
   currentMonth,
   currentYear
 }: AIBudgetDashboardHighlightProps) {
