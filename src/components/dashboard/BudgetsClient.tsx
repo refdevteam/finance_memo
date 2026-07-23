@@ -306,6 +306,20 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
 
       {/* Categories / Budgets List */}
       {displayBudgets.length === 0 ? (
+        <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center bg-slate-50/50 dark:bg-zinc-900/30 rounded-3xl border border-dashed border-slate-200 dark:border-zinc-800 transition-all">
+          <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mb-3">
+            <LucideIcons.Inbox className="h-6 w-6 text-slate-400" />
+          </div>
+          <h3 className="font-semibold text-slate-700 dark:text-slate-300 text-sm">Tidak Ditemukan Anggaran</h3>
+          <p className="text-xs text-slate-400 mt-1 max-w-[280px]">
+            {searchQuery 
+              ? `Tidak ditemukan kategori anggaran dengan kata kunci "${searchQuery}"`
+              : 'Belum ada kategori anggaran tersedia.'}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {displayBudgets.map((b) => {
             const isAiDraft = reviewMode && draftBudgets[b.category_id] !== undefined
             const currentLimit = reviewMode ? (draftBudgets[b.category_id] ?? b.budget_limit) : b.budget_limit
             const hasBudget = currentLimit > 0
