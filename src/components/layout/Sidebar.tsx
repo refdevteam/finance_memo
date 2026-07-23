@@ -16,8 +16,7 @@ import {
   Sun,
   Moon,
   Plus,
-  PiggyBank,
-  Sparkles
+  PiggyBank
 } from 'lucide-react'
 import { signOut } from '@/actions/auth'
 import { useTheme } from 'next-themes'

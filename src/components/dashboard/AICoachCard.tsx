@@ -37,6 +37,7 @@ export function AICoachCard({ aiPlan }: AICoachCardProps = {}) {
     async function loadInsight() {
       setLoading(true)
       try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const res = await getAICoachInsight(selectedType as any)
         if (active) {
           if (res.success && res.data) {
@@ -61,7 +62,7 @@ export function AICoachCard({ aiPlan }: AICoachCardProps = {}) {
 
   // Determine what to show
   let content = null
-  let scoreVal = insight?.score ?? 70
+  const scoreVal = insight?.score ?? 70
   let hasScore = insight?.score !== undefined
 
   if (selectedType === 'plan') {
