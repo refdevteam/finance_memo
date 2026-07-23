@@ -24,7 +24,6 @@ import { getCachedAIBudgetPlan, AIBudgetPlanResult } from '@/actions/ai-budget'
 import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
 import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
 import { AICoachCard } from '@/components/dashboard/AICoachCard'
-import { AIBudgetDashboardHighlight } from '@/components/dashboard/AIBudgetDashboardHighlight'
 import { DashboardWidgetsMobile } from '@/components/dashboard/DashboardWidgetsMobile'
 import { UpcomingReminders } from '@/components/dashboard/UpcomingReminders'
 import { FimoAITrigger } from '@/components/dashboard/FimoAITrigger'
@@ -275,16 +274,9 @@ export default async function DashboardPage({
         ))}
       </div>
 
-      {/* AI Budget Planner Highlight Card */}
-      <AIBudgetDashboardHighlight
-        plan={aiPlanRes?.success ? aiPlanRes.data || null : null}
-        currentMonth={now.getMonth() + 1}
-        currentYear={now.getFullYear()}
-      />
-
       {/* Fimo AI Coach inline only on Desktop */}
-      <div className="hidden md:block">
-        <AICoachCard />
+      <div className="hidden md:block mb-4">
+        <AICoachCard aiPlan={aiPlanRes?.success ? aiPlanRes.data || null : null} />
       </div>
 
       {/* Mobile-only widgets grid */}

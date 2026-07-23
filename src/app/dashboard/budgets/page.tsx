@@ -2,6 +2,7 @@ import { getBudgets } from '@/actions/budgets'
 import { BudgetsClient } from '@/components/dashboard/BudgetsClient'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getCachedAIBudgetPlan, AIBudgetPlanResult } from '@/actions/ai-budget'
 
 interface PageProps {
   searchParams: {
@@ -22,12 +23,17 @@ export default async function BudgetsPage({ searchParams }: PageProps) {
 
   // Retrieve budgets data (includes category info and current month expenses spent)
   const budgets = await getBudgets(month, year)
+  
+  // Get AI Budget plan
+  const aiPlanRes = await getCachedAIBudgetPlan().catch((): AIBudgetPlanResult => ({ success: false }))
 
   return (
     <BudgetsClient 
       initialBudgets={budgets} 
+      initialCachedPlan={aiPlanRes?.success ? aiPlanRes.data || null : null}
       month={month} 
       year={year} 
     />
   )
 }
+

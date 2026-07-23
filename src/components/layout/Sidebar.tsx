@@ -45,7 +45,6 @@ const menuItems = [
   { icon: ArrowLeftRight, label: 'Transaksi', href: '/dashboard/transactions' },
   { icon: PiggyBank, label: 'Anggaran', href: '/dashboard/budgets' },
   { icon: PieChart, label: 'Kategori', href: '/dashboard/categories' },
-  { icon: Sparkles, label: 'AI Planner', href: '/dashboard/ai-budget-planner' },
   { icon: TrendingUp, label: 'Laporan', href: '/dashboard/reports' },
 ]
 
@@ -288,18 +287,6 @@ export function Sidebar({ wallets = [], categories = [], recordStreak = 0 }: { w
               <SheetTitle className="text-lg font-bold">Fimo Menu</SheetTitle>
             </SheetHeader>
             <div className="space-y-1 py-2">
-              <Link
-                href="/dashboard/ai-budget-planner"
-                className={cn(
-                  "flex items-center space-x-3 px-3 py-3 rounded-xl text-sm font-medium transition-all",
-                  pathname === "/dashboard/ai-budget-planner"
-                    ? "bg-black text-white dark:bg-white dark:text-black font-semibold"
-                    : "text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-900"
-                )}
-              >
-                <Sparkles className="h-5 w-5 text-indigo-500" />
-                <span>AI Planner</span>
-              </Link>
               <Link
                 href="/dashboard/categories"
                 className={cn(

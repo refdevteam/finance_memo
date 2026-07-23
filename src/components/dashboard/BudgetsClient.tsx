@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import * as LucideIcons from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { BudgetCategory, copyBudgetsFromPreviousMonth } from '@/actions/budgets'
+import { generateAIBudgetPlan, applyAIBudgetPlanToBudgets, AIBudgetPlan } from '@/actions/ai-budget'
 import { BudgetForm } from '@/components/dashboard/BudgetForm'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,6 +13,7 @@ import { toast } from 'sonner'
 
 interface BudgetsClientProps {
   initialBudgets: BudgetCategory[]
+  initialCachedPlan?: AIBudgetPlan | null
   month: number
   year: number
 }
@@ -30,10 +32,12 @@ const INDONESIAN_MONTHS = [
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
 ]
 
-export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProps) {
+export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }: BudgetsClientProps) {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [isPending, startTransition] = useTransition()
+  const [plan, setPlan] = useState<AIBudgetPlan | null>(initialCachedPlan || null)
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false)
 
   // Handle month change
   const changeMonth = (direction: 'prev' | 'next') => {
@@ -73,6 +77,37 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
         toast.error('Terjadi kesalahan sistem saat menyalin anggaran.')
       }
     })
+  }
+
+  const handleAutoPilot = async () => {
+    setIsGeneratingAI(true)
+    try {
+      const res = await generateAIBudgetPlan(month, year)
+      if (res.success && res.data) {
+        setPlan(res.data)
+        
+        // Auto-apply immediately to budgets
+        const itemsToApply = res.data.budgets.map((item) => ({
+          category_id: item.category_id,
+          limit_amount: item.recommended_limit
+        }))
+
+        const applyRes = await applyAIBudgetPlanToBudgets(itemsToApply, month, year)
+        if (applyRes.success) {
+          toast.success(`Auto-Pilot aktif! ${applyRes.count} anggaran telah disesuaikan oleh AI.`)
+          router.refresh()
+        } else {
+          toast.error(applyRes.error || 'Gagal menerapkan anggaran AI.')
+        }
+      } else {
+        toast.error(res.error || 'Gagal menghasilkan rencana AI.')
+      }
+    } catch (err) {
+      console.error('Error auto-pilot:', err)
+      toast.error('Terjadi kesalahan sistem saat Auto-Pilot.')
+    } finally {
+      setIsGeneratingAI(false)
+    }
   }
 
   // Filter budgets
@@ -124,16 +159,32 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
           </Button>
         </div>
 
-        {/* Copy Budget Button */}
-        <Button
-          variant="outline"
-          onClick={handleCopyBudgets}
-          className="rounded-full border-slate-200 dark:border-slate-800 text-xs font-semibold flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2.5 sm:py-2"
-          disabled={isPending}
-        >
-          <LucideIcons.Copy className="h-3.5 w-3.5" />
-          <span>Salin Anggaran Bulan Lalu</span>
-        </Button>
+        {/* Action Buttons Row */}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Button
+            variant="outline"
+            onClick={handleCopyBudgets}
+            className="rounded-full border-slate-200 dark:border-slate-800 text-xs font-semibold flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2.5 sm:py-2"
+            disabled={isPending || isGeneratingAI}
+          >
+            <LucideIcons.Copy className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Salin Anggaran</span>
+            <span className="sm:hidden">Salin</span>
+          </Button>
+
+          <Button
+            onClick={handleAutoPilot}
+            disabled={isPending || isGeneratingAI}
+            className="rounded-full bg-black text-white hover:bg-neutral-800 text-xs font-bold flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2.5 sm:py-2 border-2 border-black shadow-[2px_2px_0px_rgba(255,255,255,0.3)] transition-all"
+          >
+            {isGeneratingAI ? (
+              <LucideIcons.Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <LucideIcons.Sparkles className="h-3.5 w-3.5 text-amber-300" />
+            )}
+            <span>Fimo Auto-Pilot</span>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Summary Card */}
@@ -290,14 +341,23 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
                   {hasBudget ? (
                     <>
                       <div className="flex justify-between items-end text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400">
-                        <div className="truncate pr-1">
-                          <span className="text-slate-800 dark:text-slate-100 font-extrabold">
-                            {formatRupiah(b.spent)}
-                          </span>
-                          <span className="text-slate-400 dark:text-slate-600 font-normal text-[8px] sm:text-[10px] mx-0.5 sm:mx-1">/</span>
-                          <span className="font-semibold text-slate-500 dark:text-slate-400">
-                            {formatRupiah(b.budget_limit)}
-                          </span>
+                        <div className="flex flex-col pr-1">
+                          <div className="truncate">
+                            <span className="text-slate-800 dark:text-slate-100 font-extrabold">
+                              {formatRupiah(b.spent)}
+                            </span>
+                            <span className="text-slate-400 dark:text-slate-600 font-normal text-[8px] sm:text-[10px] mx-0.5 sm:mx-1">/</span>
+                            <span className="font-semibold text-slate-500 dark:text-slate-400">
+                              {formatRupiah(b.budget_limit)}
+                            </span>
+                          </div>
+                          {/* AI Diff Indicator */}
+                          {plan?.budgets?.find(ab => ab.category_id === b.category_id) && 
+                           plan.budgets.find(ab => ab.category_id === b.category_id)!.recommended_limit !== b.budget_limit && (
+                             <span className="text-[9px] text-[#c5b0f4] font-bold mt-1 block max-w-full truncate bg-black px-1.5 py-0.5 rounded-sm w-fit shadow-xs">
+                               AI menyarankan {formatRupiah(plan.budgets.find(ab => ab.category_id === b.category_id)!.recommended_limit)}
+                             </span>
+                          )}
                         </div>
                         <span className={cn(
                           "px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[10px] font-extrabold border shrink-0",
@@ -345,6 +405,59 @@ export function BudgetsClient({ initialBudgets, month, year }: BudgetsClientProp
           })}
         </div>
       )}
+
+      {/* Savings Simulation */}
+      {plan?.savings_recommendations && plan.savings_recommendations.length > 0 && (
+        <div className="bg-[#efd4d4] text-black border-2 border-black p-6 rounded-2xl shadow-[4px_4px_0px_rgba(0,0,0,1)] space-y-6 mt-8">
+          <div>
+            <h4 className="text-lg font-black flex items-center gap-2">
+              <LucideIcons.Calculator className="h-5 w-5" />
+              Fimo Coach: Simulasi Tabungan
+            </h4>
+            <p className="text-xs font-semibold opacity-80 mt-1">
+              Berdasarkan analisis sisa anggaranmu, berikut proyeksi dari rekomendasi bank pilihan AI.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {plan.savings_recommendations.map((sav) => (
+              <div
+                key={sav.institution}
+                className="p-4 rounded-xl border-2 border-black bg-white transition-all flex flex-col justify-between gap-3 shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-extrabold text-sm text-slate-900">
+                      {sav.institution}
+                    </span>
+                    <span className="text-[9px] font-bold font-mono uppercase bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
+                      {sav.type === 'bank' ? '🏦 Bank Digital' : '📈 Reksa/SBN'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    {sav.description}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between border-t border-black/10 pt-3">
+                  <div className="text-left">
+                    <span className="text-[10px] font-bold text-slate-400 block font-mono">Bunga:</span>
+                    <span className="text-sm font-black text-indigo-500">
+                      {sav.rate_pct}% p.a.
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-bold text-slate-400 block font-mono">Proyeksi 1 Thn:</span>
+                    <span className="text-sm font-black text-black">
+                      {formatRupiah(sav.projection_1yr || 0)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
+

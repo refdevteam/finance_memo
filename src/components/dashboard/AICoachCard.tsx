@@ -1,18 +1,25 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Sparkles, Activity } from 'lucide-react'
+import { Sparkles, Activity, ArrowRight } from 'lucide-react'
 import { getAICoachInsight } from '@/actions/ai-coach'
 import { cn } from '@/lib/utils'
+import { AIBudgetPlan } from '@/actions/ai-budget'
+import Link from 'next/link'
 
-type AnalysisType = 'daily' | 'weekly' | '30days' | 'month'
+type AnalysisType = 'plan' | 'daily' | 'weekly' | '30days' | 'month'
 
-export function AICoachCard() {
-  const [selectedType, setSelectedType] = useState<AnalysisType>('daily')
+interface AICoachCardProps {
+  aiPlan?: AIBudgetPlan | null
+}
+
+export function AICoachCard({ aiPlan }: AICoachCardProps = {}) {
+  const [selectedType, setSelectedType] = useState<AnalysisType>('plan')
   const [insight, setInsight] = useState<{ tip: string; score?: number } | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
 
   const options = [
+    { value: 'plan', label: 'Rencana AI' },
     { value: 'daily', label: 'Harian' },
     { value: 'weekly', label: 'Mingguan' },
     { value: '30days', label: '30 Hari' },
@@ -21,10 +28,16 @@ export function AICoachCard() {
 
   useEffect(() => {
     let active = true
+    if (selectedType === 'plan') {
+      setInsight(null)
+      setLoading(false)
+      return
+    }
+
     async function loadInsight() {
       setLoading(true)
       try {
-        const res = await getAICoachInsight(selectedType)
+        const res = await getAICoachInsight(selectedType as any)
         if (active) {
           if (res.success && res.data) {
             setInsight(res.data)
@@ -46,9 +59,61 @@ export function AICoachCard() {
     }
   }, [selectedType])
 
-  const tipText = insight?.tip || "Mulai catat keuanganmu untuk melihat analisis dari Fimo AI!"
-  const scoreVal = insight?.score ?? 70
-  const hasScore = insight?.score !== undefined
+  // Determine what to show
+  let content = null
+  let scoreVal = insight?.score ?? 70
+  let hasScore = insight?.score !== undefined
+
+  if (selectedType === 'plan') {
+    hasScore = false
+    if (aiPlan) {
+      content = (
+        <div className="space-y-3">
+          <p className="text-sm font-semibold leading-relaxed text-black/90">
+            {aiPlan.analysis?.summary || 'Rencana alokasi keuangan cerdas bulan ini sudah aktif.'}
+          </p>
+          <div className="flex items-center justify-between bg-black/5 p-2 rounded-xl border border-black/10">
+            <span className="text-xs font-bold text-black/80">Prioritas: {aiPlan.analysis?.priority_action || 'Pantau pengeluaran'}</span>
+            <Link href="/dashboard/budgets" className="text-[10px] font-bold bg-black text-white px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-neutral-800 transition-colors">
+              Lihat Detail <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+        </div>
+      )
+    } else {
+      content = (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <p className="text-sm font-semibold leading-relaxed text-black/90">
+            Halo! Aku belum merencanakan anggaran bulan ini. Mau aku bantu atur agar pengeluaranmu lebih efisien?
+          </p>
+          <Link href="/dashboard/budgets" className="text-xs font-bold bg-black text-white px-4 py-2 rounded-full flex items-center gap-1.5 hover:bg-neutral-800 transition-colors shadow-[2px_2px_0px_rgba(255,255,255,0.3)] shrink-0">
+            <Sparkles className="h-4 w-4 text-amber-300" />
+            Mulai Auto-Pilot
+          </Link>
+        </div>
+      )
+    }
+  } else {
+    const tipText = insight?.tip || "Mulai catat keuanganmu untuk melihat analisis dari Fimo AI!"
+    content = (
+      <>
+        <div className="space-y-1.5 flex-1">
+          <p className="text-sm font-semibold leading-relaxed text-black/90 antialiased">
+            {tipText}
+          </p>
+        </div>
+        {hasScore && (
+          <div className="flex items-center gap-2.5 bg-black text-white px-3 py-1.5 rounded-full shrink-0 border border-black/10 self-start md:self-auto shadow-sm">
+            <Activity className="h-3.5 w-3.5 text-indigo-300 fill-indigo-300/10 shrink-0" />
+            <span className="text-[10px] font-mono font-bold tracking-wider uppercase opacity-75">Health Score:</span>
+            <span className="text-xs font-mono font-extrabold text-[#dceeb1]">
+              {scoreVal === 0 ? '-' : `${scoreVal}/100`}
+            </span>
+          </div>
+        )}
+      </>
+    )
+  }
 
   return (
     <div
@@ -60,17 +125,17 @@ export function AICoachCard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-3">
         <div className="flex items-center gap-2 text-xs font-mono font-extrabold uppercase tracking-wider opacity-80">
           <Sparkles className="h-4 w-4 text-black animate-spin-slow fill-black/10 shrink-0" />
-          <span>Fimo AI</span>
+          <span>Fimo Coach</span>
         </div>
 
         {/* Selection Switcher */}
-        <div className="grid grid-cols-4 w-full sm:flex sm:w-auto gap-1 bg-black/5 p-1 rounded-2xl border border-black/10">
+        <div className="flex w-full sm:w-auto gap-1 bg-black/5 p-1 rounded-2xl border border-black/10 overflow-x-auto overflow-y-hidden no-scrollbar">
           {options.map((opt) => (
             <button
               key={opt.value}
               onClick={() => setSelectedType(opt.value)}
               className={cn(
-                "px-1 py-1 sm:px-3 sm:py-1 rounded-lg text-[9px] xs:text-[10px] font-bold uppercase tracking-wider transition-all duration-150 border text-center w-full sm:w-auto",
+                "px-2 py-1.5 sm:px-3 sm:py-1 rounded-lg text-[9px] xs:text-[10px] font-bold uppercase tracking-wider transition-all duration-150 border text-center whitespace-nowrap",
                 selectedType === opt.value
                   ? "bg-black text-white border-black shadow-[2px_2px_0px_rgba(255,255,255,0.15)]"
                   : "text-black/70 hover:text-black hover:bg-black/5 border-transparent"
@@ -102,23 +167,7 @@ export function AICoachCard() {
             </div>
           </div>
         ) : (
-          <>
-            <div className="space-y-1.5 flex-1">
-              <p className="text-sm font-semibold leading-relaxed text-black/90 antialiased">
-                {tipText}
-              </p>
-            </div>
-
-            {hasScore && (
-              <div className="flex items-center gap-2.5 bg-black text-white px-3 py-1.5 rounded-full shrink-0 border border-black/10 self-start md:self-auto shadow-sm">
-                <Activity className="h-3.5 w-3.5 text-indigo-300 fill-indigo-300/10 shrink-0" />
-                <span className="text-[10px] font-mono font-bold tracking-wider uppercase opacity-75">Health Score:</span>
-                <span className="text-xs font-mono font-extrabold text-[#dceeb1]">
-                  {scoreVal === 0 ? '-' : `${scoreVal}/100`}
-                </span>
-              </div>
-            )}
-          </>
+          content
         )}
       </div>
     </div>
