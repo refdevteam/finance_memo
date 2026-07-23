@@ -143,10 +143,9 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
           category_name: aiBudget.category_name,
           category_icon: 'Sparkles',
           category_color: '#c5b0f4',
+          budget_id: null,
           budget_limit: 0,
           spent: 0,
-          month,
-          year,
           budget_notes: 'Rekomendasi AI'
         } as BudgetCategory)
       }
