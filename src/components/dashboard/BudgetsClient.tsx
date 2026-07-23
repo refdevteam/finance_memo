@@ -131,7 +131,7 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
   }
 
   // Filter budgets
-  let displayBudgets = initialBudgets.filter((b) =>
+  const displayBudgets = initialBudgets.filter((b) =>
     b.category_name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
@@ -319,7 +319,6 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {displayBudgets.map((b) => {
-            const isAiDraft = reviewMode && draftBudgets[b.category_id] !== undefined
             const currentLimit = reviewMode ? (draftBudgets[b.category_id] ?? b.budget_limit) : b.budget_limit
             const hasBudget = currentLimit > 0
             const percentage = hasBudget ? Math.round((b.spent / currentLimit) * 100) : 0
