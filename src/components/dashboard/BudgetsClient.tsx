@@ -38,6 +38,8 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
   const [isPending, startTransition] = useTransition()
   const [plan, setPlan] = useState<AIBudgetPlan | null>(initialCachedPlan || null)
   const [isGeneratingAI, setIsGeneratingAI] = useState(false)
+  const [reviewMode, setReviewMode] = useState(false)
+  const [draftBudgets, setDraftBudgets] = useState<Record<string, number>>({})
 
   // Handle month change
   const changeMonth = (direction: 'prev' | 'next') => {
@@ -86,19 +88,14 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
       if (res.success && res.data) {
         setPlan(res.data)
         
-        // Auto-apply immediately to budgets
-        const itemsToApply = res.data.budgets.map((item) => ({
-          category_id: item.category_id,
-          limit_amount: item.recommended_limit
-        }))
-
-        const applyRes = await applyAIBudgetPlanToBudgets(itemsToApply, month, year)
-        if (applyRes.success) {
-          toast.success(`Auto-Pilot aktif! ${applyRes.count} anggaran telah disesuaikan oleh AI.`)
-          router.refresh()
-        } else {
-          toast.error(applyRes.error || 'Gagal menerapkan anggaran AI.')
-        }
+        // Populate draft mode
+        const newDrafts: Record<string, number> = {}
+        res.data.budgets.forEach((item) => {
+          newDrafts[item.category_id] = item.recommended_limit
+        })
+        setDraftBudgets(newDrafts)
+        setReviewMode(true)
+        toast.success('Rencana AI berhasil dibuat! Silakan sesuaikan draf di bawah ini.')
       } else {
         toast.error(res.error || 'Gagal menghasilkan rencana AI.')
       }
@@ -110,10 +107,51 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
     }
   }
 
+  const handleApplyDraft = async () => {
+    setIsGeneratingAI(true)
+    try {
+      const itemsToApply = Object.entries(draftBudgets).map(([category_id, limit_amount]) => {
+        const name = plan?.budgets?.find(b => b.category_id === category_id)?.category_name
+        return { category_id, category_name: name, limit_amount }
+      })
+      const applyRes = await applyAIBudgetPlanToBudgets(itemsToApply, month, year)
+      if (applyRes.success) {
+        toast.success(`Berhasil! ${applyRes.count} anggaran telah diterapkan.`)
+        setReviewMode(false)
+        router.refresh()
+      } else {
+        toast.error(applyRes.error || 'Gagal menerapkan anggaran AI.')
+      }
+    } catch (err) {
+      console.error('Error applying draft:', err)
+      toast.error('Terjadi kesalahan sistem saat menyimpan draf.')
+    } finally {
+      setIsGeneratingAI(false)
+    }
+  }
+
   // Filter budgets
-  const filteredBudgets = initialBudgets.filter((b) =>
+  let displayBudgets = initialBudgets.filter((b) =>
     b.category_name.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  if (reviewMode && plan) {
+    plan.budgets.forEach(aiBudget => {
+      if (aiBudget.category_id.startsWith('new-') && !displayBudgets.find(b => b.category_id === aiBudget.category_id)) {
+        displayBudgets.push({
+          category_id: aiBudget.category_id,
+          category_name: aiBudget.category_name,
+          category_icon: 'Sparkles',
+          category_color: '#c5b0f4',
+          budget_limit: 0,
+          spent: 0,
+          month,
+          year,
+          budget_notes: 'Rekomendasi AI'
+        } as BudgetCategory)
+      }
+    })
+  }
 
   // Total Summary
   const totalBudgeted = initialBudgets.reduce((sum, b) => sum + b.budget_limit, 0)
@@ -141,6 +179,7 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
             size="icon"
             onClick={() => changeMonth('prev')}
             className="rounded-full border-slate-200 dark:border-slate-800 w-9 h-9 flex items-center justify-center p-0 shrink-0"
+            disabled={reviewMode}
           >
             <LucideIcons.ChevronLeft className="h-4 w-4" />
           </Button>
@@ -154,6 +193,7 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
             size="icon"
             onClick={() => changeMonth('next')}
             className="rounded-full border-slate-200 dark:border-slate-800 w-9 h-9 flex items-center justify-center p-0 shrink-0"
+            disabled={reviewMode}
           >
             <LucideIcons.ChevronRight className="h-4 w-4" />
           </Button>
@@ -161,29 +201,52 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
 
         {/* Action Buttons Row */}
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Button
-            variant="outline"
-            onClick={handleCopyBudgets}
-            className="rounded-full border-slate-200 dark:border-slate-800 text-xs font-semibold flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2.5 sm:py-2"
-            disabled={isPending || isGeneratingAI}
-          >
-            <LucideIcons.Copy className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Salin Anggaran</span>
-            <span className="sm:hidden">Salin</span>
-          </Button>
+          {reviewMode ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setReviewMode(false)}
+                className="rounded-full border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold"
+                disabled={isGeneratingAI}
+              >
+                Batal
+              </Button>
+              <Button
+                onClick={handleApplyDraft}
+                disabled={isGeneratingAI}
+                className="rounded-full bg-black text-white hover:bg-neutral-800 text-xs font-bold shadow-[2px_2px_0px_rgba(255,255,255,0.3)] border-2 border-black"
+              >
+                {isGeneratingAI ? <LucideIcons.Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
+                Terapkan Anggaran
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                onClick={handleCopyBudgets}
+                className="rounded-full border-slate-200 dark:border-slate-800 text-xs font-semibold flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2.5 sm:py-2"
+                disabled={isPending || isGeneratingAI}
+              >
+                <LucideIcons.Copy className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Salin Anggaran</span>
+                <span className="sm:hidden">Salin</span>
+              </Button>
 
-          <Button
-            onClick={handleAutoPilot}
-            disabled={isPending || isGeneratingAI}
-            className="rounded-full bg-black text-white hover:bg-neutral-800 text-xs font-bold flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2.5 sm:py-2 border-2 border-black shadow-[2px_2px_0px_rgba(255,255,255,0.3)] transition-all"
-          >
-            {isGeneratingAI ? (
-              <LucideIcons.Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <LucideIcons.Sparkles className="h-3.5 w-3.5 text-amber-300" />
-            )}
-            <span>Fimo Auto-Pilot</span>
-          </Button>
+              <Button
+                onClick={handleAutoPilot}
+                disabled={isPending || isGeneratingAI}
+                className="rounded-full bg-[#c5b0f4] text-black hover:bg-[#b097e8] text-xs font-bold flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2.5 sm:py-2 border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all"
+              >
+                {isGeneratingAI ? (
+                  <LucideIcons.Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <LucideIcons.Sparkles className="h-3.5 w-3.5 text-black" />
+                )}
+                <span>Fimo Auto-Pilot</span>
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -242,23 +305,11 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
       </div>
 
       {/* Categories / Budgets List */}
-      {filteredBudgets.length === 0 ? (
-        <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center bg-slate-50/50 dark:bg-zinc-900/30 rounded-3xl border border-dashed border-slate-200 dark:border-zinc-800 transition-all">
-          <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mb-3">
-            <LucideIcons.Inbox className="h-6 w-6 text-slate-400" />
-          </div>
-          <h3 className="font-semibold text-slate-700 dark:text-slate-300 text-sm">Tidak Ditemukan Anggaran</h3>
-          <p className="text-xs text-slate-400 mt-1 max-w-[280px]">
-            {searchQuery 
-              ? `Tidak ditemukan kategori anggaran dengan kata kunci "${searchQuery}"`
-              : 'Belum ada kategori anggaran tersedia.'}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {filteredBudgets.map((b) => {
-            const hasBudget = b.budget_limit > 0
-            const percentage = hasBudget ? Math.round((b.spent / b.budget_limit) * 100) : 0
+      {displayBudgets.length === 0 ? (
+            const isAiDraft = reviewMode && draftBudgets[b.category_id] !== undefined
+            const currentLimit = reviewMode ? (draftBudgets[b.category_id] ?? b.budget_limit) : b.budget_limit
+            const hasBudget = currentLimit > 0
+            const percentage = hasBudget ? Math.round((b.spent / currentLimit) * 100) : 0
             
             // Dynamic Color Selection based on percentage
             let progressBgColor = 'bg-emerald-500'
@@ -282,8 +333,11 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
               <div 
                 key={b.category_id}
                 className={cn(
-                  "p-4 sm:p-5 bg-white dark:bg-zinc-950 rounded-2xl border-2 border-black dark:border-white transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] duration-200 flex flex-col justify-between min-h-[125px] sm:min-h-[140px]",
-                  !hasBudget && "opacity-75 hover:opacity-100"
+                  "p-4 sm:p-5 rounded-2xl border-2 transition-all duration-200 flex flex-col justify-between min-h-[125px] sm:min-h-[140px]",
+                  reviewMode 
+                    ? "bg-[#f4f0fa] dark:bg-[#1a1428] border-[#c5b0f4] shadow-[4px_4px_0px_rgba(197,176,244,1)] scale-[1.01]" 
+                    : "bg-white dark:bg-zinc-950 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)]",
+                  !hasBudget && !reviewMode && "opacity-75 hover:opacity-100"
                 )}
               >
                 {/* Upper row: Icon, Category Name, Action Trigger */}
@@ -300,8 +354,11 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
                       <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 dark:text-slate-100 truncate">
+                      <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 dark:text-slate-100 truncate flex items-center gap-1">
                         {b.category_name}
+                        {b.category_id.startsWith('new-') && (
+                          <span className="bg-[#c5b0f4] text-black text-[8px] px-1.5 py-0.5 rounded-full uppercase tracking-wider">Baru</span>
+                        )}
                       </h4>
                       {b.budget_notes && (
                         <p className="text-[8px] sm:text-[10px] text-slate-400 dark:text-slate-500 italic truncate max-w-[120px] mt-0.5">
@@ -311,34 +368,59 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
                     </div>
                   </div>
 
-                  <BudgetForm
-                    categoryId={b.category_id}
-                    categoryName={b.category_name}
-                    categoryIcon={b.category_icon}
-                    categoryColor={b.category_color}
-                    currentLimit={b.budget_limit}
-                    currentNotes={b.budget_notes}
-                    month={month}
-                    year={year}
-                    trigger={
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-7 w-7 sm:h-8 sm:w-8 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 shrink-0"
-                      >
-                        {hasBudget ? (
-                          <LucideIcons.Edit2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                        ) : (
-                          <LucideIcons.Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                        )}
-                      </Button>
-                    }
-                  />
+                  {!reviewMode && (
+                    <BudgetForm
+                      categoryId={b.category_id}
+                      categoryName={b.category_name}
+                      categoryIcon={b.category_icon}
+                      categoryColor={b.category_color}
+                      currentLimit={b.budget_limit}
+                      currentNotes={b.budget_notes}
+                      month={month}
+                      year={year}
+                      trigger={
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-7 w-7 sm:h-8 sm:w-8 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 shrink-0"
+                        >
+                          {b.budget_limit > 0 ? (
+                            <LucideIcons.Edit2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                          ) : (
+                            <LucideIcons.Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                          )}
+                        </Button>
+                      }
+                    />
+                  )}
                 </div>
 
                 {/* Lower row: Details & Progress bar */}
                 <div className="mt-3.5 sm:mt-5 space-y-1.5 sm:space-y-2">
-                  {hasBudget ? (
+                  {reviewMode ? (
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wide flex justify-between">
+                        <span>Anggaran {b.category_id.startsWith('new-') ? 'Baru' : ''}</span>
+                        {plan?.budgets?.find(ab => ab.category_id === b.category_id) && (
+                          <span className="text-[#8c52ff] flex items-center gap-1">
+                            <LucideIcons.Sparkles className="h-3 w-3" /> AI Saran: {formatRupiah(plan.budgets.find(ab => ab.category_id === b.category_id)!.recommended_limit)}
+                          </span>
+                        )}
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">Rp</span>
+                        <Input
+                          type="text"
+                          value={draftBudgets[b.category_id] ?? b.budget_limit}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0
+                            setDraftBudgets(prev => ({ ...prev, [b.category_id]: val }))
+                          }}
+                          className="pl-8 py-2 h-9 text-sm font-black bg-white dark:bg-zinc-950 border-2 border-[#c5b0f4] rounded-lg shadow-[2px_2px_0px_rgba(197,176,244,1)] focus-visible:ring-0 focus-visible:border-black"
+                        />
+                      </div>
+                    </div>
+                  ) : hasBudget ? (
                     <>
                       <div className="flex justify-between items-end text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400">
                         <div className="flex flex-col pr-1">
@@ -351,13 +433,6 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
                               {formatRupiah(b.budget_limit)}
                             </span>
                           </div>
-                          {/* AI Diff Indicator */}
-                          {plan?.budgets?.find(ab => ab.category_id === b.category_id) && 
-                           plan.budgets.find(ab => ab.category_id === b.category_id)!.recommended_limit !== b.budget_limit && (
-                             <span className="text-[9px] text-[#c5b0f4] font-bold mt-1 block max-w-full truncate bg-black px-1.5 py-0.5 rounded-sm w-fit shadow-xs">
-                               AI menyarankan {formatRupiah(plan.budgets.find(ab => ab.category_id === b.category_id)!.recommended_limit)}
-                             </span>
-                          )}
                         </div>
                         <span className={cn(
                           "px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[10px] font-extrabold border shrink-0",

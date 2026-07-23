@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { syncAICacheWithBudgets } from './ai-budget'
 
 export interface BudgetCategory {
   category_id: string
@@ -156,6 +157,13 @@ export async function setBudget(
 
       if (error) throw error
     }
+
+    // Sync the manual edit with AI Cache so the dashboard plan doesn't become stale
+    await syncAICacheWithBudgets(user.id, [{
+      categoryId,
+      limitAmount: amount,
+      // We don't have the category name here easily, but the sync function handles it if it's updating an existing one.
+    }])
 
     revalidatePath('/dashboard/budgets')
     revalidatePath('/dashboard')

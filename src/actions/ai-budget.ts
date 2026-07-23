@@ -124,7 +124,7 @@ export async function generateAIBudgetPlan(month: number, year: number): Promise
 
       Aturan Penyusunan Anggaran AI:
       1. Sediakan pembagian anggaran kategori belanja yang realistis. Jangan menyarankan batas anggaran total melebihi pemasukan bulanan! Sisakan minimal 20-30% dari total pemasukan sebagai target tabungan.
-      2. Berikan rekomendasi batas anggaran untuk SETIAP kategori pengeluaran aktif yang terdaftar di atas. Gunakan ID kategori (category_id) yang benar agar sistem bisa mengidentifikasinya.
+      2. Berikan rekomendasi batas anggaran untuk SETIAP kategori aktif di atas menggunakan \`category_id\` yang benar. Analisis terlebih dahulu daftar kategori milik pengguna; JIKA dirasa belum lengkap dan sangat krusial, kamu BOLEH menyarankan 1-2 kategori baru (misal: Asuransi, Dana Darurat). Namun JANGAN membuat kategori yang maknanya tumpang tindih dengan yang sudah ada. Untuk kategori baru, isi \`category_id\` dengan format \`new-[Nama Kategori]\` (contoh: \`new-Asuransi\`).
       3. Rekomendasikan instrumen tabungan/investasi yang cocok di Indonesia saat ini:
          - **Bank Jago** (Bunga default: 3.75% p.a., berikan analisis fitur Kantong Jago)
          - **Seabank** (Bunga default: 4.5% p.a. cair harian)
@@ -281,10 +281,61 @@ export async function deleteAIBudgetPlan(): Promise<{ success: boolean; error?: 
 }
 
 /**
+ * Sync AI budget cache with manual user edits.
+ * This ensures the dashboard doesn't show stale AI recommendations.
+ */
+export async function syncAICacheWithBudgets(userId: string, updates: { categoryId: string; limitAmount: number; categoryName?: string }[]) {
+  const supabase = createClient()
+  try {
+    const { data: cached } = await supabase
+      .from('ai_insights')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('type', 'ai_budget_plan')
+      .gt('expire_at', new Date().toISOString())
+      .maybeSingle()
+
+    if (!cached) return // no active plan to sync
+
+    const plan = JSON.parse(cached.content) as AIBudgetPlan
+    let changed = false
+
+    updates.forEach(update => {
+      // Find existing category in AI plan
+      const existingIdx = plan.budgets.findIndex(b => b.category_id === update.categoryId)
+      if (existingIdx >= 0) {
+        if (plan.budgets[existingIdx].recommended_limit !== update.limitAmount) {
+          plan.budgets[existingIdx].recommended_limit = update.limitAmount
+          changed = true
+        }
+      } else if (update.limitAmount > 0) {
+        // If the user created a new budget manually that AI didn't suggest, add it to the AI plan so it knows.
+        plan.budgets.push({
+          category_id: update.categoryId,
+          category_name: update.categoryName || 'Kategori',
+          recommended_limit: update.limitAmount,
+          reason: 'Disetel secara manual oleh pengguna.'
+        })
+        changed = true
+      }
+    })
+
+    if (changed) {
+      await supabase
+        .from('ai_insights')
+        .update({ content: JSON.stringify(plan) })
+        .eq('id', cached.id)
+    }
+  } catch (err) {
+    console.error('Failed to sync AI cache:', err)
+  }
+}
+
+/**
  * Apply AI Budget recommendations directly to Supabase budgets table.
  */
 export async function applyAIBudgetPlanToBudgets(
-  items: { category_id: string; limit_amount: number }[],
+  items: { category_id: string; category_name?: string; limit_amount: number }[],
   month: number,
   year: number
 ): Promise<{ success: boolean; count?: number; error?: string }> {
@@ -297,16 +348,43 @@ export async function applyAIBudgetPlanToBudgets(
       return { success: false, error: 'Tidak ada item anggaran untuk diterapkan.' }
     }
 
-    const payload = items
-      .filter((item) => item.category_id && item.limit_amount > 0)
-      .map((item) => ({
+    const payload = []
+    for (const item of items) {
+      if (!item.category_id || item.limit_amount <= 0) continue
+      
+      let realCategoryId = item.category_id
+
+      // Handle newly suggested categories
+      if (item.category_id.startsWith('new-')) {
+        const catName = item.category_name || item.category_id.replace('new-', '')
+        const { data: newCat, error: catError } = await supabase
+          .from('categories')
+          .insert({
+            user_id: user.id,
+            name: catName,
+            type: 'expense',
+            icon: 'Sparkles',
+            color: '#c5b0f4'
+          })
+          .select()
+          .single()
+
+        if (catError) {
+          console.error('Failed to create new category:', catError)
+          continue // skip
+        }
+        realCategoryId = newCat.id
+      }
+
+      payload.push({
         user_id: user.id,
-        category_id: item.category_id,
+        category_id: realCategoryId,
         amount: item.limit_amount,
         month,
         year,
-        notes: 'AI Recommended Budget'
-      }))
+        notes: item.category_id.startsWith('new-') ? 'AI Recommended Budget (Kategori Baru)' : 'AI Recommended Budget'
+      })
+    }
 
     if (payload.length === 0) {
       return { success: false, error: 'Tidak ada nominal anggaran yang valid (> 0).' }
@@ -319,6 +397,14 @@ export async function applyAIBudgetPlanToBudgets(
       })
 
     if (error) throw error
+
+    // Sync AI Cache with final values
+    const syncUpdates = payload.map(p => ({
+      categoryId: p.category_id,
+      limitAmount: p.amount,
+      categoryName: items.find(i => i.category_id === p.category_id)?.category_name
+    }))
+    await syncAICacheWithBudgets(user.id, syncUpdates)
 
     revalidatePath('/dashboard/budgets')
     revalidatePath('/dashboard/ai-budget-planner')
