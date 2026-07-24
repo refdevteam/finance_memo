@@ -27,6 +27,7 @@ import { BudgetProgress } from '@/components/dashboard/BudgetProgress'
 import { DashboardRangeToggle } from '@/components/dashboard/DashboardRangeToggle'
 import { AICoachCard } from '@/components/dashboard/AICoachCard'
 import { DashboardWidgetsMobile } from '@/components/dashboard/DashboardWidgetsMobile'
+import { MobileRencanaAICard } from '@/components/dashboard/MobileRencanaAICard'
 import { UpcomingReminders } from '@/components/dashboard/UpcomingReminders'
 import { FimoAITrigger } from '@/components/dashboard/FimoAITrigger'
 import { MobileChartsTabs } from '@/components/dashboard/MobileChartsTabs'
@@ -259,7 +260,7 @@ export default async function DashboardPage({
           <div 
             key={stat.label} 
             className={cn(
-              "p-3.5 sm:p-6 rounded-xl border-2 border-black dark:border-white flex flex-col justify-between min-h-[85px] sm:min-h-[110px] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] duration-200",
+              "p-3.5 sm:p-6 rounded-2xl border-2 border-black dark:border-white flex flex-col justify-between min-h-[85px] sm:min-h-[110px] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] duration-200",
               stat.bgClass
             )}
           >
@@ -276,10 +277,16 @@ export default async function DashboardPage({
         ))}
       </div>
 
-      {/* Desktop & Tablet 1-Row AI Section */}
-      <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+      {/* Mobile-only Single Card for Rencana AI */}
+      <MobileRencanaAICard 
+        totalBudgeted={budgets.reduce((sum, b) => sum + b.budget_limit, 0)}
+        aiPlan={aiPlanRes?.success ? aiPlanRes.data || null : null}
+      />
+
+      {/* Desktop & Tablet 1-Row AI Section (Equal Height Alignment) */}
+      <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4 items-stretch">
         {/* Left: Rencana AI Card (1/3 width) */}
-        <div className="bg-[#c5b0f4] text-black border-2 border-black dark:border-white rounded-2xl p-4 sm:p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] flex flex-col justify-between gap-3 transition-all hover:translate-x-0.5 hover:translate-y-0.5 duration-200">
+        <div className="bg-[#c5b0f4] text-black border-2 border-black dark:border-white rounded-2xl p-4 sm:p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] flex flex-col justify-between gap-3 transition-all hover:translate-x-0.5 hover:translate-y-0.5 duration-200 h-full">
           <div className="space-y-2.5">
             <div className="flex items-center justify-between border-b border-black/10 pb-2.5">
               <div className="flex items-center gap-2 text-xs font-mono font-extrabold uppercase tracking-wider opacity-80">
@@ -314,11 +321,12 @@ export default async function DashboardPage({
         </div>
 
         {/* Right: Fimo AI Insights (2/3 width) */}
-        <div className="lg:col-span-2 min-w-0 overflow-hidden">
+        <div className="lg:col-span-2 min-w-0 overflow-hidden h-full flex flex-col">
           <AICoachCard 
             aiPlan={aiPlanRes?.success ? aiPlanRes.data || null : null} 
             totalBudgeted={budgets.reduce((sum, b) => sum + b.budget_limit, 0)}
             hidePlanTab
+            className="h-full flex flex-col justify-between"
           />
         </div>
       </div>

@@ -14,9 +14,10 @@ interface AICoachCardProps {
   aiPlan?: AIBudgetPlan | null
   totalBudgeted?: number
   hidePlanTab?: boolean
+  className?: string
 }
 
-export function AICoachCard({ aiPlan, totalBudgeted, hidePlanTab = false }: AICoachCardProps = {}) {
+export function AICoachCard({ aiPlan, totalBudgeted, hidePlanTab = false, className }: AICoachCardProps = {}) {
   const [selectedType, setSelectedType] = useState<AnalysisType>(hidePlanTab ? 'daily' : 'plan')
   const [insight, setInsight] = useState<{ tip: string; score?: number } | null>(null)
   const [loading, setLoading] = useState(false)
@@ -165,7 +166,8 @@ export function AICoachCard({ aiPlan, totalBudgeted, hidePlanTab = false }: AICo
   return (
     <div
       className={cn(
-        "w-full max-w-full min-w-0 overflow-hidden bg-[#c5b0f4] text-black border-2 border-black dark:border-white rounded-2xl p-4 sm:p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] flex flex-col gap-4 transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] duration-200"
+        "w-full max-w-full min-w-0 overflow-hidden bg-[#c5b0f4] text-black border-2 border-black dark:border-white rounded-2xl p-4 sm:p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] flex flex-col justify-between gap-4 transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] duration-200",
+        className
       )}
     >
       {/* Header & Tabs */}
