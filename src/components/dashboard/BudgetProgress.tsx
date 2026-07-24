@@ -59,7 +59,7 @@ export function BudgetProgress({ budgets }: BudgetProgressProps) {
   return (
     <div className="space-y-5">
       {/* Overall Summary */}
-      <div className="space-y-2">
+      <div className="space-y-4">
         <div className="flex justify-between items-end">
           <div>
             <span className="text-[10px] font-bold font-mono text-slate-400 uppercase tracking-widest block">
@@ -80,18 +80,20 @@ export function BudgetProgress({ budgets }: BudgetProgressProps) {
             {overallPercentage}%
           </span>
         </div>
-        <div className="h-2.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-          <div 
-            className={cn(
-              "h-full rounded-full transition-all duration-500",
-              overallPercentage >= 100 
-                ? "bg-rose-600" 
-                : overallPercentage >= 80 
-                ? "bg-rose-500" 
-                : "bg-emerald-500"
-            )}
-            style={{ width: `${Math.min(overallPercentage, 100)}%` }}
-          />
+        
+        {/* Segmented Progress Bar */}
+        <div className="h-3 w-full flex rounded-full overflow-hidden border border-black/10 dark:border-white/10 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] bg-slate-100 dark:bg-zinc-800">
+          {activeBudgets.map((b) => {
+            const width = (b.budget_limit / totalBudgeted) * 100
+            return (
+              <div 
+                key={b.category_id}
+                className="h-full border-r border-black/10 dark:border-white/10 last:border-r-0 transition-all hover:brightness-110"
+                style={{ width: `${width}%`, backgroundColor: b.category_color }}
+                title={`${b.category_name}: ${formatRupiah(b.budget_limit)}`}
+              />
+            )
+          })}
         </div>
       </div>
 

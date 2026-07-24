@@ -11,9 +11,10 @@ type AnalysisType = 'plan' | 'daily' | 'weekly' | '30days' | 'month'
 
 interface AICoachCardProps {
   aiPlan?: AIBudgetPlan | null
+  totalBudgeted?: number
 }
 
-export function AICoachCard({ aiPlan }: AICoachCardProps = {}) {
+export function AICoachCard({ aiPlan, totalBudgeted }: AICoachCardProps = {}) {
   const [selectedType, setSelectedType] = useState<AnalysisType>('plan')
   const [insight, setInsight] = useState<{ tip: string; score?: number } | null>(null)
   const [loading, setLoading] = useState(false)
@@ -73,9 +74,14 @@ export function AICoachCard({ aiPlan }: AICoachCardProps = {}) {
           <p className="text-sm font-semibold leading-relaxed text-black/90">
             {aiPlan.analysis?.summary || 'Rencana alokasi keuangan cerdas bulan ini sudah aktif.'}
           </p>
-          <div className="flex items-center justify-between bg-black/5 p-2 rounded-xl border border-black/10">
-            <span className="text-xs font-bold text-black/80">Prioritas: {aiPlan.analysis?.priority_action || 'Pantau pengeluaran'}</span>
-            <Link href="/dashboard/budgets" className="text-[10px] font-bold bg-black text-white px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-neutral-800 transition-colors">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-black/5 p-2.5 rounded-xl border border-black/10 gap-2.5">
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-black/90">Prioritas: {aiPlan.analysis?.priority_action || 'Pantau pengeluaran'}</span>
+              {totalBudgeted !== undefined && (
+                <span className="text-[10px] font-bold text-black/60 mt-0.5">Total Dianggarkan: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalBudgeted)}</span>
+              )}
+            </div>
+            <Link href="/dashboard/budgets" className="text-[10px] font-bold bg-black text-white px-3 py-1.5 rounded-full flex items-center justify-center gap-1 hover:bg-neutral-800 transition-colors w-full sm:w-auto shrink-0 shadow-sm">
               Lihat Detail <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
@@ -126,7 +132,7 @@ export function AICoachCard({ aiPlan }: AICoachCardProps = {}) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-3 w-full min-w-0">
         <div className="flex items-center gap-2 text-xs font-mono font-extrabold uppercase tracking-wider opacity-80 shrink-0">
           <Sparkles className="h-4 w-4 text-black animate-spin-slow fill-black/10 shrink-0" />
-          <span>Fimo Coach</span>
+          <span>Fimo AI</span>
         </div>
 
         {/* Selection Switcher */}

@@ -488,7 +488,7 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
           <div>
             <h4 className="text-lg font-black flex items-center gap-2">
               <LucideIcons.Calculator className="h-5 w-5" />
-              Fimo Coach: Simulasi Tabungan
+              Fimo AI: Simulasi Tabungan
             </h4>
             <p className="text-xs font-semibold opacity-80 mt-1">
               Berdasarkan analisis sisa anggaranmu, berikut proyeksi dari rekomendasi bank pilihan AI.

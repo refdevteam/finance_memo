@@ -274,9 +274,12 @@ export default async function DashboardPage({
         ))}
       </div>
 
-      {/* Fimo AI Coach inline only on Desktop */}
+      {/* Fimo AI inline only on Desktop */}
       <div className="hidden md:block mb-4">
-        <AICoachCard aiPlan={aiPlanRes?.success ? aiPlanRes.data || null : null} />
+        <AICoachCard 
+          aiPlan={aiPlanRes?.success ? aiPlanRes.data || null : null} 
+          totalBudgeted={budgets.reduce((sum, b) => sum + b.budget_limit, 0)}
+        />
       </div>
 
       {/* Mobile-only widgets grid */}
