@@ -227,14 +227,14 @@ export function FloatingMascot() {
 
       {/* Global Fimo AI Coach Dialog */}
       <Dialog open={isAiOpen} onOpenChange={setIsAiOpen}>
-        <DialogContent className="max-w-[95%] sm:max-w-[520px] rounded-3xl p-5 bg-slate-50 dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)]">
+        <DialogContent className="max-w-[92vw] sm:max-w-[520px] rounded-3xl p-4 sm:p-5 bg-slate-50 dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.15)] overflow-hidden">
           <DialogHeader className="border-b border-neutral-200 dark:border-zinc-800 pb-3">
             <DialogTitle className="text-base font-extrabold uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-1.5">
               <Sparkles className="h-4 w-4 text-[#8b5cf6] fill-[#8b5cf6]/10 shrink-0" />
               Fimo AI
             </DialogTitle>
           </DialogHeader>
-          <div className="pt-2">
+          <div className="pt-2 w-full max-w-full min-w-0 overflow-hidden">
             <AICoachCard />
           </div>
         </DialogContent>

@@ -68,32 +68,44 @@ export function AICoachCard({ aiPlan, totalBudgeted }: AICoachCardProps = {}) {
 
   if (selectedType === 'plan') {
     hasScore = false
-    if (aiPlan) {
+    const hasActiveBudget = !!aiPlan || (totalBudgeted !== undefined && totalBudgeted > 0)
+
+    if (hasActiveBudget) {
+      const formattedTotal = totalBudgeted !== undefined 
+        ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalBudgeted)
+        : null
+
       content = (
-        <div className="space-y-3">
+        <div className="space-y-3 w-full">
           <p className="text-sm font-semibold leading-relaxed text-black/90">
-            {aiPlan.analysis?.summary || 'Rencana alokasi keuangan cerdas bulan ini sudah aktif.'}
+            {aiPlan?.analysis?.summary || (formattedTotal 
+              ? `Rencana anggaran bulan ini sudah aktif dengan total ${formattedTotal}.`
+              : 'Rencana alokasi keuangan cerdas bulan ini sudah aktif.')}
           </p>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-black/5 p-2.5 rounded-xl border border-black/10 gap-2.5">
             <div className="flex flex-col">
-              <span className="text-xs font-bold text-black/90">Prioritas: {aiPlan.analysis?.priority_action || 'Pantau pengeluaran'}</span>
-              {totalBudgeted !== undefined && (
-                <span className="text-[10px] font-bold text-black/60 mt-0.5">Total Dianggarkan: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalBudgeted)}</span>
+              <span className="text-xs font-bold text-black/90">
+                Prioritas: {aiPlan?.analysis?.priority_action || 'Pantau pengeluaran bulanan'}
+              </span>
+              {formattedTotal && (
+                <span className="text-[10px] font-bold text-black/60 mt-0.5">
+                  Total Dianggarkan: {formattedTotal}
+                </span>
               )}
             </div>
-            <Link href="/dashboard/budgets" className="text-[10px] font-bold bg-black text-white px-3 py-1.5 rounded-full flex items-center justify-center gap-1 hover:bg-neutral-800 transition-colors w-full sm:w-auto shrink-0 shadow-sm">
-              Lihat Detail <ArrowRight className="h-3 w-3" />
+            <Link href="/dashboard/budgets" className="text-[10px] font-bold bg-black text-white px-3.5 py-1.5 rounded-full flex items-center justify-center gap-1 hover:bg-neutral-800 transition-colors w-full sm:w-auto shrink-0 shadow-sm">
+              Ubah Rencana <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
         </div>
       )
     } else {
       content = (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
           <p className="text-sm font-semibold leading-relaxed text-black/90">
             Halo! Aku belum merencanakan anggaran bulan ini. Mau aku bantu atur agar pengeluaranmu lebih efisien?
           </p>
-          <Link href="/dashboard/budgets" className="text-xs font-bold bg-black text-white px-4 py-2 rounded-full flex items-center gap-1.5 hover:bg-neutral-800 transition-colors shadow-[2px_2px_0px_rgba(255,255,255,0.3)] shrink-0">
+          <Link href="/dashboard/budgets" className="text-xs font-bold bg-black text-white px-4 py-2 rounded-full flex items-center justify-center gap-1.5 hover:bg-neutral-800 transition-colors shadow-[2px_2px_0px_rgba(255,255,255,0.3)] shrink-0 w-full sm:w-auto">
             <Sparkles className="h-4 w-4 text-amber-300" />
             Mulai Auto-Plan
           </Link>
@@ -125,24 +137,24 @@ export function AICoachCard({ aiPlan, totalBudgeted }: AICoachCardProps = {}) {
   return (
     <div
       className={cn(
-        "w-full bg-[#c5b0f4] text-black border-2 border-black dark:border-white rounded-2xl p-4 sm:p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] flex flex-col gap-4 transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] duration-200"
+        "w-full max-w-full min-w-0 overflow-hidden bg-[#c5b0f4] text-black border-2 border-black dark:border-white rounded-2xl p-4 sm:p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] flex flex-col gap-4 transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] duration-200"
       )}
     >
       {/* Header & Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-3 w-full min-w-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-3 w-full max-w-full min-w-0">
         <div className="flex items-center gap-2 text-xs font-mono font-extrabold uppercase tracking-wider opacity-80 shrink-0">
           <Sparkles className="h-4 w-4 text-black animate-spin-slow fill-black/10 shrink-0" />
           <span>Fimo AI</span>
         </div>
 
         {/* Selection Switcher */}
-        <div className="flex w-full sm:w-auto gap-1 bg-black/5 p-1 rounded-2xl border border-black/10 overflow-x-auto overflow-y-hidden no-scrollbar min-w-0">
+        <div className="flex w-full sm:w-auto gap-1 bg-black/5 p-1 rounded-2xl border border-black/10 overflow-x-auto max-w-full min-w-0 no-scrollbar">
           {options.map((opt) => (
             <button
               key={opt.value}
               onClick={() => setSelectedType(opt.value)}
               className={cn(
-                "px-2 py-1.5 sm:px-3 sm:py-1 rounded-lg text-[9px] xs:text-[10px] font-bold uppercase tracking-wider transition-all duration-150 border text-center whitespace-nowrap",
+                "px-2.5 py-1.5 sm:px-3 sm:py-1 rounded-lg text-[9px] xs:text-[10px] font-bold uppercase tracking-wider transition-all duration-150 border text-center whitespace-nowrap shrink-0",
                 selectedType === opt.value
                   ? "bg-black text-white border-black shadow-[2px_2px_0px_rgba(255,255,255,0.15)]"
                   : "text-black/70 hover:text-black hover:bg-black/5 border-transparent"
@@ -155,7 +167,7 @@ export function AICoachCard({ aiPlan, totalBudgeted }: AICoachCardProps = {}) {
       </div>
 
       {/* Content Area */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 min-h-[52px]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 min-h-[52px] w-full max-w-full min-w-0 overflow-hidden">
         {loading ? (
           <div className="flex items-center gap-3 py-1 flex-1">
             <div className="relative shrink-0">

@@ -127,14 +127,10 @@ export function BudgetProgress({ budgets }: BudgetProgressProps) {
                 <div className="flex justify-between items-center text-xs font-semibold">
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-6 h-6 rounded-full flex items-center justify-center border shrink-0"
-                      style={{ 
-                        backgroundColor: `${b.category_color}10`,
-                        color: b.category_color,
-                        borderColor: `${b.category_color}20`
-                      }}
+                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border-2 border-black dark:border-white shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.15)] shrink-0"
+                      style={{ backgroundColor: b.category_color }}
                     >
-                      <Icon className="h-3.5 w-3.5" />
+                      <Icon className="h-3.5 w-3.5 text-black" />
                     </div>
                     <span className="font-bold text-slate-700 dark:text-slate-300 truncate max-w-[120px]">
                       {b.category_name}
