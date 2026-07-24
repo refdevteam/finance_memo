@@ -89,7 +89,7 @@ export function AICoachCard({ aiPlan }: AICoachCardProps = {}) {
           </p>
           <Link href="/dashboard/budgets" className="text-xs font-bold bg-black text-white px-4 py-2 rounded-full flex items-center gap-1.5 hover:bg-neutral-800 transition-colors shadow-[2px_2px_0px_rgba(255,255,255,0.3)] shrink-0">
             <Sparkles className="h-4 w-4 text-amber-300" />
-            Mulai Auto-Pilot
+            Mulai Auto-Plan
           </Link>
         </div>
       )

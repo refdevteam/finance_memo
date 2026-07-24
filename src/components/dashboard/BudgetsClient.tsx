@@ -81,27 +81,31 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
     })
   }
 
-  const handleAutoPilot = async () => {
+  const handleAutoPlan = async () => {
     setIsGeneratingAI(true)
     try {
       const res = await generateAIBudgetPlan(month, year)
       if (res.success && res.data) {
+        toast.success('Rekomendasi anggaran berhasil dibuat!')
         setPlan(res.data)
         
-        // Populate draft mode
+        // Reset draft budgets
+        setDraftBudgets({})
+        setReviewMode(true)
+        
+        // Populate draft budgets with AI recommendations
         const newDrafts: Record<string, number> = {}
-        res.data.budgets.forEach((item) => {
-          newDrafts[item.category_id] = item.recommended_limit
+        res.data.budgets.forEach(b => {
+          newDrafts[b.category_id] = b.recommended_limit
         })
         setDraftBudgets(newDrafts)
-        setReviewMode(true)
         toast.success('Rencana AI berhasil dibuat! Silakan sesuaikan draf di bawah ini.')
       } else {
-        toast.error(res.error || 'Gagal menghasilkan rencana AI.')
+        toast.error(res.error || 'Gagal membuat rekomendasi anggaran.')
       }
     } catch (err) {
-      console.error('Error auto-pilot:', err)
-      toast.error('Terjadi kesalahan sistem saat Auto-Pilot.')
+      console.error('Error auto-plan:', err)
+      toast.error('Terjadi kesalahan sistem saat Auto-Plan.')
     } finally {
       setIsGeneratingAI(false)
     }
@@ -231,23 +235,37 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
                 <span className="hidden sm:inline">Salin Anggaran</span>
                 <span className="sm:hidden">Salin</span>
               </Button>
-
-              <Button
-                onClick={handleAutoPilot}
-                disabled={isPending || isGeneratingAI}
-                className="rounded-full bg-[#c5b0f4] text-black hover:bg-[#b097e8] text-xs font-bold flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2.5 sm:py-2 border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all"
-              >
-                {isGeneratingAI ? (
-                  <LucideIcons.Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <LucideIcons.Sparkles className="h-3.5 w-3.5 text-black" />
-                )}
-                <span>Fimo Auto-Pilot</span>
-              </Button>
             </>
           )}
         </div>
       </div>
+
+      {/* Fimo Auto-Plan Dedicated Card */}
+      {!reviewMode && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#c5b0f4] text-black border-2 border-black rounded-2xl p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all">
+          <div className="space-y-1">
+            <h3 className="font-extrabold text-sm sm:text-base flex items-center gap-1.5">
+              <LucideIcons.Sparkles className="h-4 w-4 text-black" />
+              Fimo AI
+            </h3>
+            <p className="text-xs sm:text-sm font-medium opacity-90 leading-relaxed max-w-[280px] sm:max-w-none">
+              Halo! Mau aku bantu rencanakan anggaran bulan ini agar lebih efisien?
+            </p>
+          </div>
+          <Button
+            onClick={handleAutoPlan}
+            disabled={isPending || isGeneratingAI}
+            className="rounded-full bg-black text-white hover:bg-neutral-800 text-xs font-bold w-full sm:w-auto shrink-0 shadow-[2px_2px_0px_rgba(255,255,255,0.3)] border-2 border-black transition-all px-4 py-2"
+          >
+            {isGeneratingAI ? (
+              <LucideIcons.Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+            ) : (
+              <LucideIcons.Sparkles className="h-4 w-4 text-amber-300 mr-1.5" />
+            )}
+            Mulai Auto-Plan
+          </Button>
+        </div>
+      )}
 
       {/* Stats Summary Card */}
       {totalBudgeted > 0 && (
