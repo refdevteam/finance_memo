@@ -39,17 +39,6 @@ export function DashboardWidgetsMobile({
   const activeBudgets = budgets.filter((b) => b.budget_limit > 0)
   const totalBudgeted = activeBudgets.reduce((sum, b) => sum + b.budget_limit, 0)
   const totalSpent = activeBudgets.reduce((sum, b) => sum + b.spent, 0)
-  const budgetPercentage = totalBudgeted > 0 ? Math.round((totalSpent / totalBudgeted) * 100) : 0
-
-  // Dynamic budget progress bar color
-  let budgetColorClass = 'bg-emerald-500'
-  if (budgetPercentage >= 100) {
-    budgetColorClass = 'bg-rose-600 animate-pulse'
-  } else if (budgetPercentage >= 80) {
-    budgetColorClass = 'bg-rose-500'
-  } else if (budgetPercentage >= 70) {
-    budgetColorClass = 'bg-amber-500'
-  }
 
   return (
     <div className="grid grid-cols-2 gap-2 md:hidden">

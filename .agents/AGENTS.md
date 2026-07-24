@@ -1,5 +1,6 @@
 # Workspace Rules
 
 ## Command Execution & Verification Rules
-- ❌ **Forbidden Command: `npx tsc --noEmit`**: Never run `npx tsc --noEmit`, `tsc`, or full TypeScript type-checking commands automatically during code edits or verification phases. It is too slow and unnecessary.
-- Only run type-checking commands if explicitly requested by the user.
+- ❌ **Forbidden Commands (`npx tsc --noEmit`, `tsc`, `npm run build`, `next build`)**: Never run `npm run build`, `next build`, `npx tsc --noEmit`, or `tsc` type-checking/build commands automatically during code edits or verification phases. It is too slow and unnecessary.
+- Only run build or type-checking commands if explicitly requested by the user.
+

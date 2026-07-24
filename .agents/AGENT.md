@@ -61,7 +61,7 @@ Server Actions: verb + noun         → createTransaction, updateBudget
 - ❌ Jangan simpan data keuangan sensitif di localStorage atau cookie tanpa enkripsi
 - ❌ Jangan hardcode nilai currency, timezone, atau locale — selalu ambil dari `profiles`
 - ❌ Jangan buat API route baru jika Server Action sudah cukup
-- ❌ Jangan jalankan `npx tsc --noEmit` atau command `tsc` type-check otomatis (memakan waktu terlalu lama) kecuali diminta eksplisit oleh user.
+- ❌ Jangan jalankan `npm run build`, `next build`, `npx tsc --noEmit`, atau command `tsc` type-check/build otomatis (memakan waktu terlalu lama) kecuali diminta eksplisit oleh user.
 
 ---
 
