@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { Sparkles, Activity, ArrowRight } from 'lucide-react'
 import { getAICoachInsight } from '@/actions/ai-coach'
 import { cn } from '@/lib/utils'
 import { AIBudgetPlan } from '@/actions/ai-budget'
-import Link from 'next/link'
+import { getBudgets } from '@/actions/budgets'
 
 type AnalysisType = 'plan' | 'daily' | 'weekly' | '30days' | 'month'
 
@@ -18,6 +19,30 @@ export function AICoachCard({ aiPlan, totalBudgeted }: AICoachCardProps = {}) {
   const [selectedType, setSelectedType] = useState<AnalysisType>('plan')
   const [insight, setInsight] = useState<{ tip: string; score?: number } | null>(null)
   const [loading, setLoading] = useState(false)
+  const [fetchedTotalBudget, setFetchedTotalBudget] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (totalBudgeted !== undefined) return
+    let active = true
+    async function fetchFallbackBudgets() {
+      try {
+        const now = new Date()
+        const res = await getBudgets(now.getMonth() + 1, now.getFullYear())
+        if (active && res && Array.isArray(res)) {
+          const total = res.reduce((sum, b) => sum + (b.budget_limit > 0 ? b.budget_limit : 0), 0)
+          setFetchedTotalBudget(total)
+        }
+      } catch (e) {
+        console.error('Failed fallback fetch budgets:', e)
+      }
+    }
+    fetchFallbackBudgets()
+    return () => {
+      active = false
+    }
+  }, [totalBudgeted])
+
+  const effectiveTotalBudgeted = totalBudgeted ?? (fetchedTotalBudget !== null ? fetchedTotalBudget : undefined)
 
   const options = [
     { value: 'plan', label: 'Rencana AI' },
@@ -68,11 +93,11 @@ export function AICoachCard({ aiPlan, totalBudgeted }: AICoachCardProps = {}) {
 
   if (selectedType === 'plan') {
     hasScore = false
-    const hasActiveBudget = !!aiPlan || (totalBudgeted !== undefined && totalBudgeted > 0)
+    const hasActiveBudget = !!aiPlan || (effectiveTotalBudgeted !== undefined && effectiveTotalBudgeted > 0)
 
     if (hasActiveBudget) {
-      const formattedTotal = totalBudgeted !== undefined 
-        ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalBudgeted)
+      const formattedTotal = effectiveTotalBudgeted !== undefined 
+        ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(effectiveTotalBudgeted)
         : null
 
       content = (

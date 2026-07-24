@@ -78,11 +78,17 @@ export function DashboardWidgetsMobile({
 
             <div className="mt-2">
               {totalBudgeted > 0 ? (
-                <div className="h-2 w-full bg-slate-100 dark:bg-zinc-800 border border-black dark:border-white rounded-full overflow-hidden">
-                  <div 
-                    className={cn("h-full transition-all duration-300 border-r border-black dark:border-white", budgetColorClass)}
-                    style={{ width: `${Math.min(budgetPercentage, 100)}%` }}
-                  />
+                <div className="h-2 w-full bg-slate-100 dark:bg-zinc-800 border border-black dark:border-white rounded-full overflow-hidden flex">
+                  {activeBudgets.map((b) => {
+                    const width = (b.budget_limit / totalBudgeted) * 100
+                    return (
+                      <div 
+                        key={b.category_id}
+                        className="h-full border-r border-black dark:border-white last:border-r-0"
+                        style={{ width: `${width}%`, backgroundColor: b.category_color }}
+                      />
+                    )
+                  })}
                 </div>
               ) : (
                 <div className="text-[9px] font-bold text-center border border-dashed border-black/40 dark:border-white/40 rounded-md py-0.5">

@@ -251,6 +251,14 @@ export default async function DashboardPage({
         </div>
       </div>
 
+      {/* Fimo AI Highlight Section Card (Visible on both Mobile & Desktop) */}
+      <div className="w-full">
+        <AICoachCard 
+          aiPlan={aiPlanRes?.success ? aiPlanRes.data || null : null} 
+          totalBudgeted={budgets.reduce((sum, b) => sum + b.budget_limit, 0)}
+        />
+      </div>
+
       {/* Stats Grid - Figma Color Blocks (Compact 2-Cols on Mobile) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {stats.map((stat) => (
@@ -272,14 +280,6 @@ export default async function DashboardPage({
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Fimo AI inline only on Desktop */}
-      <div className="hidden md:block mb-4">
-        <AICoachCard 
-          aiPlan={aiPlanRes?.success ? aiPlanRes.data || null : null} 
-          totalBudgeted={budgets.reduce((sum, b) => sum + b.budget_limit, 0)}
-        />
       </div>
 
       {/* Mobile-only widgets grid */}
@@ -366,9 +366,9 @@ export default async function DashboardPage({
           </Card>
 
           {/* Anggaran Bulanan Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold dark:text-white">Anggaran Kategori</CardTitle>
+          <Card className="border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] rounded-2xl bg-white dark:bg-zinc-900">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-extrabold dark:text-white">Anggaran Kategori</CardTitle>
             </CardHeader>
             <CardContent>
               <BudgetProgress budgets={budgets} />
