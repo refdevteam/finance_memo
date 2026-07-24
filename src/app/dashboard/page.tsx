@@ -9,7 +9,9 @@ import {
   ArrowDownLeft, 
   Wallet, 
   TrendingUp,
-  History
+  History,
+  Sparkles,
+  ArrowRight
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -251,14 +253,6 @@ export default async function DashboardPage({
         </div>
       </div>
 
-      {/* Fimo AI Highlight Section Card (Visible on both Mobile & Desktop) */}
-      <div className="w-full">
-        <AICoachCard 
-          aiPlan={aiPlanRes?.success ? aiPlanRes.data || null : null} 
-          totalBudgeted={budgets.reduce((sum, b) => sum + b.budget_limit, 0)}
-        />
-      </div>
-
       {/* Stats Grid - Figma Color Blocks (Compact 2-Cols on Mobile) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {stats.map((stat) => (
@@ -282,10 +276,58 @@ export default async function DashboardPage({
         ))}
       </div>
 
+      {/* Desktop & Tablet 1-Row AI Section */}
+      <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+        {/* Left: Rencana AI Card (1/3 width) */}
+        <div className="bg-[#c5b0f4] text-black border-2 border-black dark:border-white rounded-2xl p-4 sm:p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.15)] flex flex-col justify-between gap-3 transition-all hover:translate-x-0.5 hover:translate-y-0.5 duration-200">
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between border-b border-black/10 pb-2.5">
+              <div className="flex items-center gap-2 text-xs font-mono font-extrabold uppercase tracking-wider opacity-80">
+                <Sparkles className="h-4 w-4 text-black animate-spin-slow fill-black/10 shrink-0" />
+                <span>Rencana AI</span>
+              </div>
+              <span className="text-[9px] font-extrabold bg-black text-white px-2 py-0.5 rounded-full uppercase">
+                {budgets.reduce((sum, b) => sum + b.budget_limit, 0) > 0 || !!aiPlanRes?.data ? 'Aktif' : 'Draft'}
+              </span>
+            </div>
+            
+            <div>
+              <p className="text-[10px] font-bold font-mono text-black/60 uppercase tracking-wider">
+                Total Dianggarkan
+              </p>
+              <h3 className="text-xl sm:text-2xl font-black text-black tracking-tight mt-0.5">
+                {formatRupiah(budgets.reduce((sum, b) => sum + b.budget_limit, 0))}
+              </h3>
+              {aiPlanRes?.data?.analysis?.priority_action && (
+                <p className="text-xs font-semibold text-black/80 mt-1.5 line-clamp-1">
+                  Prioritas: {aiPlanRes.data.analysis.priority_action}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <Link href="/dashboard/budgets" className="w-full">
+            <Button className="w-full text-xs font-bold bg-black text-white hover:bg-neutral-800 rounded-full h-9 flex items-center justify-center gap-1.5 shadow-sm">
+              {budgets.reduce((sum, b) => sum + b.budget_limit, 0) > 0 || !!aiPlanRes?.data ? 'Ubah Rencana' : 'Mulai Auto-Plan'} <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          </Link>
+        </div>
+
+        {/* Right: Fimo AI Insights (2/3 width) */}
+        <div className="lg:col-span-2 min-w-0 overflow-hidden">
+          <AICoachCard 
+            aiPlan={aiPlanRes?.success ? aiPlanRes.data || null : null} 
+            totalBudgeted={budgets.reduce((sum, b) => sum + b.budget_limit, 0)}
+            hidePlanTab
+          />
+        </div>
+      </div>
+
       {/* Mobile-only widgets grid */}
       <DashboardWidgetsMobile
         budgets={budgets}
         upcomingRemindersCount={upcomingRemindersCount}
+        aiPlan={aiPlanRes?.success ? aiPlanRes.data || null : null}
       />
 
       {/* Mobile-only Interactive Charts Selector (Tren vs Kategori) */}

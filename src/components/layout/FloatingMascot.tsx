@@ -235,7 +235,7 @@ export function FloatingMascot() {
             </DialogTitle>
           </DialogHeader>
           <div className="pt-2 w-full max-w-full min-w-0 overflow-hidden">
-            <AICoachCard />
+            <AICoachCard hidePlanTab />
           </div>
         </DialogContent>
       </Dialog>

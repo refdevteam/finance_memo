@@ -13,10 +13,11 @@ type AnalysisType = 'plan' | 'daily' | 'weekly' | '30days' | 'month'
 interface AICoachCardProps {
   aiPlan?: AIBudgetPlan | null
   totalBudgeted?: number
+  hidePlanTab?: boolean
 }
 
-export function AICoachCard({ aiPlan, totalBudgeted }: AICoachCardProps = {}) {
-  const [selectedType, setSelectedType] = useState<AnalysisType>('plan')
+export function AICoachCard({ aiPlan, totalBudgeted, hidePlanTab = false }: AICoachCardProps = {}) {
+  const [selectedType, setSelectedType] = useState<AnalysisType>(hidePlanTab ? 'daily' : 'plan')
   const [insight, setInsight] = useState<{ tip: string; score?: number } | null>(null)
   const [loading, setLoading] = useState(false)
   const [fetchedTotalBudget, setFetchedTotalBudget] = useState<number | null>(null)
@@ -44,13 +45,15 @@ export function AICoachCard({ aiPlan, totalBudgeted }: AICoachCardProps = {}) {
 
   const effectiveTotalBudgeted = totalBudgeted ?? (fetchedTotalBudget !== null ? fetchedTotalBudget : undefined)
 
-  const options = [
+  const allOptions = [
     { value: 'plan', label: 'Rencana AI' },
     { value: 'daily', label: 'Harian' },
     { value: 'weekly', label: 'Mingguan' },
     { value: '30days', label: '30 Hari' },
     { value: 'month', label: 'Bulan Ini' },
   ] as const
+
+  const options = hidePlanTab ? allOptions.filter(opt => opt.value !== 'plan') : allOptions
 
   useEffect(() => {
     let active = true
