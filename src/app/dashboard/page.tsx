@@ -321,7 +321,7 @@ export default async function DashboardPage({
         </div>
 
         {/* Right: Fimo AI Insights (2/3 width) */}
-        <div className="lg:col-span-2 min-w-0 overflow-hidden h-full flex flex-col">
+        <div className="lg:col-span-2 min-w-0 h-full flex flex-col">
           <AICoachCard 
             aiPlan={aiPlanRes?.success ? aiPlanRes.data || null : null} 
             totalBudgeted={budgets.reduce((sum, b) => sum + b.budget_limit, 0)}

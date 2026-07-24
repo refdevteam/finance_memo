@@ -332,7 +332,7 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
         if (type === 'daily') {
           parsedData = {
             tip: (income === 0 && expense === 0) 
-              ? "Mulai catat transaksi pertamamu hari ini agar Fimo Coach bisa menganalisis kesehatan keuanganmu."
+              ? "Mulai catat transaksi pertamamu hari ini agar Fimo AI bisa menganalisis kesehatan keuanganmu."
               : "Mulai hari ini dengan menyisihkan 10% pendapatanmu untuk dana darurat sebelum berbelanja.",
             score: (income === 0 && expense === 0) ? 0 : 70
           }
