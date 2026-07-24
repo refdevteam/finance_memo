@@ -123,14 +123,14 @@ export function AICoachCard({ aiPlan }: AICoachCardProps = {}) {
       )}
     >
       {/* Header & Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-3">
-        <div className="flex items-center gap-2 text-xs font-mono font-extrabold uppercase tracking-wider opacity-80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-3 w-full min-w-0">
+        <div className="flex items-center gap-2 text-xs font-mono font-extrabold uppercase tracking-wider opacity-80 shrink-0">
           <Sparkles className="h-4 w-4 text-black animate-spin-slow fill-black/10 shrink-0" />
           <span>Fimo Coach</span>
         </div>
 
         {/* Selection Switcher */}
-        <div className="flex w-full sm:w-auto gap-1 bg-black/5 p-1 rounded-2xl border border-black/10 overflow-x-auto overflow-y-hidden no-scrollbar">
+        <div className="flex w-full sm:w-auto gap-1 bg-black/5 p-1 rounded-2xl border border-black/10 overflow-x-auto overflow-y-hidden no-scrollbar min-w-0">
           {options.map((opt) => (
             <button
               key={opt.value}
