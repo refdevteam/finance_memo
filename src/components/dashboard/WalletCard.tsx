@@ -63,6 +63,7 @@ export function WalletCard({ id, name, type, balance, color }: WalletCardProps) 
         await deleteWallet(id)
         toast.success(`Dompet "${name}" berhasil dihapus`)
       } catch (error) {
+        console.error('Error deleting wallet:', error)
         toast.error('Gagal menghapus dompet. Coba lagi.')
         setShowDeleteDialog(false)
       }
