@@ -8,6 +8,7 @@ import {
   Wallet as WalletIcon,
   MoreVertical,
   Trash2,
+  Pencil,
   Loader2
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils/currency'
@@ -27,8 +28,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { deleteWallet } from '@/actions/wallets'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
+import { deleteWallet, updateWalletBalance } from '@/actions/wallets'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 
 interface WalletCardProps {
@@ -42,6 +52,8 @@ interface WalletCardProps {
 export function WalletCard({ id, name, type, balance, color }: WalletCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
+  const [editBalance, setEditBalance] = useState(balance.toString())
   const [isPending, startTransition] = useTransition()
   const walletColor = color || '#000000'
 
@@ -66,6 +78,24 @@ export function WalletCard({ id, name, type, balance, color }: WalletCardProps) 
         console.error('Error deleting wallet:', error)
         toast.error('Gagal menghapus dompet. Coba lagi.')
         setShowDeleteDialog(false)
+      }
+    })
+  }
+
+  const handleUpdateBalance = () => {
+    const newBalance = parseFloat(editBalance)
+    if (isNaN(newBalance) || newBalance < 0) {
+      toast.error('Nominal tidak valid. Masukkan angka yang benar.')
+      return
+    }
+    startTransition(async () => {
+      try {
+        await updateWalletBalance(id, newBalance)
+        toast.success(`Saldo dompet "${name}" berhasil diperbarui`)
+        setShowEditDialog(false)
+      } catch (error) {
+        console.error('Error updating wallet balance:', error)
+        toast.error('Gagal memperbarui saldo. Coba lagi.')
       }
     })
   }
@@ -109,6 +139,17 @@ export function WalletCard({ id, name, type, balance, color }: WalletCardProps) 
             />
             <DropdownMenuContent align="end" className="border-2 border-black dark:border-white shadow-[2px_2px_0px_rgba(0,0,0,1)]">
               <DropdownMenuItem 
+                className="cursor-pointer font-bold text-xs"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setEditBalance(balance.toString())
+                  setShowEditDialog(true)
+                }}
+              >
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit Saldo
+              </DropdownMenuItem>
+              <DropdownMenuItem 
                 className="text-rose-600 focus:text-rose-600 cursor-pointer font-bold text-xs"
                 onClick={(e) => {
                   e.stopPropagation()
@@ -145,6 +186,83 @@ export function WalletCard({ id, name, type, balance, color }: WalletCardProps) 
           </p>
         </div>
       </div>
+
+      {/* Edit Balance Dialog */}
+      <Dialog 
+        open={showEditDialog} 
+        onOpenChange={(v) => {
+          if (!isPending) {
+            setShowEditDialog(v)
+            if (!v) setEditBalance(balance.toString())
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2.5">
+              <span 
+                className="inline-flex items-center justify-center w-8 h-8 rounded-full shrink-0"
+                style={{ backgroundColor: `${walletColor}15`, color: walletColor }}
+              >
+                <Pencil className="h-4 w-4" />
+              </span>
+              Edit Saldo
+            </DialogTitle>
+            <DialogDescription>
+              Perbarui saldo dompet <span className="font-semibold text-foreground">&ldquo;{name}&rdquo;</span>.
+            </DialogDescription>
+          </DialogHeader>
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault()
+              handleUpdateBalance()
+            }} 
+            className="space-y-4 pt-2"
+          >
+            <div className="space-y-2">
+              <Label htmlFor={`edit-balance-${id}`}>Nominal Saldo</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 text-sm font-medium">Rp</span>
+                <Input 
+                  id={`edit-balance-${id}`}
+                  type="number" 
+                  step="any"
+                  min="0"
+                  value={editBalance}
+                  onChange={(e) => setEditBalance(e.target.value)}
+                  className="pl-10 h-10 text-base font-mono"
+                  disabled={isPending}
+                  autoFocus
+                />
+              </div>
+              <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                Saldo saat ini: <span className="font-semibold font-mono text-emerald-600 dark:text-emerald-400">{formatCurrency(balance)}</span>
+              </p>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="flex-1" 
+                onClick={() => setShowEditDialog(false)}
+                disabled={isPending}
+              >
+                Batal
+              </Button>
+              <Button 
+                type="submit" 
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                disabled={isPending}
+              >
+                {isPending
+                  ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Menyimpan...</>
+                  : 'Simpan'
+                }
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

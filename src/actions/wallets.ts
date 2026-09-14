@@ -49,6 +49,24 @@ export async function createWallet(formData: {
   revalidatePath('/dashboard')
 }
 
+export async function updateWalletBalance(id: string, balance: number) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) throw new Error('Unauthorized')
+
+  const { error } = await supabase
+    .from('wallets')
+    .update({ balance })
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) throw error
+
+  revalidatePath('/dashboard/wallets')
+  revalidatePath('/dashboard')
+}
+
 export async function deleteWallet(id: string) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
