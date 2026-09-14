@@ -166,7 +166,7 @@ export async function generateAIBudgetPlan(month: number, year: number): Promise
       throw new Error("GEMINI_API_KEY environment variable is missing")
     }
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-pro", generationConfig: { responseMimeType: "application/json" } })
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro", generationConfig: { responseMimeType: "application/json" } })
     const result = await model.generateContent(prompt)
     const rawContent = result.response.text()
 
