@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 export interface AIBudgetCategoryRecommendation {
   category_id: string
@@ -37,7 +38,7 @@ export interface AIBudgetPlanResult {
 }
 
 /**
- * Generate a new AI Budget Plan using Groq Llama 3.3.
+ * Generate a new AI Budget Plan using Gemini.
  * Automatically loads user wallets, categories, budgets, and last 30 days transactions.
  */
 export async function generateAIBudgetPlan(month: number, year: number): Promise<AIBudgetPlanResult> {
@@ -49,9 +50,9 @@ export async function generateAIBudgetPlan(month: number, year: number): Promise
       return { success: false, error: 'Kamu harus login terlebih dahulu.' }
     }
 
-    const hasGroq = !!process.env.GROQ_API_KEY
-    if (!hasGroq) {
-      return { success: false, error: 'API Key Groq belum dikonfigurasi di server.' }
+    const hasGemini = !!process.env.GEMINI_API_KEY
+    if (!hasGemini) {
+      return { success: false, error: 'API Key Gemini belum dikonfigurasi di server.' }
     }
 
     // 1. Fetch wallets, active categories, budgets, and transactions
@@ -160,34 +161,16 @@ export async function generateAIBudgetPlan(month: number, year: number): Promise
       }
     `
 
-    // Call Groq API
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.3,
-      }),
-    })
-
-    if (!response.ok) {
-      const errData = await response.json()
-      throw new Error(errData.error?.message || `Groq API returned status ${response.status}`)
+    // Call Gemini API
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY environment variable is missing")
     }
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+    const model = genAI.getGenerativeModel({ model: "gemini-3.5-pro", generationConfig: { responseMimeType: "application/json" } })
+    const result = await model.generateContent(prompt)
+    const rawContent = result.response.text()
 
-    const resJson = await response.json()
-    const rawContent = resJson.choices[0]?.message?.content
-    if (!rawContent) throw new Error("Groq API returned empty response")
+    if (!rawContent) throw new Error("Gemini API returned empty response")
 
     const parsedData = JSON.parse(rawContent) as AIBudgetPlan
     parsedData.total_income = totalIncome

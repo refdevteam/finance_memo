@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
 
 export async function getWallets() {
   const supabase = createClient()
@@ -55,6 +56,16 @@ export async function updateWalletBalance(id: string, balance: number) {
 
   if (!user) throw new Error('Unauthorized')
 
+  // Rate Limit: 5x per day per user
+  const cookieStore = cookies()
+  const today = new Date().toISOString().split('T')[0]
+  const rateLimitKey = `wallet_edit_count_${user.id}_${today}`
+  const currentCount = parseInt(cookieStore.get(rateLimitKey)?.value || '0', 10)
+
+  if (currentCount >= 5) {
+    throw new Error('Batas edit saldo (5x per hari) telah tercapai.')
+  }
+
   const { error } = await supabase
     .from('wallets')
     .update({ balance })
@@ -62,6 +73,12 @@ export async function updateWalletBalance(id: string, balance: number) {
     .eq('user_id', user.id)
 
   if (error) throw error
+
+  // Increment rate limit counter
+  cookieStore.set(rateLimitKey, (currentCount + 1).toString(), {
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
+    path: '/',
+  })
 
   revalidatePath('/dashboard/wallets')
   revalidatePath('/dashboard')

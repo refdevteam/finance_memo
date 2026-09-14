@@ -170,7 +170,22 @@ export async function generateMonthlyInsights(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let parsedData: any = null
 
-    if (hasGroq) {
+    if (hasGemini) {
+      try {
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+        const model = genAI.getGenerativeModel({ model: "gemini-3.5-pro", generationConfig: { responseMimeType: "application/json" } })
+
+        const result = await model.generateContent(prompt)
+        const textOutput = result.response.text()
+
+        // Clean markdown if present
+        const cleanedText = textOutput.replace(/```json/g, '').replace(/```/g, '').trim()
+        parsedData = JSON.parse(cleanedText)
+      } catch (geminiErr) {
+        console.error('Gemini insights generation failed:', geminiErr)
+        throw geminiErr
+      }
+    } else if (hasGroq) {
       try {
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
@@ -179,7 +194,7 @@ export async function generateMonthlyInsights(
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
+            model: "llama-3.1-70b-versatile",
             messages: [
               {
                 role: "user",
@@ -203,18 +218,6 @@ export async function generateMonthlyInsights(
         console.error('Groq insights generation failed:', groqErr)
         throw groqErr
       }
-    } else {
-      // ==== FALLBACK: MENGGUNAKAN GEMINI ====
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-      const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" })
-
-      const result = await model.generateContent([prompt])
-      const response = await result.response
-      const textOutput = response.text()
-
-      // Clean markdown if present
-      const cleanedText = textOutput.replace(/```json/g, '').replace(/```/g, '').trim()
-      parsedData = JSON.parse(cleanedText)
     }
 
     return {
