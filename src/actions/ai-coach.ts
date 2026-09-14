@@ -312,13 +312,13 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
       // Gemini API call
       try {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-        const activeModelName = (type === 'daily' || type === 'weekly') ? 'gemini-1.5-flash' : 'gemini-1.5-pro'
+        const activeModelName = (type === 'daily' || type === 'weekly') ? 'gemini-2.5-flash' : 'gemini-2.5-pro'
         
         let model
         try {
           model = genAI.getGenerativeModel({ model: activeModelName })
         } catch {
-          model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+          model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
         }
 
         const result = await model.generateContent([prompt])

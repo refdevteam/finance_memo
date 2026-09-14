@@ -173,7 +173,7 @@ export async function generateMonthlyInsights(
     if (hasGemini) {
       try {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro", generationConfig: { responseMimeType: "application/json" } })
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro", generationConfig: { responseMimeType: "application/json" } })
 
         const result = await model.generateContent(prompt)
         const textOutput = result.response.text()
