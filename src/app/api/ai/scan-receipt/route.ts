@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,8 +14,10 @@ export async function POST(req: NextRequest) {
     const hasGroq = !!process.env.GROQ_API_KEY
     const hasGemini = !!process.env.GEMINI_API_KEY
 
-    if (!hasGroq && !hasGemini) {
-      return NextResponse.json({ error: 'API Key untuk AI (Groq atau Gemini) belum dikonfigurasi' }, { status: 500 })
+    if (!hasGemini) {
+      // Groq vision model (llama-3.2-11b-vision-preview) sudah decommissioned.
+      // Scan struk memerlukan Gemini untuk multimodal vision.
+      return NextResponse.json({ error: 'GEMINI_API_KEY diperlukan untuk fitur Scan Struk. Groq tidak lagi mendukung model vision gratis.' }, { status: 500 })
     }
 
     const formData = await req.formData()
@@ -84,68 +86,36 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let parsedData: any = null
 
-    if (hasGroq) {
-      // ==== MENGGUNAKAN GROQ (100% GRATIS & SUPER CEPAT DENGAN LLAMA 3.2 VISION) ====
-      try {
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "llama-3.2-11b-vision-preview",
-            messages: [
+    if (hasGroq && !hasGemini) {
+      // Groq vision (llama-3.2-11b-vision-preview) sudah decommissioned
+      // Tidak ada pengganti vision gratis di Groq saat ini
+      return NextResponse.json({ error: 'Model vision Groq (llama-3.2-11b-vision-preview) sudah tidak tersedia. Gunakan GEMINI_API_KEY untuk scan struk.' }, { status: 500 })
+    }
+
+    // ==== MENGGUNAKAN GEMINI VISION (Multimodal) ====
+    {
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
+
+      const result = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: prompt },
               {
-                role: "user",
-                content: [
-                  {
-                    type: "text",
-                    text: prompt,
-                  },
-                  {
-                    type: "image_url",
-                    image_url: {
-                      url: `data:${file.type || "image/jpeg"};base64,${base64Data}`,
-                    },
-                  },
-                ],
-              },
-            ],
-            response_format: { type: "json_object" }, // Memaksa Groq mengembalikan JSON valid
-            temperature: 0.1,
-          }),
-        })
+                inlineData: {
+                  data: base64Data,
+                  mimeType: file.type || 'image/jpeg'
+                }
+              }
+            ]
+          }
+        ],
+        config: { responseMimeType: 'application/json' }
+      })
 
-        if (!response.ok) {
-          const errData = await response.json()
-          throw new Error(errData.error?.message || `Groq API returned status ${response.status}`)
-        }
-
-        const chatCompletion = await response.json()
-        const textOutput = chatCompletion.choices[0]?.message?.content || ''
-        parsedData = JSON.parse(textOutput)
-      } catch (groqErr) {
-        console.error('Groq scan failed:', groqErr)
-        throw groqErr
-      }
-    } else {
-      // ==== BACKFALL: MENGGUNAKAN GEMINI ====
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
-
-      const imagePart = {
-        inlineData: {
-          data: base64Data,
-          mimeType: file.type || 'image/jpeg'
-        },
-      }
-
-      const result = await model.generateContent([prompt, imagePart])
-      const response = await result.response
-      const textOutput = response.text()
-
-      // Bersihkan jika gemini kadang masih mengembalikan markdown
+      const textOutput = result.text ?? ''
       const cleanedText = textOutput.replace(/```json/g, '').replace(/```/g, '').trim()
       parsedData = JSON.parse(cleanedText)
     }

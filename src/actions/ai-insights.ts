@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 
 interface AIInsightResult {
   success: boolean
@@ -172,13 +172,13 @@ export async function generateMonthlyInsights(
 
     if (hasGemini) {
       try {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-        const model = genAI.getGenerativeModel({ model: "gemini-3.1-pro-preview", generationConfig: { responseMimeType: "application/json" } })
-
-        const result = await model.generateContent(prompt)
-        const textOutput = result.response.text()
-
-        // Clean markdown if present
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
+        const result = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: prompt,
+          config: { responseMimeType: 'application/json' }
+        })
+        const textOutput = result.text ?? ''
         const cleanedText = textOutput.replace(/```json/g, '').replace(/```/g, '').trim()
         parsedData = JSON.parse(cleanedText)
       } catch (geminiErr) {
@@ -194,7 +194,7 @@ export async function generateMonthlyInsights(
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "llama-3.1-70b-versatile",
+            model: "llama-3.3-70b-versatile",
             messages: [
               {
                 role: "user",

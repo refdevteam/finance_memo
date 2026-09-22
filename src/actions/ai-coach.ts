@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 
 export interface AICoachInsightResult {
   success: boolean
@@ -311,19 +311,14 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
     } else {
       // Gemini API call
       try {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-        const activeModelName = (type === 'daily' || type === 'weekly') ? 'gemini-2.5-flash' : 'gemini-3.1-pro-preview'
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
+        const activeModelName = (type === 'daily' || type === 'weekly') ? 'gemini-2.5-flash' : 'gemini-2.5-pro'
         
-        let model
-        try {
-          model = genAI.getGenerativeModel({ model: activeModelName })
-        } catch {
-          model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
-        }
-
-        const result = await model.generateContent([prompt])
-        const response = await result.response
-        const textOutput = response.text()
+        const result = await ai.models.generateContent({
+          model: activeModelName,
+          contents: prompt
+        })
+        const textOutput = result.text ?? ''
         const cleanedText = textOutput.replace(/```json/g, '').replace(/```/g, '').trim()
         parsedData = JSON.parse(cleanedText)
       } catch (geminiErr) {

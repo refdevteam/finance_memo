@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 
 export interface AIBudgetCategoryRecommendation {
   category_id: string
@@ -165,10 +165,13 @@ export async function generateAIBudgetPlan(month: number, year: number): Promise
     if (!process.env.GEMINI_API_KEY) {
       throw new Error("GEMINI_API_KEY environment variable is missing")
     }
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-    const model = genAI.getGenerativeModel({ model: "gemini-3.1-pro-preview", generationConfig: { responseMimeType: "application/json" } })
-    const result = await model.generateContent(prompt)
-    const rawContent = result.response.text()
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.5-pro',
+      contents: prompt,
+      config: { responseMimeType: 'application/json' }
+    })
+    const rawContent = result.text
 
     if (!rawContent) throw new Error("Gemini API returned empty response")
 
