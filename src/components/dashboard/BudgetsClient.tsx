@@ -208,7 +208,11 @@ export function BudgetsClient({ initialBudgets, initialCachedPlan, month, year }
             <>
               <Button
                 variant="outline"
-                onClick={() => setReviewMode(false)}
+                onClick={() => {
+                  setReviewMode(false)
+                  setPlan(null)
+                  setDraftBudgets({})
+                }}
                 className="rounded-full border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold"
                 disabled={isGeneratingAI}
               >
