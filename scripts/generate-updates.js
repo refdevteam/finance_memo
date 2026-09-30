@@ -135,7 +135,7 @@ function generateUpdates() {
             execSync(`git merge-base --is-ancestor ${lastCommitHash} HEAD`, { stdio: 'ignore' });
             gitCmd = `git log ${lastCommitHash}..HEAD --pretty=format:"%s"`;
             console.log(`Retrieving commits since last release commit: ${lastCommitHash}`);
-          } catch (_) {
+          } catch {
             console.log('lastCommitHash is not an ancestor, checking last 15 commits instead.');
           }
         } else {

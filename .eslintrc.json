@@ -1,4 +1,12 @@
-{
+﻿{
   "extends": ["next/core-web-vitals", "next/typescript"],
-  "ignorePatterns": ["supabase/**"]
+  "ignorePatterns": ["supabase/**"],
+  "overrides": [
+    {
+      "files": ["*.js", "scripts/**/*.js", "public/**/*.js"],
+      "rules": {
+        "@typescript-eslint/no-require-imports": "off"
+      }
+    }
+  ]
 }

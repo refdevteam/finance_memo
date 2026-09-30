@@ -76,3 +76,5 @@ client_secret_*.json
 copy-assets.js
 copy-logo.js
 its-fimo-firebase-adminsdk-*.json
+# supabase cli temp
+supabase/.temp/

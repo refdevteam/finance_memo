@@ -108,7 +108,7 @@ self.addEventListener('push', function(event) {
           { action: 'manage_reminder', title: 'Kelola Pengingat' }
         ];
       }
-    } catch (e) {
+    } catch {
       options.body = event.data.text();
     }
   }
