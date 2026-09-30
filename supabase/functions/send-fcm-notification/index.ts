@@ -1,6 +1,6 @@
-// @ts-nocheck — Deno Edge Function: URL imports are valid in Supabase's Deno runtime.
+﻿// @ts-nocheck â€” Deno Edge Function: URL imports are valid in Supabase's Deno runtime.
 /**
- * send-fcm-notification — General-purpose FCM push dispatcher
+ * send-fcm-notification â€” General-purpose FCM push dispatcher
  *
  * Dapat dipanggil dari:
  * - Database trigger (via pg_net extension)
@@ -9,14 +9,14 @@
  *
  * Body request (JSON):
  * {
- *   "user_id": "uuid",         // opsional — lookup FCM token dari profiles
- *   "fcm_token": "string",     // opsional — langsung kirim ke token ini
+ *   "user_id": "uuid",         // opsional â€” lookup FCM token dari profiles
+ *   "fcm_token": "string",     // opsional â€” langsung kirim ke token ini
  *   "title": "string",
  *   "body": "string",
  *   "type": "reminder|budget_alert|recurring|system|ai_insight",
  *   "action_url": "/dashboard/...",   // opsional
  *   "data": { "key": "value" },       // opsional extra payload
- *   "save_to_db": true                // default true — simpan ke tabel notifications
+ *   "save_to_db": true                // default true â€” simpan ke tabel notifications
  * }
  *
  * Salah satu dari user_id atau fcm_token HARUS ada.
@@ -25,6 +25,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { initFcm, sendFcmPush } from "../_shared/fcm.ts"
+import { withRetry } from "../_shared/retry.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -107,7 +108,7 @@ serve(async (req) => {
 
       if (insertErr) {
         console.error('[FCM Dispatch] Failed to save notification to DB:', insertErr)
-        // Non-fatal — still attempt push delivery
+        // Non-fatal â€” still attempt push delivery
       } else {
         console.log(`[FCM Dispatch] Notification saved to DB for user ${resolvedUserId}`)
       }
@@ -121,7 +122,7 @@ serve(async (req) => {
       const fcm = await initFcm()
       if (fcm) {
         try {
-          await sendFcmPush(fcm.accessToken, fcm.projectId, {
+          await withRetry(() => sendFcmPush(fcm.accessToken, fcm.projectId, {
             fcmToken,
             title,
             body: notifBody,
@@ -133,7 +134,7 @@ serve(async (req) => {
                 Object.entries(data).map(([k, v]) => [k, String(v)])
               ),
             },
-          })
+          }), 'sendFcmPush-dispatch', { maxAttempts: 3 })
           pushResult = 'sent'
           console.log(`[FCM Dispatch] Push sent to token ${fcmToken.substring(0, 20)}...`)
         } catch (err) {
@@ -143,7 +144,7 @@ serve(async (req) => {
         }
       } else {
         pushResult = 'skipped_no_fcm_config'
-        console.warn('[FCM Dispatch] FCM not initialized — FIREBASE_SERVICE_ACCOUNT secret missing')
+        console.warn('[FCM Dispatch] FCM not initialized â€” FIREBASE_SERVICE_ACCOUNT secret missing')
       }
     }
 
@@ -168,3 +169,4 @@ serve(async (req) => {
     })
   }
 })
+

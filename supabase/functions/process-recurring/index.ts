@@ -1,7 +1,8 @@
-// @ts-nocheck — Deno Edge Function: URL imports are valid in Supabase's Deno runtime.
+﻿// @ts-nocheck â€” Deno Edge Function: URL imports are valid in Supabase's Deno runtime.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { initFcm, sendFcmPush } from "../_shared/fcm.ts"
+import { withRetry } from "../_shared/retry.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -52,8 +53,8 @@ serve(async (req) => {
           : ''
 
         const pushTitle = isIncome
-          ? `💰 Pemasukan Rutin: ${itemTitle}`
-          : `📋 Pengeluaran Rutin: ${itemTitle}`
+          ? `ðŸ’° Pemasukan Rutin: ${itemTitle}`
+          : `ðŸ“‹ Pengeluaran Rutin: ${itemTitle}`
 
         const pushBody = isIncome
           ? `${amountFormatted ? `Pemasukan ${amountFormatted}` : 'Transaksi'} rutin "${itemTitle}" berhasil dicatat. Semangat mengelola keuanganmu!`
@@ -61,7 +62,7 @@ serve(async (req) => {
 
         if (fcm) {
           try {
-            await sendFcmPush(fcm.accessToken, fcm.projectId, {
+            await withRetry(() => sendFcmPush(fcm.accessToken, fcm.projectId, {
               fcmToken: fcm_token,
               title: pushTitle,
               body: pushBody,
@@ -72,7 +73,7 @@ serve(async (req) => {
                 transaction_type: String(type),
                 amount: String(amount ?? 0),
               },
-            })
+            }), 'sendFcmPush-recurring', { maxAttempts: 3 })
             pushResults.push({ user_id, push: 'sent' })
             console.log(`[Recurring] FCM push sent to user ${user_id} for "${itemTitle}"`)
           } catch (err) {
@@ -110,3 +111,4 @@ serve(async (req) => {
     })
   }
 })
+

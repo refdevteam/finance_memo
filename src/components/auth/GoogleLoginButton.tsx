@@ -232,6 +232,8 @@ export function GoogleLoginButton() {
         // Kirim hashed nonce ke Google — di mobile Chrome, FedCM akan menyertakan nonce ini
         // ke dalam id_token, kemudian raw nonce dikirim ke Supabase untuk diverifikasi
         nonce: hashedNonce,
+        // Aktifkan FedCM agar kompatibel dengan pemblokiran third-party cookie di Chrome terbaru
+        use_fedcm_for_prompt: true,
       })
 
       const buttonDiv = document.getElementById('google-signin-btn-container')

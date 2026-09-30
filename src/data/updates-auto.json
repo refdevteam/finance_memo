@@ -1,39 +1,175 @@
 {
-  "version": "v1.4.0",
-  "date": "16 Juni 2026",
+  "version": "v1.5.0",
+  "date": "22 September 2026",
   "items": [
     {
-      "category": "baru",
-      "text": "Pengubahan diagram kategori menjadi vertikal & pemakaian warna pastel Figma"
-    },
-    {
-      "category": "baru",
-      "text": "Penyesuaian tata letak kartu anggaran & tagihan mobile agar lebih padat"
-    },
-    {
       "category": "peningkatan",
-      "text": "Perbaikan error tipe data (any) pada pengingat & snooze API"
-    },
-    {
-      "category": "peningkatan",
-      "text": "Perbaikan crash server rendering pada modul beranda"
+      "text": "Clear AI plan and savings simulation section on auto-plan cancel in anggaransClient\""
     },
     {
       "category": "baru",
-      "text": "Optimalisasi tampilan loading skeleton kustom per halaman"
+      "text": "Fix AI model & AI  FIMO"
     },
     {
       "category": "baru",
-      "text": "Penyesuaian warna gelap netral arang/hitam tanpa navy"
+      "text": "Update AI Fimo again"
+    },
+    {
+      "category": "baru",
+      "text": "Update AI Fimo"
+    },
+    {
+      "category": "baru",
+      "text": "AI models fix part 3"
     },
     {
       "category": "peningkatan",
-      "text": "Perbaikan responsivitas pop-up dialog grafik di layar HP"
+      "text": "AI models fix part 2"
     },
     {
       "category": "peningkatan",
-      "text": "Integrasi sistem streak catatan harian dengan dialog brutalist"
+      "text": "AI models fix"
+    },
+    {
+      "category": "baru",
+      "text": "Update AI model & set boundaries edit dompet's amount 5x for a day"
+    },
+    {
+      "category": "baru",
+      "text": "Update edit feature on dompet"
+    },
+    {
+      "category": "peningkatan",
+      "text": "Kendala variable unused fix"
+    },
+    {
+      "category": "baru",
+      "text": "Add dompetCard component with deletion functionality"
+    },
+    {
+      "category": "baru",
+      "text": "Fix(tampilan): unclip AICoachCard box shadow and update branding text"
+    },
+    {
+      "category": "baru",
+      "text": "Fix(tampilan): separate HP Rencana AI card and match desktop AI card heights"
+    },
+    {
+      "category": "baru",
+      "text": "Feat(tampilan): split Rencana AI and Fimo AI insights into 1-row desktop layout"
+    },
+    {
+      "category": "baru",
+      "text": "Feat : update agent rule & dashboard tampilan"
+    },
+    {
+      "category": "baru",
+      "text": "Update agent"
+    },
+    {
+      "category": "baru",
+      "text": "Fix(tampilan): match kategori badge styling, active AI anggaran status, and HP modal layout"
+    },
+    {
+      "category": "baru",
+      "text": "Tampilan: sync dashboard anggaran progress and rename Fimo Coach to Fimo AI"
+    },
+    {
+      "category": "baru",
+      "text": "Feat(dashboard): retampilan anggarans tampilan to list layout with segmented progress bar"
+    },
+    {
+      "category": "baru",
+      "text": "Feat(dashboard): retampilan Fimo AI anggaran planner tampilan"
+    },
+    {
+      "category": "peningkatan",
+      "text": "Correct anggarankategori type mismatch for AI recommendations"
+    },
+    {
+      "category": "baru",
+      "text": "Feat(ai-planner): implement draft mode and bidirectional penyimpanan sementara sync"
+    },
+    {
+      "category": "baru",
+      "text": "Feat(ai-planner): integrate Fimo Auto-Pilot natively into anggarans & dashboard"
+    },
+    {
+      "category": "baru",
+      "text": "Feat(ai-planner): integrate AI anggaran highlight to main dashboard & enable 1-click sync"
+    },
+    {
+      "category": "baru",
+      "text": "Style(tampilan): apply smoother border-radius globally to all cards and pop-up dialogs"
+    },
+    {
+      "category": "peningkatan",
+      "text": "Resolve floating maskot Fimo visibility and standardize base card tampilan"
+    },
+    {
+      "category": "peningkatan",
+      "text": "Standardize card border radius across tampilan components"
+    },
+    {
+      "category": "baru",
+      "text": "Complete FCM push integration and tampilan/UX improvements"
+    },
+    {
+      "category": "baru",
+      "text": "Fix(masuk akun): resolve nonce mismatch on Google Sign-In for HP"
+    },
+    {
+      "category": "baru",
+      "text": "Add Googlemasuk akuntombol with Cloudflare Turnstile integration for secure masuk akunentication"
+    },
+    {
+      "category": "peningkatan",
+      "text": "Remove unused ComponentType import"
+    },
+    {
+      "category": "baru",
+      "text": "Implement AIanggaranPlannerClient component for AI-driven anggaran planning and savings simulation"
+    },
+    {
+      "category": "baru",
+      "text": "Implement AI anggaran planner, Turnstile captcha, and PWA FCM background fixes"
+    },
+    {
+      "category": "peningkatan",
+      "text": "Bump version to 1.4.0 and document recent bugfixes/tampilan updates"
+    },
+    {
+      "category": "baru",
+      "text": "Style(HP): change interactive widgets background to clean white for clarity"
+    },
+    {
+      "category": "baru",
+      "text": "Layout(HP): move anggaran and bill widgets above grafiks on dashboard HP view"
+    },
+    {
+      "category": "baru",
+      "text": "Fix(grafiks): remove unused COLORS import in Dashboardgrafiks"
+    },
+    {
+      "category": "baru",
+      "text": "Fix(dashboard): isolate color helpers to prevent server component render kendala"
+    },
+    {
+      "category": "baru",
+      "text": "Feat(dashboard): change kategori grafik to vertical and apply pastel colors"
+    },
+    {
+      "category": "baru",
+      "text": "Fix(dashboard): remove unused kategorigrafikData prop from DashboardWidgetsHP"
+    },
+    {
+      "category": "peningkatan",
+      "text": "Memperbaiki tampilan grafik pengeluaran per kategori"
+    },
+    {
+      "category": "baru",
+      "text": "Integrate FCM push notifications with mental health pengingats & HP tampilan refactor"
     }
   ],
-  "lastCommitHash": "ec3ab31"
+  "lastCommitHash": "40db27c"
 }

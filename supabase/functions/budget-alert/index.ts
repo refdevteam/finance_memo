@@ -1,7 +1,8 @@
-// @ts-nocheck — Deno Edge Function: URL imports are valid in Supabase's Deno runtime.
+﻿// @ts-nocheck â€” Deno Edge Function: URL imports are valid in Supabase's Deno runtime.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { initFcm, sendFcmPush } from "../_shared/fcm.ts"
+import { withRetry } from "../_shared/retry.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -43,15 +44,15 @@ serve(async (req) => {
         const { user_id, fcm_token, category_name, percentage, budget_limit } = alert
 
         if (!fcm_token) {
-          console.log(`[Budget Alert] User ${user_id} has no FCM token — skip push.`)
+          console.log(`[Budget Alert] User ${user_id} has no FCM token â€” skip push.`)
           pushResults.push({ user_id, push: 'skipped_no_token' })
           continue
         }
 
         const isOver = percentage >= 100
         const title = isOver
-          ? `⚠️ Anggaran "${category_name}" Terlampaui!`
-          : `⚡ Anggaran "${category_name}" Hampir Habis`
+          ? `âš ï¸ Anggaran "${category_name}" Terlampaui!`
+          : `âš¡ Anggaran "${category_name}" Hampir Habis`
 
         const body = isOver
           ? `Kamu sudah melampaui batas anggaran untuk kategori "${category_name}". Tinjau pengeluaranmu agar keuangan tetap sehat.`
@@ -59,7 +60,7 @@ serve(async (req) => {
 
         if (fcm) {
           try {
-            await sendFcmPush(fcm.accessToken, fcm.projectId, {
+            await withRetry(() => sendFcmPush(fcm.accessToken, fcm.projectId, {
               fcmToken: fcm_token,
               title,
               body,
@@ -70,7 +71,7 @@ serve(async (req) => {
                 category_name: String(category_name),
                 percentage: String(Math.round(percentage)),
               },
-            })
+            }), 'sendFcmPush-budget', { maxAttempts: 3 })
             pushResults.push({ user_id, push: 'sent' })
             console.log(`[Budget Alert] FCM push sent to user ${user_id} (${Math.round(percentage)}% used)`)
           } catch (err) {
@@ -108,3 +109,4 @@ serve(async (req) => {
     })
   }
 })
+

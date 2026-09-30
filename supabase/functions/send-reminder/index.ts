@@ -1,7 +1,8 @@
-// @ts-nocheck — Deno Edge Function: URL imports are valid in Supabase's Deno runtime.
+﻿// @ts-nocheck â€” Deno Edge Function: URL imports are valid in Supabase's Deno runtime.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { initFcm, sendFcmPush } from "../_shared/fcm.ts"
+import { withRetry, fetchWithRetry } from "../_shared/retry.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -53,7 +54,7 @@ serve(async (req) => {
         if (channels.email && reminder.email) {
           if (resendApiKey) {
             try {
-              const res = await fetch('https://api.resend.com/emails', {
+              const res = await fetchWithRetry('https://api.resend.com/emails', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -125,7 +126,7 @@ serve(async (req) => {
 
           if (fcm) {
             try {
-              await sendFcmPush(fcm.accessToken, fcm.projectId, {
+              await withRetry(() => sendFcmPush(fcm.accessToken, fcm.projectId, {
                 fcmToken: reminder.fcm_token,
                 title: `Pengingat fimo: ${reminder.title}`,
                 body: notificationBody,
@@ -137,7 +138,7 @@ serve(async (req) => {
                   category: reminderType,
                   title: reminder.title,
                 },
-              })
+              }), 'sendFcmPush-reminder', { maxAttempts: 3 })
               pushSent.status = 'sent'
               console.log(`[FCM Push] Berhasil dikirim ke token ${reminder.fcm_token.substring(0, 15)}...`)
             } catch (err) {
@@ -197,3 +198,4 @@ serve(async (req) => {
     })
   }
 })
+

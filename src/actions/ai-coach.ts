@@ -1,7 +1,7 @@
-'use server'
+﻿"use server"
 
-import { createClient } from '@/lib/supabase/server'
-import { GoogleGenAI } from '@google/genai'
+import { createClient } from "@/lib/supabase/server"
+import { GoogleGenAI } from "@google/genai"
 
 export interface AICoachInsightResult {
   success: boolean
@@ -12,24 +12,90 @@ export interface AICoachInsightResult {
   error?: string
 }
 
-export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'month'): Promise<AICoachInsightResult> {
+// Helper: hitung skor fallback berdasarkan aturan prompt
+function calculateFallbackScore(
+  type: "daily" | "weekly" | "30days" | "month",
+  income: number,
+  expense: number,
+  income30Days: number,
+  totalBudget: number
+): number {
+  // Rule: skor 0 jika tidak ada transaksi sama sekali
+  if (income === 0 && expense === 0) return 0
+
+  if (type === "daily") {
+    // Daily rules:
+    // - Expense > 20% income30Days -> score < 55
+    // - Expense <= 5% income30Days -> healthy (score 80+)
+    if (income30Days > 0) {
+      const expenseRatio = expense / income30Days
+      if (expenseRatio > 0.2) return 45 // pemborosan mendadak
+      if (expenseRatio > 0.05) return 65 // sedikit berlebih
+      return 85 // sehat
+    }
+    // Tidak ada income30Days referensi, beri skor moderat
+    return expense > 0 ? 70 : 75
+  }
+
+  if (type === "weekly") {
+    // Weekly rules:
+    // - Expense > 30% income30Days -> score < 50
+    // - Over budget -> score < 40
+    // - Controlled -> score 70-100
+    if (totalBudget > 0 && expense > totalBudget) return 35
+    if (income30Days > 0) {
+      const expenseRatio = expense / income30Days
+      if (expenseRatio > 0.3) return 45
+      if (expenseRatio > 0.25) return 60
+      return 75
+    }
+    return expense > 0 ? 70 : 75
+  }
+
+  if (type === "30days") {
+    // 30days rules:
+    // - Defisit (expense > income) -> score < 45
+    // - Savings rate >= 20% -> score > 80
+    if (expense > income) return 40
+    if (income > 0) {
+      const savingsRate = (income - expense) / income
+      if (savingsRate >= 0.2) return 85
+      if (savingsRate >= 0.1) return 75
+      return 65
+    }
+    return expense > 0 ? 65 : 70
+  }
+
+  // "month"
+  // - Expense > totalBudget -> score < 45
+  if (totalBudget > 0 && expense > totalBudget) return 40
+  if (totalBudget > 0) {
+    const budgetUsage = expense / totalBudget
+    if (budgetUsage <= 0.5) return 85
+    if (budgetUsage <= 0.8) return 75
+    return 60
+  }
+  return expense > 0 ? 70 : 75
+}
+
+export async function getAICoachInsight(type: "daily" | "weekly" | "30days" | "month"): Promise<AICoachInsightResult> {
   const supabase = createClient()
   
   try {
     // 1. Get current authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      return { success: false, error: 'Unauthorized' }
+      return { success: false, error: "Unauthorized" }
     }
 
     // 2. Check for active cached insight in database
     const { data: cached } = await supabase
-      .from('ai_insights')
-      .select('content, expire_at')
-      .eq('user_id', user.id)
-      .eq('type', type)
-      .gt('expire_at', new Date().toISOString())
-      .order('expire_at', { ascending: false })
+      .from("ai_insights")
+      .select("content, expire_at")
+      .eq("user_id", user.id)
+      .eq("type", type)
+      .gt("expire_at", new Date().toISOString())
+      .order("expire_at", { ascending: false })
       .limit(1)
       .maybeSingle()
 
@@ -38,40 +104,36 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
         const parsedContent = JSON.parse(cached.content)
         return { success: true, data: parsedContent }
       } catch (parseErr) {
-        console.error('Error parsing cached insight content:', parseErr)
+        console.error("Error parsing cached insight content:", parseErr)
       }
     }
 
     // 3. Cache missed or expired: Fetch recent transactions and budgets
-    const currency = 'IDR'
+    const currency = "IDR"
     let startDate: string
     const now = new Date()
-    const toYYYYMMDD = (d: Date) => d.toISOString().split('T')[0]
+    const toYYYYMMDD = (d: Date) => d.toISOString().split("T")[0]
 
-    if (type === 'daily') {
-      // Last 2 days
+    if (type === "daily") {
       const twoDaysAgo = new Date()
       twoDaysAgo.setDate(now.getDate() - 1)
       startDate = toYYYYMMDD(twoDaysAgo)
-    } else if (type === 'weekly') {
-      // Last 7 days
+    } else if (type === "weekly") {
       const sevenDaysAgo = new Date()
       sevenDaysAgo.setDate(now.getDate() - 6)
       startDate = toYYYYMMDD(sevenDaysAgo)
-    } else if (type === '30days') {
-      // Last 30 days
+    } else if (type === "30days") {
       const thirtyDaysAgo = new Date()
       thirtyDaysAgo.setDate(now.getDate() - 29)
       startDate = toYYYYMMDD(thirtyDaysAgo)
-    } else { // 'month'
-      // From 1st of this month
+    } else { // "month"
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
       startDate = toYYYYMMDD(firstDayOfMonth)
     }
 
     // Fetch transactions
     const { data: transactions } = await supabase
-      .from('transactions')
+      .from("transactions")
       .select(`
         amount,
         type,
@@ -81,22 +143,22 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
           name
         )
       `)
-      .eq('user_id', user.id)
-      .gte('transaction_date', startDate)
-      .lte('transaction_date', toYYYYMMDD(now))
+      .eq("user_id", user.id)
+      .gte("transaction_date", startDate)
+      .lte("transaction_date", toYYYYMMDD(now))
 
-    // Fetch total income of the last 30 days as a reference for context (highly accurate)
+    // Fetch total income of the last 30 days as a reference for context
     const thirtyDaysAgoForRef = new Date()
     thirtyDaysAgoForRef.setDate(now.getDate() - 29)
     const startDate30DaysForRef = toYYYYMMDD(thirtyDaysAgoForRef)
 
     const { data: income30DaysData } = await supabase
-      .from('transactions')
-      .select('amount')
-      .eq('user_id', user.id)
-      .eq('type', 'income')
-      .gte('transaction_date', startDate30DaysForRef)
-      .lte('transaction_date', toYYYYMMDD(now))
+      .from("transactions")
+      .select("amount")
+      .eq("user_id", user.id)
+      .eq("type", "income")
+      .gte("transaction_date", startDate30DaysForRef)
+      .lte("transaction_date", toYYYYMMDD(now))
 
     const income30Days = (income30DaysData || []).reduce((s, t) => s + Number(t.amount), 0)
 
@@ -104,54 +166,56 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
     const budgetMonth = now.getMonth() + 1
     const budgetYear = now.getFullYear()
     const { data: budgets } = await supabase
-      .from('budgets')
+      .from("budgets")
       .select(`
         amount,
         categories (
           name
         )
       `)
-      .eq('user_id', user.id)
-      .eq('month', budgetMonth)
-      .eq('year', budgetYear)
+      .eq("user_id", user.id)
+      .eq("month", budgetMonth)
+      .eq("year", budgetYear)
+
+    const totalBudget = (budgets || []).reduce((s, b) => s + Number(b.amount || 0), 0)
 
     // Calculate totals
     const trxs = transactions || []
-    const income = trxs.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
-    const expense = trxs.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
+    const income = trxs.filter(t => t.type === "income").reduce((s, t) => s + Number(t.amount), 0)
+    const expense = trxs.filter(t => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0)
 
     const expenseCategories = trxs
-      .filter(t => t.type === 'expense')
+      .filter(t => t.type === "expense")
       .map(t => {
         const catObj = Array.isArray(t.categories) ? t.categories[0] : t.categories
-        return `${catObj?.name || 'Lainnya'}: ${currency} ${Number(t.amount).toLocaleString('id-ID')}`
+        return `${catObj?.name || "Lainnya"}: ${currency} ${Number(t.amount).toLocaleString("id-ID")}`
       })
-      .join('\n')
+      .join("\n")
 
     // Fetch profiles metadata
     const { data: profile } = await supabase
-      .from('profiles')
-      .select('full_name, currency, record_streak')
-      .eq('id', user.id)
+      .from("profiles")
+      .select("full_name, currency, record_streak")
+      .eq("id", user.id)
       .single()
 
-    const userName = profile?.full_name || 'Teman Fimo'
+    const userName = profile?.full_name || "Teman Fimo"
     const userStreak = profile?.record_streak || 0
 
     // Prompt construction
-    let prompt = ''
-    if (type === 'daily') {
+    let prompt = ""
+    if (type === "daily") {
       prompt = `
         Kamu adalah Fimo Coach, asisten keuangan pribadi yang ramah, realistis, dan analitis.
         Berikan ulasan analisis keuangan singkat berdasarkan data riil 2 hari terakhir di bawah (1 kalimat), lalu ikuti dengan 1 tips keuangan taktis harian (1 kalimat) untuk ${userName}. Total output maksimal 2 kalimat.
         
         Data Keuangan Pengguna (2 Hari Terakhir):
         - Streak Mencatat: ${userStreak} Hari berturut-turut
-        - Total Pemasukan (2 Hari Terakhir): ${currency} ${income.toLocaleString('id-ID')}
-        - Total Pengeluaran (2 Hari Terakhir): ${currency} ${expense.toLocaleString('id-ID')}
-        - Referensi Pemasukan (30 Hari Terakhir): ${currency} ${income30Days.toLocaleString('id-ID')}
+        - Total Pemasukan (2 Hari Terakhir): ${currency} ${income.toLocaleString("id-ID")}
+        - Total Pengeluaran (2 Hari Terakhir): ${currency} ${expense.toLocaleString("id-ID")}
+        - Referensi Pemasukan (30 Hari Terakhir): ${currency} ${income30Days.toLocaleString("id-ID")}
         - Kategori Belanja & Nominal:
-        ${expenseCategories || 'Tidak ada belanja dalam 2 hari terakhir.'}
+        ${expenseCategories || "Tidak ada belanja dalam 2 hari terakhir."}
 
         Aturan Penilaian & Output:
         1. Kembalikan format JSON murni.
@@ -171,25 +235,25 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
           "score": 80
         }
       `
-    } else if (type === 'weekly') {
+    } else if (type === "weekly") {
       prompt = `
         Kamu adalah Fimo Coach, asisten keuangan pribadi yang analitis, realistis, dan memotivasi.
         Berikan ulasan analisis keuangan mingguan terperinci berdasarkan data 7 hari terakhir (2 kalimat) dan evaluasi kepatuhan anggaran (1-2 kalimat) untuk ${userName}. Total output maksimal 4 kalimat.
         
         Data Keuangan Pengguna (7 Hari Terakhir):
         - Streak Mencatat: ${userStreak} Hari berturut-turut
-        - Total Pemasukan (7 Hari Terakhir): ${currency} ${income.toLocaleString('id-ID')}
-        - Total Pengeluaran (7 Hari Terakhir): ${currency} ${expense.toLocaleString('id-ID')}
-        - Referensi Pemasukan (30 Hari Terakhir): ${currency} ${income30Days.toLocaleString('id-ID')}
+        - Total Pemasukan (7 Hari Terakhir): ${currency} ${income.toLocaleString("id-ID")}
+        - Total Pengeluaran (7 Hari Terakhir): ${currency} ${expense.toLocaleString("id-ID")}
+        - Referensi Pemasukan (30 Hari Terakhir): ${currency} ${income30Days.toLocaleString("id-ID")}
         - Kategori Belanja & Nominal:
-        ${expenseCategories || 'Tidak ada belanja dalam 7 hari terakhir.'}
+        ${expenseCategories || "Tidak ada belanja dalam 7 hari terakhir."}
         
         Anggaran Bulan Ini (Budgets):
         ${(budgets || []).map(b => {
           const budgetCategoryObj = Array.isArray(b.categories) ? b.categories[0] : b.categories
-          const budgetCatName = (budgetCategoryObj as { name: string } | null)?.name || 'Kategori'
-          return `- ${budgetCatName}: ${currency} ${Number(b.amount).toLocaleString('id-ID')}`
-        }).join('\n') || 'Belum ada anggaran terdaftar.'}
+          const budgetCatName = (budgetCategoryObj as { name: string } | null)?.name || "Kategori"
+          return `- ${budgetCatName}: ${currency} ${Number(b.amount).toLocaleString("id-ID")}`
+        }).join("\n") || "Belum ada anggaran terdaftar."}
 
         Aturan Penilaian & Output:
         1. Kembalikan format JSON murni tanpa markdown blocks.
@@ -210,17 +274,17 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
           "score": 75
         }
       `
-    } else if (type === '30days') {
+    } else if (type === "30days") {
       prompt = `
         Kamu adalah Fimo Coach, asisten keuangan pribadi yang profesional, realistis, dan berorientasi jangka panjang.
         Hasilkan ulasan analisis keuangan mendalam mengenai total pemasukan dan pengeluaran 30 hari terakhir, analisis rasio tabungan riil (2 kalimat), serta rekomendasi alokasi taktis jangka panjang (1-2 kalimat) untuk ${userName}. Total output maksimal 4 kalimat.
         
         Data Keuangan Pengguna (30 Hari Terakhir):
         - Streak Mencatat: ${userStreak} Hari berturut-turut
-        - Total Pemasukan: ${currency} ${income.toLocaleString('id-ID')}
-        - Total Pengeluaran: ${currency} ${expense.toLocaleString('id-ID')}
+        - Total Pemasukan: ${currency} ${income.toLocaleString("id-ID")}
+        - Total Pengeluaran: ${currency} ${expense.toLocaleString("id-ID")}
         - Kategori Belanja & Nominal:
-        ${expenseCategories || 'Tidak ada belanja dalam 30 hari terakhir.'}
+        ${expenseCategories || "Tidak ada belanja dalam 30 hari terakhir."}
 
         Aturan Penilaian & Output:
         1. Kembalikan format JSON murni.
@@ -238,23 +302,23 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
           "score": 85
         }
       `
-    } else { // 'month'
+    } else { // "month"
       prompt = `
         Kamu adalah Fimo Coach, asisten keuangan pribadi yang kritis, detail, dan realistis.
         Hasilkan ulasan analisis kepatuhan anggaran bulan berjalan (Bulan Ini) dengan membandingkan total pengeluaran per kategori belanja dengan batas anggaran bulanan yang ditentukan (2 kalimat), diikuti rekomendasi penyesuaian arus kas (1-2 kalimat) untuk ${userName}. Total output maksimal 4 kalimat.
         
         Data Keuangan Pengguna (Bulan Ini):
-        - Total Pemasukan: ${currency} ${income.toLocaleString('id-ID')}
-        - Total Pengeluaran: ${currency} ${expense.toLocaleString('id-ID')}
+        - Total Pemasukan: ${currency} ${income.toLocaleString("id-ID")}
+        - Total Pengeluaran: ${currency} ${expense.toLocaleString("id-ID")}
         - Kategori Belanja & Nominal:
-        ${expenseCategories || 'Tidak ada belanja di bulan ini.'}
+        ${expenseCategories || "Tidak ada belanja di bulan ini."}
         
         Anggaran Terdaftar Bulan Ini (Budgets):
         ${(budgets || []).map(b => {
           const budgetCategoryObj = Array.isArray(b.categories) ? b.categories[0] : b.categories
-          const budgetCatName = (budgetCategoryObj as { name: string } | null)?.name || 'Kategori'
-          return `- ${budgetCatName}: ${currency} ${Number(b.amount).toLocaleString('id-ID')}`
-        }).join('\n') || 'Belum ada anggaran terdaftar.'}
+          const budgetCatName = (budgetCategoryObj as { name: string } | null)?.name || "Kategori"
+          return `- ${budgetCatName}: ${currency} ${Number(b.amount).toLocaleString("id-ID")}`
+        }).join("\n") || "Belum ada anggaran terdaftar."}
 
         Aturan Penilaian & Output:
         1. Kembalikan format JSON murni.
@@ -275,102 +339,113 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
     }
 
     const hasGemini = !!process.env.GEMINI_API_KEY
-    let parsedData = { tip: '', score: 70 }
+    let parsedData = { tip: "", score: 70 }
 
     if (!hasGemini) {
-      // Simulated Fallback
-      if (type === 'daily') {
+      // Simulated Fallback — score dihitung berdasarkan aturan prompt
+      const fallbackScore = calculateFallbackScore(type, income, expense, income30Days, totalBudget)
+
+      if (type === "daily") {
         parsedData = {
-          tip: userStreak > 0 
-            ? `Hebat! Kamu sudah menjaga streak mencatat selama ${userStreak} hari berturut-turut. Yuk pertahankan kebiasaan ini dengan mencatat pengeluaranmu hari ini!`
-            : "Ayo catat transaksi pertama Anda hari ini untuk memulai langkah pertama mengelola keuangan!",
-          score: (income === 0 && expense === 0) ? 0 : 85
+          tip: (income === 0 && expense === 0)
+            ? "Mulai catat transaksi pertamamu hari ini agar Fimo AI bisa menganalisis kesehatan keuanganmu."
+            : userStreak > 0
+              ? `Hebat! Kamu sudah menjaga streak mencatat selama ${userStreak} hari. Pertahankan kebiasaan ini!`
+              : "Yuk catat pengeluaranmu hari ini agar analisis keuangan tetap akurat!",
+          score: fallbackScore
         }
-      } else if (type === 'weekly') {
+      } else if (type === "weekly") {
         parsedData = {
-          tip: expense > 0
-            ? `Ulasan mingguan: Pengeluaranmu sebesar Rp${expense.toLocaleString('id-ID')} terpantau rapi. Cobalah alokasikan sisa saldo ke dalam tabungan digital agar tidak terpakai secara tidak sengaja.`
-            : "Ulasan mingguan: Belum ada transaksi tercatat dalam 7 hari terakhir. Mari mulai catat pengeluaran atau pemasukan pertamamu agar Fimo bisa menganalisis kebiasaan belanjamu secara detail.",
-          score: (income === 0 && expense === 0) ? 0 : 75
+          tip: (income === 0 && expense === 0)
+            ? "Ulasan mingguan: Belum ada catatan transaksi. Mari mulai catat agar analisis berjalan."
+            : expense > 0
+              ? `Ulasan mingguan: Pengeluaranmu sebesar Rp${expense.toLocaleString("id-ID")}. Pastikan tetap dalam batas anggaran bulanan.`
+              : "Ulasan mingguan: Belum ada transaksi dalam 7 hari terakhir.",
+          score: fallbackScore
         }
-      } else if (type === '30days') {
+      } else if (type === "30days") {
         parsedData = {
-          tip: expense > 0
-            ? `Analisis 30 hari terakhir: Pengeluaran total sebesar Rp${expense.toLocaleString('id-ID')} dengan pemasukan Rp${income.toLocaleString('id-ID')}. Pertahankan rasio menabungmu di atas 20% agar finansial jangka panjang aman.`
-            : "Analisis 30 hari terakhir: Belum ada transaksi tercatat selama 30 hari terakhir. Silakan catat transaksi harianmu secara rutin agar Fimo dapat memetakan pola keuangan bulananmu secara akurat.",
-          score: (income === 0 && expense === 0) ? 0 : 80
+          tip: (income === 0 && expense === 0)
+            ? "Analisis 30 hari: Belum ada transaksi. Mulailah mencatat secara rutin."
+            : expense > income
+              ? "Analisis 30 hari: Pengeluaran melebihi pemasukan. Saatnya evaluasi pola belanja."
+              : "Analisis 30 hari: Arus kas terpantau. Pertahankan rasio menabung di atas 20%.",
+          score: fallbackScore
         }
-      } else { // 'month'
+      } else { // "month"
         parsedData = {
-          tip: expense > 0
-            ? `Analisis bulan ini: Pola belanja bulananmu terpantau terkontrol. Pastikan pengeluaran tiap kategori tidak melebihi alokasi anggaran yang sudah kamu tetapkan demi menjaga kesehatan dompet.`
-            : "Analisis bulan ini: Belum ada transaksi tercatat untuk bulan ini. Mari buat rancangan anggaran dan catat pengeluaran pertamamu bulan ini agar rencana finansialmu tetap terkendali.",
-          score: (income === 0 && expense === 0) ? 0 : 78
+          tip: (income === 0 && expense === 0)
+            ? "Analisis bulan ini: Belum ada transaksi. Buat anggaran dan mulai catat."
+            : totalBudget > 0 && expense > totalBudget
+              ? "Analisis bulan ini: Pengeluaran melebihi anggaran. Saatnya tinjau kembali budget."
+              : "Analisis bulan ini: Pengeluaran terkontrol. Pertahankan kepatuhan anggaran.",
+          score: fallbackScore
         }
       }
     } else {
       // Gemini API call
       try {
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
-        const activeModelName = 'gemini-2.5-flash'
+        const activeModelName = "gemini-2.5-flash"
         
         const result = await ai.models.generateContent({
           model: activeModelName,
           contents: prompt
         })
-        const textOutput = result.text ?? ''
-        const cleanedText = textOutput.replace(/```json/g, '').replace(/```/g, '').trim()
+        const textOutput = result.text ?? ""
+        const cleanedText = textOutput.replace(/```json/g, "").replace(/```/g, "").trim()
         parsedData = JSON.parse(cleanedText)
       } catch (geminiErr) {
-        console.error('Gemini API execution error, fallback to simulation:', geminiErr)
-        // Hardcoded safety fallback
-        if (type === 'daily') {
+        console.error("Gemini API execution error, fallback to simulation:", geminiErr)
+        // Hardcoded safety fallback — score dihitung berdasarkan aturan prompt
+        const fallbackScore = calculateFallbackScore(type, income, expense, income30Days, totalBudget)
+
+        if (type === "daily") {
           parsedData = {
-            tip: (income === 0 && expense === 0) 
+            tip: (income === 0 && expense === 0)
               ? "Mulai catat transaksi pertamamu hari ini agar Fimo AI bisa menganalisis kesehatan keuanganmu."
               : "Mulai hari ini dengan menyisihkan 10% pendapatanmu untuk dana darurat sebelum berbelanja.",
-            score: (income === 0 && expense === 0) ? 0 : 70
+            score: fallbackScore
           }
-        } else if (type === 'weekly') {
+        } else if (type === "weekly") {
           parsedData = {
             tip: (income === 0 && expense === 0)
-              ? "Ulasan mingguan: Belum ada catatan transaksi. Mari buat catatan pertama Anda agar grafik analisis terisi."
-              : "Ulasan mingguan: Pastikan pengeluaran harianmu tercatat rapi agar laporan grafik bulanan tetap akurat.",
-            score: (income === 0 && expense === 0) ? 0 : 70
+              ? "Ulasan mingguan: Belum ada catatan transaksi. Mari buat catatan pertama Anda."
+              : "Ulasan mingguan: Pastikan pengeluaran harianmu tercatat rapi agar laporan tetap akurat.",
+            score: fallbackScore
           }
-        } else if (type === '30days') {
+        } else if (type === "30days") {
           parsedData = {
             tip: (income === 0 && expense === 0)
-              ? "Analisis 30 hari terakhir: Belum ada transaksi tercatat. Mulailah mencatat transaksi pengeluaran dan pemasukan Anda."
-              : "Analisis 30 hari terakhir: Pengeluaran bulananmu terpantau aktif. Jagalah kebiasaan baik mencatat agar arus kas terpetakan dengan baik.",
-            score: (income === 0 && expense === 0) ? 0 : 70
+              ? "Analisis 30 hari: Belum ada transaksi. Mulailah mencatat pengeluaran dan pemasukan."
+              : "Analisis 30 hari: Pengeluaran bulananmu terpantau aktif. Jagalah kebiasaan mencatat.",
+            score: fallbackScore
           }
-        } else { // 'month'
+        } else { // "month"
           parsedData = {
             tip: (income === 0 && expense === 0)
-              ? "Analisis bulan ini: Belum ada transaksi tercatat. Buat anggaran pertamamu bulan ini agar pengeluaran lebih terarah."
-              : "Analisis bulan ini: Tetap patuhi batas anggaran per kategori agar kondisi finansial akhir bulan tetap stabil.",
-            score: (income === 0 && expense === 0) ? 0 : 70
+              ? "Analisis bulan ini: Belum ada transaksi. Buat anggaran pertamamu."
+              : "Analisis bulan ini: Tetap patuhi batas anggaran per kategori.",
+            score: fallbackScore
           }
         }
       }
     }
 
     // 4. Save to cache in the database
-    // TTL: Daily = 24 hours | Weekly = 3 days | 30days = 7 days | month = 7 days
     const expireTime = new Date()
-    if (type === 'daily') {
+    if (type === "daily") {
       expireTime.setHours(expireTime.getHours() + 24)
-    } else if (type === 'weekly') {
+    } else if (type === "weekly") {
       expireTime.setDate(expireTime.getDate() + 3)
-    } else if (type === '30days') {
+    } else if (type === "30days") {
       expireTime.setDate(expireTime.getDate() + 7)
-    } else { // 'month'
+    } else { // "month"
       expireTime.setDate(expireTime.getDate() + 7)
     }
 
     await supabase
-      .from('ai_insights')
+      .from("ai_insights")
       .insert({
         user_id: user.id,
         type: type,
@@ -384,10 +459,10 @@ export async function getAICoachInsight(type: 'daily' | 'weekly' | '30days' | 'm
     }
 
   } catch (err) {
-    console.error('AI Coach action system error:', err)
+    console.error("AI Coach action system error:", err)
     return {
       success: false,
-      error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem internal.'
+      error: err instanceof Error ? err.message : "Terjadi kesalahan sistem internal."
     }
   }
 }
