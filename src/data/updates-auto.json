@@ -1,7 +1,11 @@
 {
-  "version": "v1.5.3",
-  "date": "30 September 2026",
+  "version": "v1.6.0",
+  "date": "1 Oktober 2026",
   "items": [
+    {
+      "category": "baru",
+      "text": "Split bill (patungan) — QR, piutang per teman, dan share tagihan"
+    },
     {
       "category": "peningkatan",
       "text": "Allow Turnstile and Google domains in CSP to restore Google masuk akun tombol"
@@ -171,5 +175,5 @@
       "text": "Fix(dashboard): remove unused kategorigrafikData prop from DashboardWidgetsHP"
     }
   ],
-  "lastCommitHash": "a7d71e7"
+  "lastCommitHash": "1d6cef4"
 }

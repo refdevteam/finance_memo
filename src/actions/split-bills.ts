@@ -467,13 +467,13 @@ export async function deleteSplitBill(splitId: string): Promise<ActionResult> {
     await supabase.from('transactions').delete().eq('id', split.transaction_id)
 
     // Notifikasi ke partner: patungan dibatalkan
-    const partnerIds = [
-      ...new Set(
+    const partnerIds = Array.from(
+      new Set(
         (sharesBeforeDelete || [])
           .map((s: { partner_user_id: string | null }) => s.partner_user_id)
           .filter((id: string | null): id is string => Boolean(id))
-      ),
-    ]
+      )
+    )
     if (partnerIds.length > 0) {
       const payerName = await getPayerName(supabase, user.id)
       for (const targetUserId of partnerIds) {
