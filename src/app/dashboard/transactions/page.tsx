@@ -69,6 +69,17 @@ export default async function TransactionsPage({
     console.error('Error fetching transactions:', error)
   }
 
+  // Peta split bill per transaksi (untuk chip "Patungan")
+  const { data: splitRows } = await supabase
+    .from('split_bills')
+    .select('transaction_id, status')
+    .eq('user_id', user.id)
+
+  const splitMap: Record<string, { status: 'open' | 'settled' }> = {}
+  for (const row of splitRows || []) {
+    splitMap[row.transaction_id] = { status: row.status as 'open' | 'settled' }
+  }
+
   return (
     <div className="p-4 md:p-8 space-y-6">
       <div>
@@ -97,6 +108,7 @@ export default async function TransactionsPage({
       <TransactionListClient 
         transactions={transactions || []} 
         wallets={wallets || []} 
+        splitMap={splitMap}
       />
     </div>
   )

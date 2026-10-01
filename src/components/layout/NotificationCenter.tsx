@@ -10,7 +10,8 @@ import {
   Info, 
   Sparkles, 
   Check, 
-  X 
+  X,
+  Users 
 } from 'lucide-react'
 import { 
   DropdownMenu, 
@@ -33,7 +34,7 @@ interface Notification {
   user_id: string
   title: string
   body: string
-  type: 'reminder' | 'budget_alert' | 'recurring' | 'system' | 'ai_insight'
+  type: 'reminder' | 'budget_alert' | 'recurring' | 'system' | 'ai_insight' | 'split_bill'
   is_read: boolean
   action_url: string | null
   created_at: string
@@ -73,6 +74,8 @@ function getNotificationIcon(type: string) {
       return <RefreshCw className="h-4 w-4 text-emerald-500 animate-spin-slow" />
     case 'ai_insight':
       return <Sparkles className="h-4 w-4 text-violet-500" />
+    case 'split_bill':
+      return <Users className="h-4 w-4 text-indigo-500" />
     default:
       return <Info className="h-4 w-4 text-blue-500" />
   }

@@ -1,5 +1,5 @@
 {
-  "version": "v1.5.2",
+  "version": "v1.5.3",
   "date": "30 September 2026",
   "items": [
     {
@@ -169,11 +169,7 @@
     {
       "category": "baru",
       "text": "Fix(dashboard): remove unused kategorigrafikData prop from DashboardWidgetsHP"
-    },
-    {
-      "category": "peningkatan",
-      "text": "Memperbaiki tampilan grafik pengeluaran per kategori"
     }
   ],
-  "lastCommitHash": "f99886f"
+  "lastCommitHash": "a7d71e7"
 }

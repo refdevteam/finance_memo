@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Camera, X, Loader2, Sparkles, CheckCircle, Upload } from 'lucide-react'
+import { Camera, X, Loader2, Sparkles, CheckCircle, Upload, Users } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { 
   Dialog,
@@ -45,8 +46,9 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
 
-  const { register, handleSubmit, control, reset, setValue, formState: { errors } } = useForm<ReceiptData>({
+  const { register, handleSubmit, control, reset, setValue, getValues, formState: { errors } } = useForm<ReceiptData>({
     resolver: zodResolver(schema),
     defaultValues: {
       type: 'expense',
@@ -159,6 +161,24 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
     setPreviewUrl(null)
     setScanResult(null)
     reset()
+  }
+
+  // Alihkan hasil scan ke form Split Bill (nominal & detail ter-prefill)
+  const handleSplitBill = () => {
+    const values = getValues()
+    const params = new URLSearchParams()
+
+    params.set('new', '1')
+    if (values.amount) params.set('amount', String(values.amount))
+    if (values.description) params.set('title', values.description)
+    if (values.transaction_date) params.set('date', values.transaction_date)
+    if (values.receipt_id) params.set('receipt_id', values.receipt_id)
+
+    const matchedCategory = categories.find((c) => c.id === values.category_id)
+    if (matchedCategory) params.set('cat', matchedCategory.name)
+
+    handleClose()
+    router.push(`/dashboard/split-bills?${params.toString()}`)
   }
 
   return (
@@ -353,13 +373,25 @@ export function ReceiptScanner({ wallets, categories }: { wallets: any[], catego
               />
             </div>
 
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" className="w-1/3" onClick={() => setScanResult(null)}>
-                Batal
-              </Button>
-              <Button type="submit" className="w-2/3 bg-emerald-600 hover:bg-emerald-700" disabled={isSaving}>
+            <div className="space-y-2">
+              <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={isSaving}>
                 {isSaving ? 'Menyimpan...' : 'Simpan Transaksi'}
               </Button>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" className="flex-1" onClick={() => setScanResult(null)}>
+                  Batal
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30"
+                  onClick={handleSplitBill}
+                  disabled={isSaving}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Bagi Tagihan
+                </Button>
+              </div>
             </div>
           </form>
         )}

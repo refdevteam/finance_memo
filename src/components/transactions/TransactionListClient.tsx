@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
-import { Trash2, FilterX, Search, SlidersHorizontal, Tag, DollarSign } from 'lucide-react'
+import { Trash2, FilterX, Search, SlidersHorizontal, Tag, DollarSign, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { 
@@ -27,9 +27,11 @@ interface TransactionListProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transactions: any[]
   wallets: { id: string, name: string }[]
+  /** Peta transaction_id -> status split bill (untuk chip "Patungan") */
+  splitMap?: Record<string, { status: 'open' | 'settled' }>
 }
 
-export function TransactionListClient({ transactions, wallets }: TransactionListProps) {
+export function TransactionListClient({ transactions, wallets, splitMap = {} }: TransactionListProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
@@ -340,6 +342,7 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
               const categoryIcon = t.categories?.icon || (t.type === 'transfer' ? '🔄' : '📄')
               const categoryName = t.categories?.name || (t.type === 'transfer' ? 'Transfer' : 'Lainnya')
               const isTransfer = t.type === 'transfer'
+              const split = splitMap[t.id]
 
               return (
                 <div key={t.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 hover:bg-secondary/40 dark:hover:bg-secondary/40 transition-colors gap-4">
@@ -367,6 +370,15 @@ export function TransactionListClient({ transactions, wallets }: TransactionList
                           <>
                             <span>•</span>
                             <span className="text-blue-500 font-medium">Transfer</span>
+                          </>
+                        )}
+                        {split && (
+                          <>
+                            <span>•</span>
+                            <span className="text-indigo-500 font-medium inline-flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              Patungan{split.status === 'settled' ? ' · Lunas' : ''}
+                            </span>
                           </>
                         )}
                       </div>

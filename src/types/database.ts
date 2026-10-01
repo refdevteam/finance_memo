@@ -143,7 +143,7 @@ export interface Database {
           user_id: string
           title: string
           body: string
-          type: 'reminder' | 'budget_alert' | 'recurring' | 'system' | 'ai_insight'
+          type: 'reminder' | 'budget_alert' | 'recurring' | 'system' | 'ai_insight' | 'split_bill'
           is_read: boolean
           action_url: string | null
           metadata: Json | null
@@ -179,6 +179,120 @@ export interface Database {
           month?: number
           year?: number
           notes?: string | null
+          created_at?: string
+        }
+      }
+      last_bill_partners: {
+        Row: {
+          id: string
+          user_id: string
+          partner_user_id: string | null
+          name: string
+          avatar_url: string | null
+          source: 'qr' | 'manual'
+          last_used_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          partner_user_id?: string | null
+          name: string
+          avatar_url?: string | null
+          source?: 'qr' | 'manual'
+          last_used_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          partner_user_id?: string | null
+          name?: string
+          avatar_url?: string | null
+          source?: 'qr' | 'manual'
+          last_used_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      split_bills: {
+        Row: {
+          id: string
+          user_id: string
+          transaction_id: string
+          title: string
+          amount: number
+          split_method: 'equal' | 'custom'
+          status: 'open' | 'settled'
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          transaction_id: string
+          title: string
+          amount: number
+          split_method?: 'equal' | 'custom'
+          status?: 'open' | 'settled'
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          transaction_id?: string
+          title?: string
+          amount?: number
+          split_method?: 'equal' | 'custom'
+          status?: 'open' | 'settled'
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      split_bill_shares: {
+        Row: {
+          id: string
+          split_bill_id: string
+          partner_id: string | null
+          partner_user_id: string | null
+          name: string
+          avatar_url: string | null
+          amount: number
+          status: 'pending' | 'paid'
+          paid_at: string | null
+          paid_transaction_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          split_bill_id: string
+          partner_id?: string | null
+          partner_user_id?: string | null
+          name: string
+          avatar_url?: string | null
+          amount: number
+          status?: 'pending' | 'paid'
+          paid_at?: string | null
+          paid_transaction_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          split_bill_id?: string
+          partner_id?: string | null
+          partner_user_id?: string | null
+          name?: string
+          avatar_url?: string | null
+          amount?: number
+          status?: 'pending' | 'paid'
+          paid_at?: string | null
+          paid_transaction_id?: string | null
           created_at?: string
         }
       }
