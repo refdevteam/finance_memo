@@ -3,16 +3,32 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { initFcm, sendFcmPush } from "../_shared/fcm.ts"
 import { withRetry, fetchWithRetry } from "../_shared/retry.ts"
+import { json, requireCronSecret } from "../_shared/auth.ts"
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+/**
+ * Escape konten yang berasal dari input pengguna sebelum masuk ke body HTML.
+ * Tanpa ini, `title`/`notes` bisa menyisipkan tag (tautan phishing, dsb.)
+ * ke dalam email yang dikirim atas nama fimo.
+ */
+function esc(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
 }
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { status: 204 })
   }
+
+  // Fungsi cron: hanya scheduler internal yang diizinkan (fail-closed).
+  // Tanpa ini siapa pun bisa memicu pengiriman massal email/FCM -> email
+  // bombing dan pemborosan kuota Resend/FCM.
+  const denied = await requireCronSecret(req)
+  if (denied) return denied
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ""
@@ -70,10 +86,10 @@ serve(async (req) => {
                       <p>Halo,</p>
                       <p>Ini adalah pengingat otomatis bahwa pengingat keuangan Anda jatuh tempo hari ini:</p>
                       <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                        <h3 style="margin-top: 0;">${reminder.title}</h3>
-                        <p style="margin-bottom: 5px;">Nominal: <strong>${amountFormatted}</strong></p>
-                        <p style="margin-bottom: 5px;">Jatuh Tempo: <strong>${reminder.due_date}</strong></p>
-                        ${reminder.notes ? `<p style="margin-bottom: 0;">Catatan: <em>${reminder.notes}</em></p>` : ''}
+                        <h3 style="margin-top: 0;">${esc(reminder.title)}</h3>
+                        <p style="margin-bottom: 5px;">Nominal: <strong>${esc(amountFormatted)}</strong></p>
+                        <p style="margin-bottom: 5px;">Jatuh Tempo: <strong>${esc(reminder.due_date)}</strong></p>
+                        ${reminder.notes ? `<p style="margin-bottom: 0;">Catatan: <em>${esc(reminder.notes)}</em></p>` : ''}
                       </div>
                       <p>Silakan buka aplikasi fimo untuk menyelesaikan transaksi Anda.</p>
                       <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
@@ -161,18 +177,11 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({
+    return json({
       success: true,
       message: `Processed due reminders successfully.`,
       processed: results,
-      diagnostics: {
-        fcm_env_exists: !!Deno.env.get('FIREBASE_SERVICE_ACCOUNT'),
-        resend_env_exists: !!resendApiKey,
-      }
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    })
+    }, 200)
 
   } catch (err) {
     console.error('Error in send-reminder edge function:', err)
@@ -189,13 +198,8 @@ serve(async (req) => {
       errorMessage = String(err)
     }
 
-    return new Response(JSON.stringify({
-      success: false,
-      error: errorMessage
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
-    })
+    // Jangan bocorkan detail error internal ke respons.
+    return json({ success: false, error: errorMessage }, 500)
   }
 })
 

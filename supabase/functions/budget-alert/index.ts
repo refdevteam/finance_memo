@@ -3,16 +3,16 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { initFcm, sendFcmPush } from "../_shared/fcm.ts"
 import { withRetry } from "../_shared/retry.ts"
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { json, requireCronSecret } from "../_shared/auth.ts"
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { status: 204 })
   }
+
+  // Fungsi cron: hanya scheduler internal yang diizinkan (fail-closed).
+  const denied = await requireCronSecret(req)
+  if (denied) return denied
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
@@ -85,28 +85,19 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({
+    return json({
       success: true,
       message: 'Budget alerts checked successfully.',
       alerts_found: alerts?.length ?? 0,
       push_results: pushResults,
-      diagnostics: {
-        fcm_initialized: !!fcm,
-      }
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    })
+    }, 200)
 
   } catch (err) {
     console.error('Error in budget-alert function:', err)
-    return new Response(JSON.stringify({
+    return json({
       success: false,
       error: err instanceof Error ? err.message : 'Unknown error'
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
-    })
+    }, 500)
   }
 })
 

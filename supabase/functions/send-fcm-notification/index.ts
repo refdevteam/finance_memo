@@ -20,21 +20,29 @@
  * }
  *
  * Salah satu dari user_id atau fcm_token HARUS ada.
+ *
+ * KEAMANAN — dua kelas pemanggil yang sah:
+ *   1. Internal/scheduler  : header `x-cron-secret: $CRON_SECRET` (atau
+ *      `Authorization: Bearer $CRON_SECRET`) -> boleh menyalurkan ke siapa pun.
+ *   2. Pengguna akhir      : Supabase JWT valid -> HANYA boleh menyalurkan ke
+ *      user yang punya relasi dengannya (diri sendiri / last_bill_partners /
+ *      partner patungan). `fcm_token` mentah ditolak untuk kelas ini.
+ *   Tanpa keduanya -> 401. Lihat ../_shared/auth.ts
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { initFcm, sendFcmPush } from "../_shared/fcm.ts"
 import { withRetry } from "../_shared/retry.ts"
+import { canNotify, json, resolveCaller } from "../_shared/auth.ts"
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+// Catatan keamanan: TIDAK ada header CORS. Pemanggilnya hanya server action
+// Next.js (server-to-server) — browser tidak pernah memanggil fungsi ini,
+// sehingga Access-Control-Allow-Origin: '*' hanya memperbesar permukaan serangan.
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { status: 204 })
   }
 
   try {
@@ -46,6 +54,14 @@ serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+    // --- Otorisasi -------------------------------------------------------
+    // Pemanggil sah hanya: (a) internal/scheduler dengan CRON_SECRET, atau
+    // (b) pengguna terautentikasi dengan JWT valid. Tanpa itu -> 401.
+    const caller = await resolveCaller(req, supabase)
+    if (caller.kind === 'denied') {
+      return json({ success: false, error: caller.message }, caller.status)
+    }
 
     // Parse request body
     const body = await req.json()
@@ -61,17 +77,29 @@ serve(async (req) => {
     } = body
 
     if (!title || !notifBody) {
-      return new Response(JSON.stringify({ success: false, error: 'title and body are required' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      })
+      return json({ success: false, error: 'title and body are required' }, 400)
     }
 
     if (!user_id && !directToken) {
-      return new Response(JSON.stringify({ success: false, error: 'user_id or fcm_token is required' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      })
+      return json({ success: false, error: 'user_id or fcm_token is required' }, 400)
+    }
+
+    // Pengguna biasa TIDAK boleh mengirim token mentah (tidak bisa diverifikasi
+    // kepemilikannya) dan hanya boleh menyasar user yang punya relasi dengannya.
+    if (caller.kind === 'user') {
+      if (directToken) {
+        return json({ success: false, error: 'fcm_token is reserved for trusted callers' }, 403)
+      }
+      if (!user_id) {
+        return json({ success: false, error: 'user_id is required' }, 400)
+      }
+      const allowed = await canNotify(supabase, caller.userId, user_id)
+      if (!allowed) {
+        console.warn(
+          `[FCM Dispatch] Blocked unauthorized target: caller=${caller.userId} target=${user_id}`,
+        )
+        return json({ success: false, error: 'You may not notify this user' }, 403)
+      }
     }
 
     // Resolve FCM token from user_id if not provided directly
@@ -148,25 +176,19 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({
+    return json({
       success: true,
       push: pushResult,
       push_error: pushError,
       db_saved: save_to_db && !!resolvedUserId,
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    })
+    }, 200)
 
   } catch (err) {
     console.error('[send-fcm-notification] Unhandled error:', err)
-    return new Response(JSON.stringify({
+    return json({
       success: false,
       error: err instanceof Error ? err.message : 'Unknown error',
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
-    })
+    }, 500)
   }
 })
 

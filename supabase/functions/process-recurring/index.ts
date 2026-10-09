@@ -3,16 +3,18 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { initFcm, sendFcmPush } from "../_shared/fcm.ts"
 import { withRetry } from "../_shared/retry.ts"
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { json, requireCronSecret } from "../_shared/auth.ts"
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { status: 204 })
   }
+
+  // Fungsi cron: hanya scheduler internal yang diizinkan. Tanpa CRON_SECRET
+  // yang cocok -> 401 (fail-closed), supaya RPC yang MENTRANSASKAN data tidak
+  // bisa dipicu berulang oleh pihak luar.
+  const denied = await requireCronSecret(req)
+  if (denied) return denied
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
@@ -87,28 +89,19 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({
+    return json({
       success: true,
       message: 'Processed due recurring templates successfully.',
       processed_count: processed?.length ?? 0,
       push_results: pushResults,
-      diagnostics: {
-        fcm_initialized: !!fcm,
-      }
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    })
+    }, 200)
 
   } catch (err) {
     console.error('Error in process-recurring function:', err)
-    return new Response(JSON.stringify({
+    return json({
       success: false,
       error: err instanceof Error ? err.message : 'Unknown error'
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
-    })
+    }, 500)
   }
 })
 
