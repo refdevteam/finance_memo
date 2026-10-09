@@ -44,7 +44,7 @@ export async function completeOnboarding(formData: z.infer<typeof onboardingSche
 
   if (profileError) {
     console.error('Error updating profile:', profileError.message)
-    return { error: profileError.message }
+    return { error: 'Gagal memperbarui profil. Silakan coba lagi.' }
   }
 
   // 2. Create the first wallet
@@ -64,7 +64,7 @@ export async function completeOnboarding(formData: z.infer<typeof onboardingSche
 
   if (walletError) {
     console.error('Error creating first wallet:', walletError.message)
-    return { error: walletError.message }
+    return { error: 'Gagal membuat dompet pertama. Silakan coba lagi.' }
   }
 
   revalidatePath('/dashboard')
@@ -93,7 +93,7 @@ export async function updateProfile(formData: { full_name: string; currency: str
 
   if (error) {
     console.error('Error updating profile:', error.message)
-    return { error: error.message }
+    return { error: 'Gagal memperbarui profil. Silakan coba lagi.' }
   }
 
   revalidatePath('/dashboard')

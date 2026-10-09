@@ -122,7 +122,7 @@ export async function createReminder(data: ReminderInput) {
     return { success: true }
   } catch (error) {
     console.error('Error creating reminder:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Gagal membuat pengingat.' }
+    return { success: false, error: 'Gagal membuat pengingat.' }
   }
 }
 
@@ -172,7 +172,7 @@ export async function updateReminder(id: string, data: ReminderInput) {
     return { success: true }
   } catch (error) {
     console.error('Error updating reminder:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Gagal memperbarui pengingat.' }
+    return { success: false, error: 'Gagal memperbarui pengingat.' }
   }
 }
 
@@ -223,7 +223,7 @@ export async function toggleReminderStatus(id: string, isActive: boolean) {
     return { success: true }
   } catch (error) {
     console.error('Error toggling reminder status:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Gagal mengubah status pengingat.' }
+    return { success: false, error: 'Gagal mengubah status pengingat.' }
   }
 }
 
@@ -249,7 +249,7 @@ export async function deleteReminder(id: string) {
     return { success: true }
   } catch (error) {
     console.error('Error deleting reminder:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Gagal menghapus pengingat.' }
+    return { success: false, error: 'Gagal menghapus pengingat.' }
   }
 }
 
@@ -325,7 +325,7 @@ export async function completeReminder(id: string) {
     return { success: true }
   } catch (error) {
     console.error('Error completing reminder:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Gagal menyelesaikan pengingat.' }
+    return { success: false, error: 'Gagal menyelesaikan pengingat.' }
   }
 }
 

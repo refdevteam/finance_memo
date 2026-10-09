@@ -159,7 +159,7 @@ export async function setBudget(
     }
 
     // Sync the manual edit with AI Cache so the dashboard plan doesn't become stale
-    await syncAICacheWithBudgets(user.id, [{
+    await syncAICacheWithBudgets([{
       categoryId,
       limitAmount: amount,
       // We don't have the category name here easily, but the sync function handles it if it's updating an existing one.
@@ -171,7 +171,7 @@ export async function setBudget(
     return { success: true }
   } catch (error) {
     console.error('Error setting budget:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Gagal mengatur anggaran.' }
+    return { success: false, error: 'Gagal mengatur anggaran.' }
   }
 }
 
@@ -234,6 +234,6 @@ export async function copyBudgetsFromPreviousMonth(month: number, year: number) 
     return { success: true, count: newBudgets.length }
   } catch (error) {
     console.error('Error copying budgets:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Gagal menyalin anggaran.' }
+    return { success: false, error: 'Gagal menyalin anggaran.' }
   }
 }

@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { safeErrorMessage } from '@/lib/safe-error'
 
 // ============================================================
 // Skema validasi
@@ -262,7 +263,7 @@ export async function createSplitBill(
 
     return { success: true, id: split.id as string }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }
 
@@ -368,7 +369,7 @@ export async function markSharePaid(
 
     return { success: true }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }
 
@@ -423,7 +424,7 @@ export async function unmarkSharePaid(shareId: string): Promise<ActionResult> {
 
     return { success: true }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }
 
@@ -495,7 +496,7 @@ export async function deleteSplitBill(splitId: string): Promise<ActionResult> {
 
     return { success: true }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }
 
@@ -523,13 +524,20 @@ export async function addPartner(data: {
       return { success: false, error: 'Nama teman wajib diisi.' }
     }
 
+    // `partner_user_id` hanya sah bila datang dari pemindaian QR Fimo.
+    // Input manual menerima string apa pun dari klien, jadi tanpa pembatasan
+    // ini seseorang bisa mendaftarkan UUID siapa pun sebagai "teman" lalu
+    // memanfaatkan kebijakan notifikasi lintas-pengguna (temuan 5.5).
+    const source = data.source === 'qr' ? 'qr' : 'manual'
+    const partnerUserId = source === 'qr' && data.partner_user_id ? data.partner_user_id : null
+
     // Dedupe berdasarkan partner_user_id (dari QR Fimo)
-    if (data.partner_user_id) {
+    if (partnerUserId) {
       const { data: existing } = await supabase
         .from('last_bill_partners')
         .select('id, name, partner_user_id, avatar_url, source, last_used_at')
         .eq('user_id', user.id)
-        .eq('partner_user_id', data.partner_user_id)
+        .eq('partner_user_id', partnerUserId)
         .maybeSingle()
 
       if (existing) {
@@ -542,21 +550,21 @@ export async function addPartner(data: {
       .insert({
         user_id: user.id,
         name,
-        partner_user_id: data.partner_user_id || null,
+        partner_user_id: partnerUserId,
         avatar_url: data.avatar_url || null,
-        source: data.source || 'manual',
+        source,
       })
       .select('id, name, partner_user_id, avatar_url, source, last_used_at')
       .single()
 
     if (error || !partner) {
       // Race dengan unique index
-      if (error?.code === '23505' && data.partner_user_id) {
+      if (error?.code === '23505' && partnerUserId) {
         const { data: existing } = await supabase
           .from('last_bill_partners')
           .select('id, name, partner_user_id, avatar_url, source, last_used_at')
           .eq('user_id', user.id)
-          .eq('partner_user_id', data.partner_user_id)
+          .eq('partner_user_id', partnerUserId)
           .maybeSingle()
         if (existing) {
           return { success: true, existing: true, partner: existing }
@@ -570,7 +578,7 @@ export async function addPartner(data: {
 
     return { success: true, existing: false, partner }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }
 
@@ -605,7 +613,7 @@ export async function renamePartner(partnerId: string, name: string): Promise<Ac
 
     return { success: true }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }
 
@@ -635,6 +643,6 @@ export async function deletePartner(partnerId: string): Promise<ActionResult> {
 
     return { success: true }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }

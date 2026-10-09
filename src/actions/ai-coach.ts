@@ -462,7 +462,7 @@ export async function getAICoachInsight(type: "daily" | "weekly" | "30days" | "m
     console.error("AI Coach action system error:", err)
     return {
       success: false,
-      error: err instanceof Error ? err.message : "Terjadi kesalahan sistem internal."
+      error: "Terjadi kesalahan sistem internal."
     }
   }
 }

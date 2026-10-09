@@ -14,24 +14,38 @@ try {
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   async headers() {
+    // `upgrade-insecure-requests` sengaja hanya untuk production: di
+    // `next dev` (http://localhost) direktif itu akan memaksa semua request
+    // ke https dan merusak server lokal.
+    const isProd = process.env.NODE_ENV === "production";
+
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://www.gstatic.com https://challenges.cloudflare.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com data:",
+      "img-src 'self' data: https: blob:",
+      "connect-src 'self' https://*.supabase.co https://*.googleapis.com https://fcm.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://accounts.google.com https://challenges.cloudflare.com wss://*.supabase.co",
+      "frame-src https://accounts.google.com https://content.googleapis.com https://challenges.cloudflare.com",
+      "object-src 'none'",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ];
+    if (isProd) csp.push("upgrade-insecure-requests");
+
     return [
       {
         source: "/:path*",
         headers: [
           {
             key: "Content-Security-Policy",
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://www.gstatic.com https://challenges.cloudflare.com",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com data:",
-              "img-src 'self' data: https: blob:",
-              "connect-src 'self' https://*.supabase.co https://*.googleapis.com https://fcm.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://accounts.google.com https://challenges.cloudflare.com wss://*.supabase.co",
-              "frame-src https://accounts.google.com https://content.googleapis.com https://challenges.cloudflare.com",
-              "frame-ancestors 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-            ].join("; "),
+            value: csp.join("; "),
+          },
+          {
+            key: "Strict-Transport-Security",
+            // Hanya efektif di https; browser mengabaikannya saat dev.
+            value: "max-age=63072000; includeSubDomains; preload",
           },
           {
             key: "X-Content-Type-Options",

@@ -18,7 +18,9 @@ export async function markReceiptProcessed(receiptId: string) {
     .eq('user_id', user.id)
 
   if (error) {
-    throw new Error(error.message)
+    // Jangan meneruskan pesan Supabase (memuat nama tabel/konstraint) ke klien.
+    console.error('Error marking receipt processed:', error.message)
+    throw new Error('Gagal menandai struk telah diproses.')
   }
 
   revalidatePath('/dashboard')

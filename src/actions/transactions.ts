@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { safeErrorMessage } from '@/lib/safe-error'
 
 // Skema validasi untuk transaksi
 const transactionSchema = z.object({
@@ -59,7 +60,7 @@ export async function addTransaction(data: TransactionInput) {
     
     return { success: true }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }
 
@@ -119,7 +120,7 @@ export async function updateTransaction(id: string, data: TransactionInput) {
     
     return { success: true }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }
 
@@ -164,6 +165,6 @@ export async function deleteTransaction(id: string) {
     
     return { success: true }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }

@@ -83,7 +83,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, new_due_date: newDueDateStr })
   } catch (error) {
     console.error('Error in snooze API:', error)
-    const message = error instanceof Error ? error.message : 'Server error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    // Pesan error mentah tidak dikirim balik (bisa memuat detail internal DB).
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }

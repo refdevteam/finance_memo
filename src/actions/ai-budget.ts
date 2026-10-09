@@ -206,7 +206,7 @@ export async function generateAIBudgetPlan(month: number, year: number): Promise
     console.error('AI Budget Planner system error:', err)
     return {
       success: false,
-      error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem internal.'
+      error: 'Terjadi kesalahan sistem internal.'
     }
   }
 }
@@ -269,14 +269,23 @@ export async function deleteAIBudgetPlan(): Promise<{ success: boolean; error?: 
 /**
  * Sync AI budget cache with manual user edits.
  * This ensures the dashboard doesn't show stale AI recommendations.
+ *
+ * Keamanan: aksi server SELALU memakai identitas dari sesi berjalan.
+ * Parameter `userId` dari klien sengaja dihapus — sebelumnya aksi ini
+ * tanpa pemeriksaan autentikasi dan memakai userId kiriman klien, sehingga
+ * siapa pun bisa membaca/mengubah baris `ai_insights` milik pengguna lain
+ * (IDOR) asalkan mengetahui UUID-nya.
  */
-export async function syncAICacheWithBudgets(userId: string, updates: { categoryId: string; limitAmount: number; categoryName?: string }[]) {
+export async function syncAICacheWithBudgets(updates: { categoryId: string; limitAmount: number; categoryName?: string }[]) {
   const supabase = createClient()
   try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) return // belum login -> tidak ada yang disentuh
+
     const { data: cached } = await supabase
       .from('ai_insights')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', user.id)
       .eq('type', 'ai_budget_plan')
       .gt('expire_at', new Date().toISOString())
       .maybeSingle()
@@ -311,6 +320,7 @@ export async function syncAICacheWithBudgets(userId: string, updates: { category
         .from('ai_insights')
         .update({ content: JSON.stringify(plan) })
         .eq('id', cached.id)
+        .eq('user_id', user.id) // pertahanan kedua di tingkat query
     }
   } catch (err) {
     console.error('Failed to sync AI cache:', err)
@@ -390,7 +400,7 @@ export async function applyAIBudgetPlanToBudgets(
       limitAmount: p.amount,
       categoryName: items.find(i => i.category_id === p.category_id)?.category_name
     }))
-    await syncAICacheWithBudgets(user.id, syncUpdates)
+    await syncAICacheWithBudgets(syncUpdates)
 
     revalidatePath('/dashboard/budgets')
     revalidatePath('/dashboard/ai-budget-planner')
@@ -400,7 +410,7 @@ export async function applyAIBudgetPlanToBudgets(
 
   } catch (err) {
     console.error('Error applying AI budget plan:', err)
-    return { success: false, error: err instanceof Error ? err.message : 'Gagal menerapkan anggaran AI.' }
+    return { success: false, error: 'Gagal menerapkan anggaran AI.' }
   }
 }
 

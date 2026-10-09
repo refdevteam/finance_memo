@@ -228,7 +228,7 @@ export async function generateMonthlyInsights(
     console.error('AI generate insights error:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Terjadi kesalahan sistem saat menghubungi AI.'
+      error: 'Terjadi kesalahan sistem saat menghubungi AI.'
     }
   }
 }

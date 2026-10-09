@@ -48,7 +48,7 @@ export async function markNotificationAsRead(id: string) {
     return { success: true }
   } catch (error) {
     console.error('Error marking notification as read:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Gagal menandai notifikasi.' }
+    return { success: false, error: 'Gagal menandai notifikasi.' }
   }
 }
 
@@ -73,7 +73,7 @@ export async function markAllNotificationsAsRead() {
     return { success: true }
   } catch (error) {
     console.error('Error marking all notifications as read:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Gagal menandai semua notifikasi.' }
+    return { success: false, error: 'Gagal menandai semua notifikasi.' }
   }
 }
 
@@ -98,7 +98,7 @@ export async function deleteNotification(id: string) {
     return { success: true }
   } catch (error) {
     console.error('Error deleting notification:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Gagal menghapus notifikasi.' }
+    return { success: false, error: 'Gagal menghapus notifikasi.' }
   }
 }
 
@@ -121,6 +121,6 @@ export async function updateFcmToken(token: string | null) {
     return { success: true }
   } catch (error) {
     console.error('Error updating FCM token:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Gagal memperbarui token notifikasi.' }
+    return { success: false, error: 'Gagal memperbarui token notifikasi.' }
   }
 }

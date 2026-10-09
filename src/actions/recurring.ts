@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { safeErrorMessage } from '@/lib/safe-error'
 
 // Validation Schema for Recurring Template
 const recurringSchema = z.object({
@@ -100,7 +101,7 @@ export async function createRecurringTemplate(data: RecurringInput) {
     revalidatePath('/dashboard/transactions/recurring')
     return { success: true }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }
 
@@ -156,7 +157,7 @@ export async function updateRecurringTemplate(id: string, data: RecurringInput) 
     revalidatePath('/dashboard/transactions/recurring')
     return { success: true }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }
 
@@ -194,7 +195,7 @@ export async function toggleRecurringStatus(id: string, isActive: boolean) {
     revalidatePath('/dashboard/transactions/recurring')
     return { success: true }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }
 
@@ -232,6 +233,6 @@ export async function deleteRecurringTemplate(id: string) {
     revalidatePath('/dashboard/transactions/recurring')
     return { success: true }
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan sistem.' }
+    return { success: false, error: safeErrorMessage(err, 'Terjadi kesalahan sistem.') }
   }
 }

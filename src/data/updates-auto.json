@@ -1,5 +1,5 @@
 {
-  "version": "v1.6.0",
+  "version": "v1.6.1",
   "date": "1 Oktober 2026",
   "items": [
     {
@@ -169,11 +169,7 @@
     {
       "category": "baru",
       "text": "Feat(dashboard): change kategori grafik to vertical and apply pastel colors"
-    },
-    {
-      "category": "baru",
-      "text": "Fix(dashboard): remove unused kategorigrafikData prop from DashboardWidgetsHP"
     }
   ],
-  "lastCommitHash": "1d6cef4"
+  "lastCommitHash": "1a01a77"
 }

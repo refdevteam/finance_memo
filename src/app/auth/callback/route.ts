@@ -51,7 +51,10 @@ export async function GET(request: NextRequest) {
       })
       return response
     } else {
-      return new NextResponse(`Error exchanging code for session: ${error.message}`, { status: 400 })
+      // Rute ini terbuka untuk publik (tanpa login), jadi pesan error mentah
+      // dari Supabase tidak boleh ikut dikirim — cukup dicatat di log server.
+      console.error('Error exchanging code for session:', error.message)
+      return new NextResponse('Gagal menukar kode autentikasi. Silakan coba login ulang.', { status: 400 })
     }
   }
 

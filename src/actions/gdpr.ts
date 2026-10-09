@@ -19,7 +19,11 @@ export async function exportUserData() {
       recurringRes,
       remindersRes,
       notificationsRes,
-      receiptsRes
+      receiptsRes,
+      walletTransfersRes,
+      splitBillsRes,
+      lastBillPartnersRes,
+      aiInsightsRes
     ] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
       supabase.from("wallets").select("*").eq("user_id", user.id),
@@ -29,7 +33,13 @@ export async function exportUserData() {
       supabase.from("recurring_templates").select("*").eq("user_id", user.id),
       supabase.from("reminders").select("*").eq("user_id", user.id),
       supabase.from("notifications").select("*").eq("user_id", user.id),
-      supabase.from("receipts").select("*").eq("user_id", user.id)
+      supabase.from("receipts").select("*").eq("user_id", user.id),
+      // Tabel-tabel ini sebelumnya tidak ikut diekspor, padahal memuat data
+      // pribadi yang sama (GDPR Pasal 20 — hak portabilitas).
+      supabase.from("wallet_transfers").select("*").eq("user_id", user.id),
+      supabase.from("split_bills").select("*").eq("user_id", user.id),
+      supabase.from("last_bill_partners").select("*").eq("user_id", user.id),
+      supabase.from("ai_insights").select("*").eq("user_id", user.id)
     ])
     
     const exportData = {
@@ -44,13 +54,17 @@ export async function exportUserData() {
       recurring_templates: recurringRes.data || [],
       reminders: remindersRes.data || [],
       notifications: notificationsRes.data || [],
-      receipts: receiptsRes.data || []
+      receipts: receiptsRes.data || [],
+      wallet_transfers: walletTransfersRes.data || [],
+      split_bills: splitBillsRes.data || [],
+      last_bill_partners: lastBillPartnersRes.data || [],
+      ai_insights: aiInsightsRes.data || []
     }
     
     return { success: true, data: exportData }
   } catch (error) {
     console.error("GDPR Export Error:", error)
-    return { success: false, error: error instanceof Error ? error.message : "Gagal mengekspor data" }
+    return { success: false, error: "Gagal mengekspor data" }
   }
 }
 
@@ -70,7 +84,7 @@ export async function deleteUserAccount() {
 
     if (error) {
       console.error("Edge Function delete-user-account error:", error)
-      throw new Error(error.message || "Failed to delete user account")
+      throw new Error("Failed to delete user account")
     }
 
     if (!data?.success) {
@@ -84,6 +98,6 @@ export async function deleteUserAccount() {
     return { success: true }
   } catch (error) {
     console.error("GDPR Delete Error:", error)
-    return { success: false, error: error instanceof Error ? error.message : "Gagal menghapus data akun" }
+    return { success: false, error: "Gagal menghapus data akun" }
   }
 }

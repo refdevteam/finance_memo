@@ -128,6 +128,14 @@ function generateUpdates() {
     let commitMessages = [];
     if (currentHash) {
       try {
+        // Nilai ini dibaca dari file yang ikut ter-commit (updates-auto.json)
+        // lalu dipasang ke dalam string perintah shell. Wajib divalidasi sebagai
+        // hash hex agar isinya tidak bisa jadi vektor injeksi perintah saat
+        // `next build` berjalan (mis. lewat PR yang mengubah JSON tersebut).
+        if (lastCommitHash && !/^[0-9a-f]{7,64}$/i.test(lastCommitHash)) {
+          console.warn(`Ignoring invalid lastCommitHash value (not a hex sha): ${lastCommitHash.slice(0, 20)}`);
+          lastCommitHash = '';
+        }
         let gitCmd = 'git log -n 15 --pretty=format:"%s"';
         if (lastCommitHash) {
           try {

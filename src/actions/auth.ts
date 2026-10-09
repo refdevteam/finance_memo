@@ -37,8 +37,19 @@ export async function signOut() {
 }
 
 export async function verifyTurnstileToken(token: string): Promise<boolean> {
-  // Use testing secret key as default fallback for easy local dev
-  const secretKey = process.env.TURNSTILE_SECRET_KEY || '1x00000000000000000000000000000000AA'
+  // Cloudflare menyediakan "always-pass" test secret untuk uji lokal. Secret
+  // itu membuat verifikasi SELALU sukses, jadi kalau kepakai di production
+  // proteksinya mati diam-diam (bypass CAPTCHA total) hanya karena variabel
+  // env belum diisi. Di production kita gagal-tertutup.
+  const configured = process.env.TURNSTILE_SECRET_KEY
+  if (!configured) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("[Turnstile] TURNSTILE_SECRET_KEY belum diset — verifikasi ditolak (fail-closed).")
+      return false
+    }
+    console.warn("[Turnstile] TURNSTILE_SECRET_KEY belum diset — memakai test secret (hanya non-production).")
+  }
+  const secretKey = configured || "1x00000000000000000000000000000000AA"
   try {
     const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
