@@ -78,3 +78,14 @@ copy-logo.js
 its-fimo-firebase-adminsdk-*.json
 # supabase cli temp
 supabase/.temp/
+
+# --- audit keamanan 05-10-2026 ---
+# Log proses lokal: bisa memuat argumen perintah/jalur internal.
+*.log
+dev-server*.log
+
+# Semua varian file env (sebelumnya hanya .env*.local yang diabaikan,
+# sehingga .env / .env.production bisa tidak sengaja ter-commit).
+.env
+.env.*
+!.env.example
