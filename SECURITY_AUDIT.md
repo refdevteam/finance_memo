@@ -340,13 +340,33 @@ Konsekuensi:
 
 **Tindakan:** jalankan **`SECURITY_VERIFY.sql`** (di root repo), kirimkan hasilnya, lalu seluruh perbedaan dimasukkan kembali ke file migrasi agar `supabase db push` menghasilkan keadaan yang sama.
 
-### 5.3 🟠 CSP masih memuat `'unsafe-inline'` & `'unsafe-eval'`
+### 5.3 🟢 CSP nonce (diperbaiki 16-11-2026)
+
+CSP lama memuat `'unsafe-inline'` dan `'unsafe-eval'` di `script-src`. Sekarang
+CSP dibentuk **per request** di `src/middleware.ts` (bukan lagi di
+`next.config.mjs`) dengan nonce acak:
 
 ```yaml
-script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com ...
+script-src 'self' 'nonce-<32 hex>' 'strict-dynamic' https://accounts.google.com ...
 ```
 
-Dengan `unsafe-eval`, nilai proteksi CSP terhadap XSS turun drastis. Perbaikan sejatinya adalah **nonce-based CSP** yang dihasilkan di middleware — tidak bisa dipastikan aman tanpa menjalankan build, jadi ini hanya direkomendasikan.
+* `'unsafe-eval'` hanya ditambahkan saat `NODE_ENV !== 'production'`.
+* `'strict-dynamic'` membuat skrip yang dimuat bundle Next (sudah ber-nonce)
+  tetap boleh memuat skrip pihak ketiga (GSI, Turnstile) tanpa mendaftarkan
+  setiap host.
+* `worker-src 'self'` ditambahkan karena `worker-src` mewarisi `script-src`;
+  tanpa itu `'strict-dynamic'` membuat registrasi service worker PWA ditolak.
+* `style-src` sengaja tetap `'unsafe-inline'`: atribut `style` React tidak bisa
+  diberi nonce.
+* Skrip inline `next-themes` (pencegah kedip tema) menerima nonce lewat prop
+  `nonce` di root layout; tanpa itu skrip tersebut diblokir.
+* Redirect dari middleware juga membawa header CSP, dan cookie hasil refresh
+  sesi tidak lagi hilang saat redirect.
+
+Verifikasi di `next dev`: header `Content-Security-Policy` berisi nonce dan
+**13/13** tag `<script>` pada `/auth/login` memakai nilai nonce yang sama dengan
+header. Uji browser penuh (login Google + Turnstile) masih perlu dilakukan
+setelah deploy.
 
 ### 5.4 🟠 Lain-lain
 
@@ -357,9 +377,9 @@ Dengan `unsafe-eval`, nilai proteksi CSP terhadap XSS turun drastis. Perbaikan s
 | 3 | **Validasi MIME mempercayai klien** | ~~Sedang~~ → **Diperbaiki** | Magic-byte sniffing (3.7). |
 | 4 | **File gagal diproses tidak dibersihkan** | ~~Rendah~~ → **Diperbaiki** | `cleanupUpload()` (3.7). |
 | 5 | **`getPublicUrl` pada bucket privat** | ~~Rendah~~ → **Dead code** | `image_url` tidak pernah dirender (3.7d). |
-| 6 | **`verifyTurnstileToken` adalah proxy tak terautentikasi** ke `siteverify` — konsumsi kuota Cloudflare oleh pihak luar | Rendah | Terbuka. Jalankan saja bila kuota Cloudflare terasa terpakai. |
-| 7 | **`reminders/snooze` tanpa rate limit** (satu-satunya route API selain scan-receipt) | Rendah | Terbuka — dampaknya hanya bisa berulang kali menunda pengingat sendiri. |
-| 8 | **Tidak ada CI/CD security scanning** — tidak ada `.github/`, `vercel.json`, `supabase/config.toml`, sehingga flag deploy (terutama `verify_jwt` Edge Function) **tidak dapat direproduksi dari repositori** | Sedang | Terbuka |
+| 6 | **`verifyTurnstileToken` adalah proxy tak terautentikasi** ke `siteverify` — konsumsi kuota Cloudflare oleh pihak luar | Rendah | **Diperbaiki** — maksimal 10 percobaan/menit per IP (migrasi `20261116090000`). |
+| 7 | **`reminders/snooze` tanpa rate limit** (satu-satunya route API selain scan-receipt) | Rendah | **Diperbaiki** — maksimal 20 penundaan/menit per pengguna, selebihnya `429`. |
+| 8 | **Tidak ada CI/CD security scanning** — tidak ada `.github/`, `vercel.json`, `supabase/config.toml`, sehingga flag deploy (terutama `verify_jwt` Edge Function) **tidak dapat direproduksi dari repositori** | Sedang | **Diperbaiki** — `.github/workflows/ci.yml` (npm ci + lint + build + audit informatif), `vercel.json`, dan `supabase/config.toml`. |
 | 9 | **Pembacaan data sepenuhnya mengandalkan RLS** di `getWallets` dan `generateAIBudgetPlan` (tanpa `.eq('user_id')`). Aman selama policy tetap ada. | Rendah | Terbuka |
 | 10 | **Kebijakan `FOR ALL USING (…)` tanpa `WITH CHECK` eksplisit** — Postgres memakai `USING` sebagai gantinya (aman), tapi eksplisit lebih jelas. | Info | Terbuka |
 
@@ -583,6 +603,23 @@ pernah di-commit**, sehingga live masih memakai dependensi 9 Okt. Selain itu:
 
 ### 10.4 Masih terbuka
 
-§5.1 (`next` critical), §5.3 (CSP `unsafe-inline`/`unsafe-eval`), §5.4 #6–#8
-(proxy Turnstile, rate limit `snooze`, CI/`vercel.json`/`supabase config.toml`).
+§5.1 (`next@14.2.35` critical — butuh upgrade mayor) dan §5.4 #9–#10 (keduanya
+informasional). §5.3 serta §5.4 #6–#8 sudah tertutup.
+
+### 10.5 Batch perbaikan lanjutan (16-11-2026)
+
+| Commit | Isi | Verifikasi |
+|---|---|---|
+| `eb6b3b6` | CI (`.github/workflows/ci.yml`), `vercel.json`, `supabase/config.toml` | CI `npm ci`+lint+build **success** |
+| `204bd7f` | Rate limit `snooze` & Turnstile (migrasi `20261116090000`) | Uji REST anon: 2 lolos lalu `false`; baca tabel langsung `401` |
+| `7d26b7a` | Rilis v1.6.3 | Vercel **success** |
+
+Migrasi `20261116090000_add_rate_limits.sql` sudah diterapkan ke production dan
+dicatat di `supabase_migrations.schema_migrations`. Tabel `rate_limits` ber-RLS
+tanpa `GRANT`, sehingga satu-satunya akses lewat fungsi `consume_rate_limit`
+yang atomik (UPSERT).
+
+CSP nonce dan rate limit diverifikasi di `next dev`/REST; uji browser penuh
+(login Google, Turnstile, service worker PWA) menunggu deploy berikutnya.
+
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Nonce dari middleware. Skrip inline next-themes (pencegah kedip tema)
+  // tidak disuntik Next, jadi nonce-nya harus diteruskan manual; tanpa ini
+  // skrip tersebut diblokir CSP 'strict-dynamic'.
+  const nonce = headers().get("x-nonce") ?? undefined;
+
   return (
     <html lang="id" className={cn("font-sans", inter.variable, jetbrainsMono.variable)}>
       <body className="antialiased font-sans bg-background text-foreground">
@@ -45,6 +51,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          nonce={nonce}
         >
           <PwaRegister />
           {children}
