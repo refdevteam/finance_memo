@@ -318,9 +318,11 @@ Verifikasi: CI (`npm ci` + eslint + build yang sekaligus type check)
 **19/19** `<script>` ber-nonce, `/` tetap 307 → `/dashboard`. `npm audit`
 turun **20 → 16** (critical 0; high 8 → 4).
 
-Sisa 4 advisory high berasal dari `firebase`, `@firebase/firestore`, dan
-`@grpc/grpc-js` — semuanya menuntut upgrade mayor Firebase yang belum
-dikerjakan.
+Sisa 4 advisory high berasal dari `firebase` → `@firebase/firestore` →
+`@grpc/grpc-js@1.9.16` (dipin `~1.9.0`). Firestore tidak pernah diimpor di
+`src/`; `firebase` hanya dipakai untuk `app`, `messaging`, dan `analytics`.
+Karena itu dipasang `overrides: { "@grpc/grpc-js": "^1.14.7" }` (lihat 10.5),
+bukan upgrade mayor Firebase.
 
 **Mitigasi sementara tanpa upgrade:**
 
@@ -596,9 +598,9 @@ pernah di-commit**, sehingga live masih memakai dependensi 9 Okt. Selain itu:
 * `node -v` lokal masih **v24.21.0**, di bawah `engines` baru (`>=24.22.1`).
   Instalasi portable v24.22.1 ada dan dipakai untuk verifikasi 16 Nov.
 * `npm audit` saat audit awal: 20 kerentanan (1 critical, 8 high, 9 moderate,
-  2 low). Setelah upgrade Next 16 (16 Nov): **16 kerentanan (0 critical, 4 high,
-  10 moderate, 2 low)**. Sisa 4 high semuanya dari `firebase`,
-  `@firebase/firestore`, dan `@grpc/grpc-js` — menuntut upgrade mayor Firebase.
+  2 low). Setelah upgrade Next 16 (16 Nov): 16 kerentanan (0 critical, 4 high,
+  10 moderate, 2 low). Setelah override `@grpc/grpc-js`: **12 kerentanan
+  (0 critical, 0 high, 10 moderate, 2 low)**.
 * `shadcn` (CLI, tidak dipakai `src/`) dipindah dari `dependencies` ke
   `devDependencies`; ia menarik `hono`, `@hono/node-server`, `ts-morph`.
 * `supabase/.temp/*` tidak lagi dilacak git; `.gitignore` dibersihkan dari blok
@@ -610,9 +612,9 @@ pernah di-commit**, sehingga live masih memakai dependensi 9 Okt. Selain itu:
 
 Tidak ada lagi temuan severity tinggi/kritis pada kode aplikasi. Yang tersisa:
 
-* **4 advisory high dari Firebase** (`firebase`, `@firebase/firestore`,
-  `@firebase/firestore-compat`, `@grpc/grpc-js`) — hanya bisa ditutup dengan
-  upgrade mayor `firebase` (belum dikerjakan).
+* **4 advisory high Firebase sudah tertutup** lewat override `@grpc/grpc-js`
+  `^1.14.7` (transitif, Firestore tidak dipakai). `npm audit` kini **12
+  kerentanan: 0 critical, 0 high, 10 moderate, 2 low**.
 * §5.4 #9 dan #10 (keduanya informasional; RLS tetap menjadi satu-satunya
   pembatas akses data dan itu memang desainnya).
 * Catatan operasional: Node default mesin verifikasi masih v24.21.0 (pakai
@@ -632,6 +634,8 @@ Tidak ada lagi temuan severity tinggi/kritis pada kode aplikasi. Yang tersisa:
 | `5706430` | Catat verifikasi CSP di laporan ini | — |
 | `29ec602` | Upgrade Next 16.4.6 + React 19 + proxy + ESLint 9 | Build CI **failure** (type helper) → diperbaiki di bawah |
 | `983c1a0` | Perbaiki tipe helper `scan-receipt` (`Awaited<ReturnType<…>>`) | CI + Vercel **success**; production 19/19 `<script>` ber-nonce, `/` 307 |
+| `0cd7c51` | Rilis v1.6.5 | CI + Vercel **success** |
+| `9371fe9` | Override `@grpc/grpc-js` `^1.14.7` (transitif Firebase) | Lint 0 error, dev 25/25 nonce; audit 16 → 12, high 4 → 0 |
 
 Migrasi `20261116090000_add_rate_limits.sql` sudah diterapkan ke production dan
 dicatat di `supabase_migrations.schema_migrations`. Tabel `rate_limits` ber-RLS
