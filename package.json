@@ -6,6 +6,12 @@
 
   "private": true,
 
+  "overrides": {
+
+    "@grpc/grpc-js": "^1.14.7"
+
+  },
+
   "engines": {
 
   
