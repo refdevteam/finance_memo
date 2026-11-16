@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { consumeRateLimit } from '@/lib/rate-limit'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
@@ -7,6 +8,15 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Maksimal 20 penundaan per menit per pengguna.
+    const allowed = await consumeRateLimit(supabase, `snooze:${user.id}`, 20, 60)
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Terlalu banyak permintaan. Coba lagi sebentar lagi.' },
+        { status: 429 }
+      )
     }
 
     const body = await request.json()

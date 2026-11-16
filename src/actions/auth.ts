@@ -1,6 +1,8 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { consumeRateLimit, clientIp } from '@/lib/rate-limit'
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export async function signInWithGoogle() {
@@ -37,6 +39,20 @@ export async function signOut() {
 }
 
 export async function verifyTurnstileToken(token: string): Promise<boolean> {
+  // Dipanggil sebelum login, jadi tidak ada sesi yang bisa dipakai. Batasi per
+  // IP agar endpoint ini tidak menjadi proxy gratis ke Cloudflare siteverify.
+  const ip = clientIp(await headers())
+  const allowed = await consumeRateLimit(
+    createClient(),
+    `turnstile:${ip}`,
+    10,
+    60
+  )
+  if (!allowed) {
+    console.warn('[Turnstile] rate limit terlampaui untuk IP', ip)
+    return false
+  }
+
   // Cloudflare menyediakan "always-pass" test secret untuk uji lokal. Secret
   // itu membuat verifikasi SELALU sukses, jadi kalau kepakai di production
   // proteksinya mati diam-diam (bypass CAPTCHA total) hanya karena variabel
