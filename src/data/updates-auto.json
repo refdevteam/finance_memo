@@ -1,7 +1,27 @@
 {
-  "version": "v1.6.4",
+  "version": "v1.6.5",
   "date": "16 November 2026",
   "items": [
+    {
+      "category": "baru",
+      "text": "Fix(types): tipe helper scan-receipt mengikuti createClient async"
+    },
+    {
+      "category": "baru",
+      "text": "Feat(deps)!: upgrade Next.js 16.4.6 + React 19"
+    },
+    {
+      "category": "baru",
+      "text": "Docs(security): catat verifikasi CSP nonce di production"
+    },
+    {
+      "category": "baru",
+      "text": "Chore(release): v1.6.4"
+    },
+    {
+      "category": "baru",
+      "text": "Fix(security): CSP nonce per request"
+    },
     {
       "category": "baru",
       "text": "Chore(release): v1.6.3"
@@ -145,27 +165,7 @@
     {
       "category": "peningkatan",
       "text": "Resolve floating maskot Fimo visibility and standardize base card tampilan"
-    },
-    {
-      "category": "peningkatan",
-      "text": "Standardize card border radius across tampilan components"
-    },
-    {
-      "category": "baru",
-      "text": "Complete FCM push integration and tampilan/UX improvements"
-    },
-    {
-      "category": "baru",
-      "text": "Fix(masuk akun): resolve nonce mismatch on Google Sign-In for HP"
-    },
-    {
-      "category": "baru",
-      "text": "Add Googlemasuk akuntombol with Cloudflare Turnstile integration for secure masuk akunentication"
-    },
-    {
-      "category": "peningkatan",
-      "text": "Remove unused ComponentType import"
     }
   ],
-  "lastCommitHash": "7d26b7a"
+  "lastCommitHash": "983c1a0"
 }
