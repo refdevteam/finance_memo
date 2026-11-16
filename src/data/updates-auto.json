@@ -1,7 +1,15 @@
 {
-  "version": "v1.6.3",
+  "version": "v1.6.4",
   "date": "16 November 2026",
   "items": [
+    {
+      "category": "baru",
+      "text": "Chore(release): v1.6.3"
+    },
+    {
+      "category": "baru",
+      "text": "Fix(security): rate limit untuk snooze & verifikasi Turnstile"
+    },
     {
       "category": "baru",
       "text": "Chore(deps): pin Node 24.22.1, audit fix, dan pindahkan shadcn"
@@ -157,15 +165,7 @@
     {
       "category": "peningkatan",
       "text": "Remove unused ComponentType import"
-    },
-    {
-      "category": "baru",
-      "text": "Implement AIanggaranPlannerClient component for AI-driven anggaran planning and savings simulation"
-    },
-    {
-      "category": "baru",
-      "text": "Implement AI anggaran planner, Turnstile captcha, and PWA FCM background fixes"
     }
   ],
-  "lastCommitHash": "52fcff4"
+  "lastCommitHash": "7d26b7a"
 }
