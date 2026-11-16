@@ -1,7 +1,15 @@
 {
-  "version": "v1.6.2",
-  "date": "9 Oktober 2026",
+  "version": "v1.6.3",
+  "date": "16 November 2026",
   "items": [
+    {
+      "category": "baru",
+      "text": "Chore(deps): pin Node 24.22.1, audit fix, dan pindahkan shadcn"
+    },
+    {
+      "category": "peningkatan",
+      "text": "Redirect root dinamis & timeout cron pg_net"
+    },
     {
       "category": "baru",
       "text": "Chore(security): skrip verifikasi & penguatan cron, laporan audit, dependensi"
@@ -157,19 +165,7 @@
     {
       "category": "baru",
       "text": "Implement AI anggaran planner, Turnstile captcha, and PWA FCM background fixes"
-    },
-    {
-      "category": "peningkatan",
-      "text": "Bump version to 1.4.0 and document recent bugfixes/tampilan updates"
-    },
-    {
-      "category": "baru",
-      "text": "Style(HP): change interactive widgets background to clean white for clarity"
-    },
-    {
-      "category": "baru",
-      "text": "Layout(HP): move anggaran and bill widgets above grafiks on dashboard HP view"
     }
   ],
-  "lastCommitHash": "a8904a9"
+  "lastCommitHash": "52fcff4"
 }
