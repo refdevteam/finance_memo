@@ -363,10 +363,11 @@ script-src 'self' 'nonce-<32 hex>' 'strict-dynamic' https://accounts.google.com 
 * Redirect dari middleware juga membawa header CSP, dan cookie hasil refresh
   sesi tidak lagi hilang saat redirect.
 
-Verifikasi di `next dev`: header `Content-Security-Policy` berisi nonce dan
-**13/13** tag `<script>` pada `/auth/login` memakai nilai nonce yang sama dengan
-header. Uji browser penuh (login Google + Turnstile) masih perlu dilakukan
-setelah deploy.
+Verifikasi: di `next dev` **13/13** tag `<script>` pada `/auth/login` memakai
+nonce yang sama dengan header; di production (`3b9f0c4`) **25/25** tag
+`<script>` juga ber-nonce, `unsafe-eval` tidak ada, dan `script-src` tidak lagi
+memuat `unsafe-inline`. Uji interaktif login Google + Turnstile + registrasi
+service worker tetap disarankan di browser.
 
 ### 5.4 🟠 Lain-lain
 
@@ -613,6 +614,8 @@ informasional). §5.3 serta §5.4 #6–#8 sudah tertutup.
 | `eb6b3b6` | CI (`.github/workflows/ci.yml`), `vercel.json`, `supabase/config.toml` | CI `npm ci`+lint+build **success** |
 | `204bd7f` | Rate limit `snooze` & Turnstile (migrasi `20261116090000`) | Uji REST anon: 2 lolos lalu `false`; baca tabel langsung `401` |
 | `7d26b7a` | Rilis v1.6.3 | Vercel **success** |
+| `9053a3a` | CSP nonce per request (middleware + next-themes) | Dev 13/13 dan production 25/25 `<script>` ber-nonce |
+| `3b9f0c4` | Rilis v1.6.4 | CI + Vercel **success** |
 
 Migrasi `20261116090000_add_rate_limits.sql` sudah diterapkan ke production dan
 dicatat di `supabase_migrations.schema_migrations`. Tabel `rate_limits` ber-RLS
