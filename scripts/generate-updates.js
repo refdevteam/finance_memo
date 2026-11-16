@@ -49,7 +49,9 @@ function cleanAndFormatText(text) {
     [/streak/gi, 'streak catatan'],
     [/UI|design/gi, 'tampilan'],
     [/button/gi, 'tombol'],
-    [/error|crash/gi, 'kendala'],
+    // Word-boundary + hindari kata yang merupakan bagian identifier
+    // (mis. "error.message" / "error_message") agar changelog tidak rusak.
+    [/\berror\b(?!\.)|\bcrash\b(?!\.)/gi, 'kendala'],
     [/optimize|optimization/gi, 'optimalisasi'],
     [/caching|cache/gi, 'penyimpanan sementara'],
     [/mascot/gi, 'maskot Fimo'],

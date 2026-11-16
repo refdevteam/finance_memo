@@ -1,7 +1,19 @@
 {
-  "version": "v1.6.1",
-  "date": "1 Oktober 2026",
+  "version": "v1.6.2",
+  "date": "9 Oktober 2026",
   "items": [
+    {
+      "category": "baru",
+      "text": "Chore(security): skrip verifikasi & penguatan cron, laporan audit, dependensi"
+    },
+    {
+      "category": "baru",
+      "text": "Fix(app): IDOR, kebocoran error.message, kuota scan, dan hardening CSP"
+    },
+    {
+      "category": "baru",
+      "text": "Fix(backend): autentikasi Edge Function, RLS, dan penguatan database"
+    },
     {
       "category": "baru",
       "text": "Split bill (patungan) — QR, piutang per teman, dan share tagihan"
@@ -157,19 +169,7 @@
     {
       "category": "baru",
       "text": "Layout(HP): move anggaran and bill widgets above grafiks on dashboard HP view"
-    },
-    {
-      "category": "baru",
-      "text": "Fix(grafiks): remove unused COLORS import in Dashboardgrafiks"
-    },
-    {
-      "category": "baru",
-      "text": "Fix(dashboard): isolate color helpers to prevent server component render kendala"
-    },
-    {
-      "category": "baru",
-      "text": "Feat(dashboard): change kategori grafik to vertical and apply pastel colors"
     }
   ],
-  "lastCommitHash": "1a01a77"
+  "lastCommitHash": "a8904a9"
 }
