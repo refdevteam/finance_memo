@@ -144,7 +144,7 @@ export async function createSplitBill(
   data: SplitBillInput
 ): Promise<{ success: boolean; error?: string; id?: string }> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -275,7 +275,7 @@ export async function markSharePaid(
   options?: { record_income?: boolean; wallet_id?: string }
 ): Promise<ActionResult> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -378,7 +378,7 @@ export async function markSharePaid(
 // ============================================================
 export async function unmarkSharePaid(shareId: string): Promise<ActionResult> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -433,7 +433,7 @@ export async function unmarkSharePaid(shareId: string): Promise<ActionResult> {
 // ============================================================
 export async function deleteSplitBill(splitId: string): Promise<ActionResult> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -510,7 +510,7 @@ export async function addPartner(data: {
   source?: 'qr' | 'manual'
 }): Promise<ActionResult & { existing?: boolean; partner?: PartnerRecord }> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -584,7 +584,7 @@ export async function addPartner(data: {
 
 export async function renamePartner(partnerId: string, name: string): Promise<ActionResult> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -619,7 +619,7 @@ export async function renamePartner(partnerId: string, name: string): Promise<Ac
 
 export async function deletePartner(partnerId: string): Promise<ActionResult> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()

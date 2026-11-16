@@ -21,7 +21,7 @@ const onboardingSchema = z.object({
 })
 
 export async function completeOnboarding(formData: z.infer<typeof onboardingSchema>) {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return { error: 'Unauthorized' }
@@ -72,7 +72,7 @@ export async function completeOnboarding(formData: z.infer<typeof onboardingSche
 }
 
 export async function updateProfile(formData: { full_name: string; currency: string; timezone: string }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return { error: 'Unauthorized' }

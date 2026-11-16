@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 
 export async function getNotifications() {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -29,7 +29,7 @@ export async function getNotifications() {
 
 export async function markNotificationAsRead(id: string) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -54,7 +54,7 @@ export async function markNotificationAsRead(id: string) {
 
 export async function markAllNotificationsAsRead() {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -79,7 +79,7 @@ export async function markAllNotificationsAsRead() {
 
 export async function deleteNotification(id: string) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -104,7 +104,7 @@ export async function deleteNotification(id: string) {
 
 export async function updateFcmToken(token: string | null) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {

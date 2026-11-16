@@ -55,7 +55,7 @@ function calculateNextRemind(dueDateStr: string, timeZone: string): string {
 
 export async function getReminders() {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -78,7 +78,7 @@ export async function getReminders() {
 
 export async function createReminder(data: ReminderInput) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -128,7 +128,7 @@ export async function createReminder(data: ReminderInput) {
 
 export async function updateReminder(id: string, data: ReminderInput) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -178,7 +178,7 @@ export async function updateReminder(id: string, data: ReminderInput) {
 
 export async function toggleReminderStatus(id: string, isActive: boolean) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -229,7 +229,7 @@ export async function toggleReminderStatus(id: string, isActive: boolean) {
 
 export async function deleteReminder(id: string) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -255,7 +255,7 @@ export async function deleteReminder(id: string) {
 
 export async function completeReminder(id: string) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {

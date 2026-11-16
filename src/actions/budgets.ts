@@ -20,7 +20,7 @@ export interface BudgetCategory {
  */
 export async function getBudgets(month: number, year: number): Promise<BudgetCategory[]> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) throw new Error('Unauthorized')
@@ -122,7 +122,7 @@ export async function setBudget(
   notes?: string
 ) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -180,7 +180,7 @@ export async function setBudget(
  */
 export async function copyBudgetsFromPreviousMonth(month: number, year: number) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {

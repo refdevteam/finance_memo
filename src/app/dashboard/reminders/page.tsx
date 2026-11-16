@@ -5,7 +5,7 @@ import { RemindersClient } from '@/components/reminders/RemindersClient'
 export const dynamic = 'force-dynamic'
 
 export default async function RemindersPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect('/auth/login')

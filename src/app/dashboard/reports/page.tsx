@@ -14,22 +14,28 @@ function toLocalYYYYMMDD(date: Date): string {
 export default async function ReportsPage({
   searchParams,
 }: {
-  searchParams: { month?: string; year?: string; wallet?: string; range?: string }
+  searchParams: Promise<{ month?: string; year?: string; wallet?: string; range?: string }>
 }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     redirect('/auth/login')
   }
 
+  const {
+    month: monthParam,
+    year: yearParam,
+    wallet: walletParam,
+    range: rangeParam,
+  } = await searchParams
   const now = new Date()
-  const range = searchParams.range || '30days'
+  const range = rangeParam || '30days'
   const isMonth = range === 'month'
 
-  const selectedMonth = parseInt(searchParams.month || String(now.getMonth() + 1))
-  const selectedYear = parseInt(searchParams.year || String(now.getFullYear()))
-  const selectedWallet = searchParams.wallet && searchParams.wallet !== 'all' ? searchParams.wallet : null
+  const selectedMonth = parseInt(monthParam || String(now.getMonth() + 1))
+  const selectedYear = parseInt(yearParam || String(now.getFullYear()))
+  const selectedWallet = walletParam && walletParam !== 'all' ? walletParam : null
 
   // Tentukan rentang waktu untuk bulan yang dipilih atau 30 hari terakhir
   let startDateStr: string

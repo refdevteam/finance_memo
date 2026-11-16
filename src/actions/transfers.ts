@@ -18,7 +18,7 @@ export type TransferInput = z.infer<typeof transferSchema>
 
 export async function addTransfer(data: TransferInput) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {

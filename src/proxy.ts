@@ -51,7 +51,7 @@ function buildCsp(nonce: string, isProd: boolean) {
   return directives.join("; ")
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const isProd = process.env.NODE_ENV === "production"
   const nonce = crypto.randomUUID().replace(/-/g, "")
   const csp = buildCsp(nonce, isProd)

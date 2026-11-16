@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { GoogleGenAI } from "@google/genai"
 
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   let uploadedPath: string | null = null
 
   try {
-    supabase = createClient()
+    supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {

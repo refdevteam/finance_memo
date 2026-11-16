@@ -1,10 +1,10 @@
-﻿"use server"
+"use server"
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 
 export async function getWallets() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) throw new Error("Unauthorized")
@@ -26,7 +26,7 @@ export async function createWallet(formData: {
   is_event_wallet?: boolean
   event_metadata?: Record<string, unknown>
 }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) throw new Error("Unauthorized")
@@ -50,7 +50,7 @@ export async function createWallet(formData: {
 }
 
 export async function updateWalletBalance(id: string, balance: number) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) throw new Error("Unauthorized")
@@ -100,7 +100,7 @@ export async function updateWalletBalance(id: string, balance: number) {
 }
 
 export async function deleteWallet(id: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) throw new Error("Unauthorized")

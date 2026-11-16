@@ -8,17 +8,16 @@ export const dynamic = 'force-dynamic'
 export default async function TransactionsPage({
   searchParams,
 }: {
-  searchParams: { type?: string; wallet?: string }
+  searchParams: Promise<{ type?: string; wallet?: string }>
 }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     redirect('/auth/login')
   }
 
-  const typeFilter = searchParams.type
-  const walletFilter = searchParams.wallet
+  const { type: typeFilter, wallet: walletFilter } = await searchParams
 
   // 1. Fetch Wallets untuk opsi filter di client
   const { data: wallets } = await supabase

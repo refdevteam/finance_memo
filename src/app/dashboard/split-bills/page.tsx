@@ -11,16 +11,16 @@ const UUID_RE =
 export default async function SplitBillsPage({
   searchParams,
 }: {
-  searchParams: {
+  searchParams: Promise<{
     new?: string
     amount?: string
     title?: string
     date?: string
     receipt_id?: string
     cat?: string
-  }
+  }>
 }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -76,18 +76,26 @@ export default async function SplitBillsPage({
   if (sharedBillsRes.error) console.error('Error fetching shared bills:', sharedBillsRes.error)
 
   // Prefill dari hasil AI scan struk (?new=1&amount=...&title=...&date=...&receipt_id=...)
+  const {
+    new: isNew,
+    amount: amountParam,
+    title: titleParam,
+    date: dateParam,
+    receipt_id: receiptId,
+    cat: catParam,
+  } = await searchParams
   const prefill = {
-    new: searchParams.new === '1',
-    amount: searchParams.amount
-      ? Number(searchParams.amount.replace(/[^0-9]/g, '')) || undefined
+    new: isNew === '1',
+    amount: amountParam
+      ? Number(amountParam.replace(/[^0-9]/g, '')) || undefined
       : undefined,
-    title: searchParams.title || undefined,
-    date: searchParams.date || undefined,
+    title: titleParam || undefined,
+    date: dateParam || undefined,
     receipt_id:
-      searchParams.receipt_id && UUID_RE.test(searchParams.receipt_id)
-        ? searchParams.receipt_id
+      receiptId && UUID_RE.test(receiptId)
+        ? receiptId
         : undefined,
-    category_name: searchParams.cat || undefined,
+    category_name: catParam || undefined,
   }
 
   return (

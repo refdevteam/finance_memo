@@ -19,7 +19,7 @@ export type TransactionInput = z.infer<typeof transactionSchema>
 
 export async function addTransaction(data: TransactionInput) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -66,7 +66,7 @@ export async function addTransaction(data: TransactionInput) {
 
 export async function updateTransaction(id: string, data: TransactionInput) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -126,7 +126,7 @@ export async function updateTransaction(id: string, data: TransactionInput) {
 
 export async function deleteTransaction(id: string) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {

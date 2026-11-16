@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -41,7 +41,7 @@ export default function RootLayout({
   // Nonce dari middleware. Skrip inline next-themes (pencegah kedip tema)
   // tidak disuntik Next, jadi nonce-nya harus diteruskan manual; tanpa ini
   // skrip tersebut diblokir CSP 'strict-dynamic'.
-  const nonce = headers().get("x-nonce") ?? undefined;
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
     <html lang="id" className={cn("font-sans", inter.variable, jetbrainsMono.variable)}>

@@ -19,7 +19,7 @@ export async function generateMonthlyInsights(
   month: number,
   year: number
 ): Promise<AIInsightResult> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) return { success: false, error: 'Unauthorized' }

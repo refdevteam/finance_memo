@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 
 export async function RecentTransactions() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) return null

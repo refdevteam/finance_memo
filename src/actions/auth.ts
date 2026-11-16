@@ -6,7 +6,7 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export async function signInWithGoogle() {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   const getSiteUrl = () => {
     let url = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
@@ -33,7 +33,7 @@ export async function signInWithGoogle() {
 }
 
 export async function signOut() {
-  const supabase = createClient()
+  const supabase = await createClient()
   await supabase.auth.signOut()
   redirect('/auth/login')
 }
@@ -43,7 +43,7 @@ export async function verifyTurnstileToken(token: string): Promise<boolean> {
   // IP agar endpoint ini tidak menjadi proxy gratis ke Cloudflare siteverify.
   const ip = clientIp(await headers())
   const allowed = await consumeRateLimit(
-    createClient(),
+    await createClient(),
     `turnstile:${ip}`,
     10,
     60

@@ -1,4 +1,4 @@
-﻿"use server"
+"use server"
 
 import { createClient } from "@/lib/supabase/server"
 import { GoogleGenAI } from "@google/genai"
@@ -79,7 +79,7 @@ function calculateFallbackScore(
 }
 
 export async function getAICoachInsight(type: "daily" | "weekly" | "30days" | "month"): Promise<AICoachInsightResult> {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   try {
     // 1. Get current authenticated user

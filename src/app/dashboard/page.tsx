@@ -56,9 +56,9 @@ function toLocalYYYYMMDD(date: Date): string {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: { range?: string }
+  searchParams: Promise<{ range?: string }>
 }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect('/auth/login')
@@ -74,7 +74,8 @@ export default async function DashboardPage({
   }
 
   // Get date range based on search parameter (default is '30days')
-  const range = searchParams?.range || '30days'
+  const { range: rangeParam } = await searchParams
+  const range = rangeParam || '30days'
   const isMonth = range === 'month'
   const now = new Date()
   

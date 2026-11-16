@@ -42,7 +42,7 @@ export interface AIBudgetPlanResult {
  * Automatically loads user wallets, categories, budgets, and last 30 days transactions.
  */
 export async function generateAIBudgetPlan(month: number, year: number): Promise<AIBudgetPlanResult> {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   try {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -215,7 +215,7 @@ export async function generateAIBudgetPlan(month: number, year: number): Promise
  * Fetch cached AI Budget Plan from the database.
  */
 export async function getCachedAIBudgetPlan(): Promise<AIBudgetPlanResult> {
-  const supabase = createClient()
+  const supabase = await createClient()
   try {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: 'Unauthorized' }
@@ -244,7 +244,7 @@ export async function getCachedAIBudgetPlan(): Promise<AIBudgetPlanResult> {
  * Delete cached AI Budget Plan to force regeneration.
  */
 export async function deleteAIBudgetPlan(): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient()
+  const supabase = await createClient()
   try {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: 'Unauthorized' }
@@ -277,7 +277,7 @@ export async function deleteAIBudgetPlan(): Promise<{ success: boolean; error?: 
  * (IDOR) asalkan mengetahui UUID-nya.
  */
 export async function syncAICacheWithBudgets(updates: { categoryId: string; limitAmount: number; categoryName?: string }[]) {
-  const supabase = createClient()
+  const supabase = await createClient()
   try {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return // belum login -> tidak ada yang disentuh
@@ -335,7 +335,7 @@ export async function applyAIBudgetPlanToBudgets(
   month: number,
   year: number
 ): Promise<{ success: boolean; count?: number; error?: string }> {
-  const supabase = createClient()
+  const supabase = await createClient()
   try {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: 'Kamu harus login terlebih dahulu.' }

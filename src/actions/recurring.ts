@@ -21,7 +21,7 @@ const recurringSchema = z.object({
 export type RecurringInput = z.infer<typeof recurringSchema>
 
 export async function getRecurringTemplates() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) throw new Error('Unauthorized')
@@ -61,7 +61,7 @@ export async function getRecurringTemplates() {
 
 export async function createRecurringTemplate(data: RecurringInput) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -107,7 +107,7 @@ export async function createRecurringTemplate(data: RecurringInput) {
 
 export async function updateRecurringTemplate(id: string, data: RecurringInput) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -163,7 +163,7 @@ export async function updateRecurringTemplate(id: string, data: RecurringInput) 
 
 export async function toggleRecurringStatus(id: string, isActive: boolean) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -201,7 +201,7 @@ export async function toggleRecurringStatus(id: string, isActive: boolean) {
 
 export async function deleteRecurringTemplate(id: string) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
