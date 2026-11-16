@@ -290,35 +290,37 @@ Sisa 18 hanya bisa diselesaikan dengan upgrade semver-major (`next`, `firebase`,
 
 ---
 
-## 5. Masih Terbuka
+## 5. Temuan per Area (status terkini)
 
-### 5.1 🔴 `next@14.2.35` — 1 *critical*, 22 advisory, **tanpa perbaikan di jalur 14.x**
+### 5.1 🟢 `next` 14.2.35 → 16.4.6 (diperbaiki 16-11-2026)
 
-```
-next   critical   range: 9.3.4-canary.0 – 16.3.0-preview.10
-fixAvailable: { "name": "next", "version": "16.3.8", "isSemVerMajor": true }
-```
+`next@14.2.35` adalah rilis 14.2.x terakhir dan terkena 22 advisory, termasuk
+RCE kritis di Image Optimization (SVG/AVIF). `npm audit` menunjukkan perbaikan
+hanya tersedia di **16.4.6**; `15.5.27` pun masih masuk rentang advisory
+`<=15.5.27`, sehingga jalur 15.5.x tidak dipilih.
 
-`14.2.35` **adalah rilis 14.2.x terbaru** (`next-14` dist-tag) — tidak akan ada patch keamanan lagi untuk versi ini. Semua advisory menuntut **≥ 15.5.x**.
+Migrasi (commit `29ec602`, `983c1a0`):
 
-Advisory paling relevan untuk deployment ini:
+* React 19.2.9 + `@types/react(-dom)` 19, ESLint 9 + flat config,
+  `eslint-config-next` 16.4.6.
+* Async Request APIs: `cookies()` dan `headers()` di-await; `createClient()`
+  server menjadi async dan **29 berkas** pemanggilnya disesuaikan.
+* `searchParams` menjadi Promise di 5 halaman (budgets, dashboard, reports,
+  split-bills, transactions).
+* `src/middleware.ts` → `src/proxy.ts` (konvensi Next 16; proxy berjalan di
+  runtime Node.js, bukan Edge).
+* `next lint` dihapus → `eslint src` dengan `eslint.config.mjs`.
+* `tsconfig.json`: `jsx: react-jsx`, `target: ES2017`, include
+  `.next/dev/types`.
 
-| Advisory | Rentang perbaikan | Catatan |
-|---|---|---|
-| RCE di Image Optimization (AVIF) `GHSA-2xp9-vwfh-vxw4` | `<15.5.24` | Endpoint `/_next/image` tetap ada walau app tidak memakai `next/image` |
-| RCE di Windows `GHSA-p293-qw3h-jr36` | `<15.5.24` | **Tidak berlaku** — Vercel berjalan di Linux |
-| SSRF di Server Actions `GHSA-89xv-2m56-2m9x` | `<15.5.21` | Berlaku |
-| DoS di Server Actions (App Router) `GHSA-m99w-x7hq-7vfj` | `<15.5.21` | Berlaku |
-| Unauthenticated disclosure Server Function endpoints `GHSA-955p-x3mx-jcvp` | `<15.5.21` | Berlaku |
-| Cache poisoning RSC `GHSA-wfc6-r584-vfw7` | `<15.5.16` | Berlaku |
-| Middleware/Proxy redirect cache poisoning `GHSA-3g8h-86w9-wvmq` | `<15.5.16` | Berlaku |
-| XSS via `beforeInteractive` `GHSA-gx5p-jg67-6x7h` | `<15.5.16` | Berlaku bila ada skrip `untrusted` |
-| HTTP request smuggling di rewrites `GHSA-ggv3-7p47-pfv8` | `<15.5.13` | Berlau |
-| Bypass middleware (Pages Router + i18n) `GHSA-36qx-fr4f-26g5` | `<15.5.16` | **Tidak berlaku** — ini App Router |
+Verifikasi: CI (`npm ci` + eslint + build yang sekaligus type check)
+**success**, Vercel **success**, production `/auth/login` 200 dengan
+**19/19** `<script>` ber-nonce, `/` tetap 307 → `/dashboard`. `npm audit`
+turun **20 → 16** (critical 0; high 8 → 4).
 
-**Keputusan:** upgrade **tidak dikerjakan sekarang**. Alasannya: upgrade 14 → 15 adalah perubahan breaking (React 19, *async* request APIs, perubahan `next/image`), dan aturan workspace melarang saya menjalankan build — sehingga risiko merusak aplikasi **tanpa bisa saya deteksi** terlalu besar.
-
-**Rencana saat ada jendela waktu:** naik ke `next@15.5.x` (jalur backport `15.5.27`, lebih rendah risikonya daripada lompat ke 16.x), jalankan `npm run build` dan uji regresi.
+Sisa 4 advisory high berasal dari `firebase`, `@firebase/firestore`, dan
+`@grpc/grpc-js` — semuanya menuntut upgrade mayor Firebase yang belum
+dikerjakan.
 
 **Mitigasi sementara tanpa upgrade:**
 
@@ -593,8 +595,10 @@ pernah di-commit**, sehingga live masih memakai dependensi 9 Okt. Selain itu:
 
 * `node -v` lokal masih **v24.21.0**, di bawah `engines` baru (`>=24.22.1`).
   Instalasi portable v24.22.1 ada dan dipakai untuk verifikasi 16 Nov.
-* `npm audit`: 20 kerentanan (1 critical, 8 high, 9 moderate, 2 low) — semuanya
-  menuntut upgrade mayor (`next`, `firebase`, `eslint-config-next`, `postcss`).
+* `npm audit` saat audit awal: 20 kerentanan (1 critical, 8 high, 9 moderate,
+  2 low). Setelah upgrade Next 16 (16 Nov): **16 kerentanan (0 critical, 4 high,
+  10 moderate, 2 low)**. Sisa 4 high semuanya dari `firebase`,
+  `@firebase/firestore`, dan `@grpc/grpc-js` — menuntut upgrade mayor Firebase.
 * `shadcn` (CLI, tidak dipakai `src/`) dipindah dari `dependencies` ke
   `devDependencies`; ia menarik `hono`, `@hono/node-server`, `ts-morph`.
 * `supabase/.temp/*` tidak lagi dilacak git; `.gitignore` dibersihkan dari blok
@@ -604,8 +608,17 @@ pernah di-commit**, sehingga live masih memakai dependensi 9 Okt. Selain itu:
 
 ### 10.4 Masih terbuka
 
-§5.1 (`next@14.2.35` critical — butuh upgrade mayor) dan §5.4 #9–#10 (keduanya
-informasional). §5.3 serta §5.4 #6–#8 sudah tertutup.
+Tidak ada lagi temuan severity tinggi/kritis pada kode aplikasi. Yang tersisa:
+
+* **4 advisory high dari Firebase** (`firebase`, `@firebase/firestore`,
+  `@firebase/firestore-compat`, `@grpc/grpc-js`) — hanya bisa ditutup dengan
+  upgrade mayor `firebase` (belum dikerjakan).
+* §5.4 #9 dan #10 (keduanya informasional; RLS tetap menjadi satu-satunya
+  pembatas akses data dan itu memang desainnya).
+* Catatan operasional: Node default mesin verifikasi masih v24.21.0 (pakai
+  portable v24.22.1), dan PAT Supabase yang dipakai audit masih aktif.
+
+§5.1 (Next), §5.3 (CSP), serta §5.4 #6–#8 sudah tertutup.
 
 ### 10.5 Batch perbaikan lanjutan (16-11-2026)
 
@@ -616,13 +629,18 @@ informasional). §5.3 serta §5.4 #6–#8 sudah tertutup.
 | `7d26b7a` | Rilis v1.6.3 | Vercel **success** |
 | `9053a3a` | CSP nonce per request (middleware + next-themes) | Dev 13/13 dan production 25/25 `<script>` ber-nonce |
 | `3b9f0c4` | Rilis v1.6.4 | CI + Vercel **success** |
+| `5706430` | Catat verifikasi CSP di laporan ini | — |
+| `29ec602` | Upgrade Next 16.4.6 + React 19 + proxy + ESLint 9 | Build CI **failure** (type helper) → diperbaiki di bawah |
+| `983c1a0` | Perbaiki tipe helper `scan-receipt` (`Awaited<ReturnType<…>>`) | CI + Vercel **success**; production 19/19 `<script>` ber-nonce, `/` 307 |
 
 Migrasi `20261116090000_add_rate_limits.sql` sudah diterapkan ke production dan
 dicatat di `supabase_migrations.schema_migrations`. Tabel `rate_limits` ber-RLS
 tanpa `GRANT`, sehingga satu-satunya akses lewat fungsi `consume_rate_limit`
 yang atomik (UPSERT).
 
-CSP nonce dan rate limit diverifikasi di `next dev`/REST; uji browser penuh
-(login Google, Turnstile, service worker PWA) menunggu deploy berikutnya.
+CSP nonce diverifikasi di `next dev` (13/13), production Next 14 (25/25), dan
+production Next 16 (19/19). Rate limit diverifikasi lewat REST. Uji browser
+penuh (login Google, Turnstile, service worker PWA) tetap disarankan setelah
+setiap deploy besar.
 
 
