@@ -1,0 +1,25 @@
+# Konfigurasi Supabase untuk deploy yang dapat direproduksi.
+#
+# `verify_jwt` per fungsi HARUS sama dengan yang ada di production. Tanpa file
+# ini, `supabase functions deploy` memakai default (true) dan bisa mematikan
+# cron atau membuka fungsi internal, tergantung fungsi mana yang di-deploy.
+
+project_id = "fsqzpmxaotqabpznbyny"
+
+[functions.send-reminder]
+verify_jwt = false
+
+[functions.process-recurring]
+verify_jwt = false
+
+[functions.budget-alert]
+verify_jwt = false
+
+[functions.send-fcm-notification]
+verify_jwt = false
+
+[functions.debug-fcm-env]
+verify_jwt = false
+
+[functions.delete-user-account]
+verify_jwt = true
