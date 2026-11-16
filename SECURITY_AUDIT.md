@@ -525,3 +525,64 @@ Saat dijalankan otomatis, penukaran teks massal pada `v_secret` ikut mengganti l
 3. **Perbaikan di `src/` belum sampai ke pengguna.** Yang sudah hidup di production hanya lapisan database + Edge Function; perbaikan Next.js (IDOR `syncAICacheWithBudgets`, sanitasi `error.message`, kuota scan atomik, hardening CSP) baru berlaku setelah repo di-push ke Vercel. **Jangan push sebelum langkah 2 lolos.**
 4. Pantau cron berikutnya lewat `net._http_response` (disimpan 6 jam): `status_code` harus 200, bukan 401/503.
 5. Sisanya di §8 butuh akses Vercel/CSP (langkah 7, 9, 10).
+
+---
+
+## 10. Pemeriksaan Ulang 16-11-2026 (dev terakhir → live)
+
+Pemeriksaan read-only terhadap produksi dan working tree, tanpa mengubah data.
+
+### 10.1 Kondisi live
+
+| Pemeriksaan | Hasil |
+|---|---|
+| Deployment Vercel | `a8904a9` (9 Okt 2026) — satu-satunya deployment production sejak audit; **tidak ada commit baru** |
+| `SECURITY_VERIFY.sql` | 89 pemeriksaan → **77 OK, 12 INFO, 0 KRITIS/PERHATIAN** |
+| Edge Function tanpa kredensial | 6/6 menolak dengan **401** |
+| Migrasi DB vs repo | 7 vs 7, **cocok** (tidak ada drift) |
+| `/dashboard` tanpa sesi | `307 → /auth/login` |
+| `/api/reminders/snooze` tanpa sesi | `401` |
+
+### 10.2 Dua masalah produksi yang ditemukan dan diperbaiki
+
+**a) `send-reminders-job` selalu timeout 5 detik.** Perintah `net.http_post` tidak
+menyetel `timeout_milliseconds`, sehingga memakai default pg_net 5000 ms. Edge
+Function butuh ~7–8 detik saat cold start; fungsinya tetap selesai (notifikasi
+tercatat 7,98 detik setelah jadwal) tetapi responsnya dicatat `timed_out = true`
+dan `status_code = NULL`. `cron.job_run_details` tetap menulis `succeeded` karena
+job hanya melakukan enqueue, sehingga kegagalan ini tidak terlihat.
+
+Perbaikan: `timeout_milliseconds := 30000` dipasang pada ketiga job cron
+(idempoten, header dan jadwal tidak berubah), dan bagian **B2** ditambahkan ke
+`SECURITY_CRON_SETUP.sql` agar dapat direproduksi.
+
+**b) Halaman root `/` mengembalikan `307` tanpa `Location`.** `src/app/page.tsx`
+memanggil `redirect()` pada halaman yang di-prerender statis; Next hanya
+menitipkan digest redirect di payload RSC (terbukti dari
+`.next/server/app/index.meta` yang berisi `{"status":307}` tanpa `Location`).
+Crawler dan klien tanpa JS menerima halaman error kosong.
+
+Perbaikan: `export const dynamic = 'force-dynamic'` pada `src/app/page.tsx`,
+sehingga redirect dieksekusi saat request.
+
+### 10.3 Drift dev vs live
+
+Pekerjaan 26 Okt (pin Node, `npm audit fix`, `.nvmrc`, laporan riset) **belum
+pernah di-commit**, sehingga live masih memakai dependensi 9 Okt. Selain itu:
+
+* `node -v` lokal masih **v24.21.0**, di bawah `engines` baru (`>=24.22.1`).
+  Instalasi portable v24.22.1 ada dan dipakai untuk verifikasi 16 Nov.
+* `npm audit`: 20 kerentanan (1 critical, 8 high, 9 moderate, 2 low) — semuanya
+  menuntut upgrade mayor (`next`, `firebase`, `eslint-config-next`, `postcss`).
+* `shadcn` (CLI, tidak dipakai `src/`) dipindah dari `dependencies` ke
+  `devDependencies`; ia menarik `hono`, `@hono/node-server`, `ts-morph`.
+* `supabase/.temp/*` tidak lagi dilacak git; `.gitignore` dibersihkan dari blok
+  yang terduplikasi.
+* `scripts/generate-updates.js`: penggantian kata kini memakai word-boundary
+  sehingga `error.message` tidak lagi menjadi `kendala.message`.
+
+### 10.4 Masih terbuka
+
+§5.1 (`next` critical), §5.3 (CSP `unsafe-inline`/`unsafe-eval`), §5.4 #6–#8
+(proxy Turnstile, rate limit `snooze`, CI/`vercel.json`/`supabase config.toml`).
+

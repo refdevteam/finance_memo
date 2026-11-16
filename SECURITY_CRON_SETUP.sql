@@ -174,25 +174,63 @@ END $$;
 
 
 -- ============================================================================
+-- BAGIAN B2 — TIMEOUT pg_net (WAJIB)
+-- ============================================================================
+-- Default `net.http_post` hanya menunggu 5000 ms. Edge Function bisa butuh
+-- 7-8 detik saat cold start, sehingga respons dicatat timeout walau fungsinya
+-- tetap selesai. Kegagalannya tidak terlihat karena `cron.job_run_details`
+-- tetap menulis "succeeded" (job hanya melakukan enqueue). Naikkan ke 30 detik.
+DO $$
+DECLARE
+  r     record;
+  v_new text;
+BEGIN
+  FOR r IN
+    SELECT jobid, jobname, command
+    FROM cron.job
+    WHERE command ILIKE '%/functions/v1/%'
+      AND command NOT LIKE '%timeout_milliseconds%'
+  LOOP
+    v_new := regexp_replace(
+      r.command,
+      '\)\s*;\s*$',
+      E', timeout_milliseconds := 30000\n  );'
+    );
+
+    IF v_new <> r.command AND v_new LIKE '%timeout_milliseconds%' THEN
+      PERFORM cron.alter_job(job_id := r.jobid, command := v_new);
+      RAISE NOTICE 'TIMEOUT 30s DIPASANG: %', r.jobname;
+    ELSE
+      RAISE WARNING 'TIDAK DIUBAH (pola tidak dikenali): %', r.jobname;
+    END IF;
+  END LOOP;
+END $$;
+
+
+-- ============================================================================
 -- BAGIAN C — VERIFIKASI
 -- ============================================================================
 
--- C1. Semua job yang memanggil Edge Function: kolom header_terpasang harus true.
+-- C1. Semua job yang memanggil Edge Function: header & timeout harus true.
 SELECT j.jobname,
        j.schedule,
        j.active,
        (j.command ~ 'x-cron-secret')        AS header_terpasang,
+       (j.command LIKE '%timeout_milliseconds%') AS timeout_terpasang,
        substring(j.command from '/functions/v1/[a-z0-9-]+') AS target,
        j.command
 FROM cron.job j
 WHERE j.command ILIKE '%/functions/v1/%'
 ORDER BY j.jobname;
 
--- C2. Kesimpulan per fungsi. Semua baris harus HeaderTerpasang = true.
+-- C2. Kesimpulan per fungsi. Semua baris harus bernilai true.
 SELECT t.fungsi                                        AS "EdgeFunction",
        EXISTS (SELECT 1 FROM cron.job j
                WHERE j.command ILIKE '%/functions/v1/' || t.fungsi || '%'
-                 AND j.command ~ 'x-cron-secret')      AS "HeaderTerpasang"
+                 AND j.command ~ 'x-cron-secret')      AS "HeaderTerpasang",
+       EXISTS (SELECT 1 FROM cron.job j
+               WHERE j.command ILIKE '%/functions/v1/' || t.fungsi || '%'
+                 AND j.command LIKE '%timeout_milliseconds%') AS "TimeoutTerpasang"
 FROM (VALUES ('send-reminder'),
              ('process-recurring'),
              ('budget-alert')) AS t(fungsi)
