@@ -58,7 +58,7 @@ function detectMime(buf: Buffer): string | null {
 }
 
 export async function POST(req: NextRequest) {
-  let supabase: ReturnType<typeof createClient> | null = null
+  let supabase: Awaited<ReturnType<typeof createClient>> | null = null
   let uploadedPath: string | null = null
 
   try {
@@ -262,7 +262,7 @@ export async function POST(req: NextRequest) {
  * pembacaan-lalu-update supaya fitur tetap berfungsi meski tanpa atomisitas.
  */
 async function consumeQuota(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string
 ): Promise<boolean> {
   const { data, error } = await supabase.rpc("consume_scan_quota", { p_limit: SCAN_LIMIT })
@@ -308,7 +308,7 @@ async function consumeQuota(
 }
 
 async function cleanupUpload(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   path: string | null
 ): Promise<void> {
   if (!path) return
